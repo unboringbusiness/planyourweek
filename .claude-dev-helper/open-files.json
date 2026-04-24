@@ -22,5 +22,29 @@
     "timestamp": 1776996984148,
     "focus": false,
     "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/supabase/schema.sql",
+    "timestamp": 1776997817251,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/lib/limits.js",
+    "timestamp": 1776997878587,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/lib/storage.js",
+    "timestamp": 1776997924693,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/lib/dates.js",
+    "timestamp": 1777031324801,
+    "focus": false,
+    "openLocation": 1
   }
 ]
