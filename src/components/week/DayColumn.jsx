@@ -1,256 +1,242 @@
 import { useState } from 'react'
+import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { LIMITS } from '../../lib/limits'
+import { isToday } from '../../lib/dates'
+import TaskCard from './TaskCard'
+import FocusBar from './FocusBar'
 
 const SECTION_CONFIG = {
   deep_work: {
     label: 'Deep Work',
     max: LIMITS.DAILY_DEEP_WORK,
-    borderColor: '#3B82F6',
-    bg: '#EFF6FF',
-    badgeBg: '#DBEAFE',
-    badgeColor: '#1D4ED8',
+    color: 'var(--deep)',
+    bg: 'var(--deep-bg)',
   },
   scheduled: {
     label: 'Scheduled',
     max: LIMITS.DAILY_SCHEDULED,
-    borderColor: '#F08F48',
-    bg: '#FFF7ED',
-    badgeBg: '#FED7AA',
-    badgeColor: '#C2410C',
+    color: 'var(--sched)',
+    bg: 'var(--sched-bg)',
   },
   admin: {
     label: 'Admin',
     max: LIMITS.DAILY_ADMIN,
-    borderColor: '#DBEAFE',
-    bg: '#F8FAFC',
-    badgeBg: '#E2E8F0',
-    badgeColor: '#475569',
+    color: 'var(--admin)',
+    bg: 'var(--admin-bg)',
   },
 }
 
-const S = {
-  column: {
-    flex: 1,
-    borderRadius: 16,
-    padding: '10px 8px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    minWidth: 0,
-    border: '1px solid #E5E0D8',
-    background: '#FDFAF7',
-    transition: 'border-color 0.15s',
-  },
-  columnToday: {
-    border: '1.5px solid #93C5FD',
-    background: '#F0F7FF',
-  },
-  dayHeader: {
-    textAlign: 'center',
-    paddingBottom: 6,
-    borderBottom: '1px solid #E5E0D8',
-    cursor: 'pointer',
-  },
-  dayName: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: '#6B6B6B',
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-  },
-  dayNum: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: '#133950',
-    lineHeight: 1.1,
-  },
-  dayNumToday: {
-    color: '#3B82F6',
-  },
-  section: {
-    borderRadius: 10,
-    padding: '6px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-  },
-  sectionHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 2,
-    padding: '0 2px',
-  },
-  sectionLabel: {
-    fontSize: 9,
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    letterSpacing: '0.1em',
-    color: '#9CA3AF',
-  },
-  badge: {
-    fontSize: 10,
-    fontWeight: 600,
-    borderRadius: 8,
-    padding: '1px 5px',
-  },
-  slotCard: {
-    borderRadius: 8,
-    padding: '5px 7px',
-    fontSize: 12,
-    color: '#133950',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 4,
-    lineHeight: 1.35,
-    borderLeft: '2px solid transparent',
-    background: '#fff',
-    border: '1px solid #E5E0D8',
-    wordBreak: 'break-word',
-  },
-  slotText: {
-    flex: 1,
-    minWidth: 0,
-  },
-  removeSlotBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#C5BCB2',
-    fontSize: 13,
-    lineHeight: 1,
-    padding: 0,
-    flexShrink: 0,
-    cursor: 'pointer',
-  },
-  addPlaceholder: {
-    borderRadius: 8,
-    padding: '5px 7px',
-    fontSize: 12,
-    color: '#9CA3AF',
-    border: '1.5px dashed #D1C8BF',
-    background: 'transparent',
-    cursor: 'pointer',
-    textAlign: 'left',
-    width: '100%',
-    transition: 'border-color 0.15s, color 0.15s',
-  },
-  addInput: {
-    borderRadius: 8,
-    padding: '5px 7px',
-    fontSize: 12,
-    color: '#133950',
-    border: '1.5px solid #3B82F6',
-    background: '#fff',
-    outline: 'none',
-    width: '100%',
-    fontFamily: 'inherit',
-  },
-}
-
-function SlotSection({ type, slots, onAdd, onRemove, dayKey }) {
-  const config = SECTION_CONFIG[type]
+function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onMoveToSomeday }) {
+  const cfg = SECTION_CONFIG[slotType]
+  const isFull = tasks.length >= cfg.max
   const [adding, setAdding] = useState(false)
-  const [inputVal, setInputVal] = useState('')
-  const isFull = slots.length >= config.max
+  const [addVal, setAddVal] = useState('')
 
-  const handleAddConfirm = async () => {
-    if (!inputVal.trim()) { setAdding(false); return }
-    await onAdd(dayKey, type, inputVal)
-    setInputVal('')
-    setAdding(false)
-  }
+  const { setNodeRef, isOver } = useDroppable({
+    id: `drop-${day}-${slotType}`,
+    data: { type: 'section', day, slotType },
+  })
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleAddConfirm()
-    if (e.key === 'Escape') { setAdding(false); setInputVal('') }
+  const isOverFull = isOver && isFull
+
+  const handleAdd = async () => {
+    const trimmed = addVal.trim()
+    if (!trimmed) { setAdding(false); return }
+    const { error } = await onAddSlot(day, slotType, trimmed)
+    if (!error) { setAddVal(''); setAdding(false) }
   }
 
   return (
-    <div style={{ ...S.section, background: config.bg }}>
-      <div style={S.sectionHeader}>
-        <span style={{ ...S.sectionLabel, color: config.borderColor }}>{config.label}</span>
-        <span style={{ ...S.badge, background: config.badgeBg, color: config.badgeColor }}>
-          {slots.length}/{config.max}
+    <div
+      ref={setNodeRef}
+      style={{
+        borderRadius: 8,
+        padding: '6px',
+        background: isOverFull ? '#FEE2E2' : isOver ? 'color-mix(in srgb, var(--accent) 8%, transparent)' : cfg.bg,
+        border: `1px solid ${isOverFull ? 'var(--danger)' : isOver ? 'var(--accent)' : 'transparent'}`,
+        transition: 'background 0.15s, border-color 0.15s',
+        minHeight: 60,
+      }}
+    >
+      {/* Section header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+        padding: '0 2px',
+      }}>
+        <span style={{
+          fontSize: 9,
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          color: cfg.color,
+        }}>
+          {cfg.label}
+        </span>
+        <span style={{
+          fontSize: 10,
+          fontWeight: 600,
+          background: 'var(--surface)',
+          color: isFull ? cfg.color : 'var(--text-2)',
+          borderRadius: 8,
+          padding: '0 5px',
+          border: `1px solid ${isFull ? cfg.color : 'var(--border)'}`,
+        }}>
+          {tasks.length}/{cfg.max}
         </span>
       </div>
 
-      {slots.map(slot => (
-        <div
-          key={slot.id}
-          style={{ ...S.slotCard, borderLeftColor: config.borderColor }}
-        >
-          <span style={S.slotText}>{slot.text}</span>
-          <button
-            style={S.removeSlotBtn}
-            onClick={() => onRemove(dayKey, slot.id)}
-            title="Remove"
-          >
-            ×
-          </button>
+      {isOverFull && (
+        <div style={{
+          fontSize: 10,
+          color: 'var(--danger)',
+          textAlign: 'center',
+          padding: '2px 0 4px',
+          fontWeight: 500,
+        }}>
+          {cfg.label} is full for this day
         </div>
-      ))}
+      )}
 
-      {adding ? (
-        <input
-          style={S.addInput}
-          autoFocus
-          placeholder={`Add ${config.label.toLowerCase()}…`}
-          value={inputVal}
-          onChange={e => setInputVal(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleAddConfirm}
-          maxLength={200}
-        />
-      ) : (
-        !isFull && (
-          <button
-            style={S.addPlaceholder}
-            onClick={() => setAdding(true)}
-          >
-            + add
-          </button>
-        )
+      {/* Tasks */}
+      <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {tasks.map(task => {
+            const meta = getMeta(task.id)
+            return (
+              <TaskCard
+                key={task.id}
+                taskId={task.id}
+                text={task.text}
+                meta={meta}
+                mitCount={mitCount}
+                containerData={{ type: 'slot', task, day, slotType }}
+                onTextChange={text => {
+                  // For now: remove and re-add is complex; update in place via local state patch
+                  // useWeek doesn't have updateSlot — handle via setTaskMeta text field workaround
+                  // Actually we need to handle this differently. Text is immutable in the hook.
+                  // We'll store text overrides in taskMeta.
+                  setTaskMeta(task.id, { textOverride: text })
+                }}
+                onDurationChange={dur => setTaskMeta(task.id, { duration: dur })}
+                onMITToggle={() => setTaskMeta(task.id, { is_mit: !meta.is_mit })}
+                onDoneToggle={() => setTaskMeta(task.id, { done: !meta.done })}
+                onRemove={() => onRemoveSlot(day, task.id)}
+                onMoveToSomeday={() => onMoveToSomeday?.(task, day)}
+              />
+            )
+          })}
+        </div>
+      </SortableContext>
+
+      {/* Add button */}
+      {!isFull && (
+        <div style={{ marginTop: tasks.length > 0 ? 4 : 0 }}>
+          {adding ? (
+            <input
+              autoFocus
+              style={{
+                width: '100%',
+                padding: '5px 7px',
+                borderRadius: 7,
+                border: '1.5px solid var(--accent)',
+                background: 'var(--surface)',
+                fontSize: 12,
+                color: 'var(--text-1)',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+              placeholder={`Add ${cfg.label.toLowerCase()}…`}
+              value={addVal}
+              onChange={e => setAddVal(e.target.value)}
+              onBlur={handleAdd}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleAdd()
+                if (e.key === 'Escape') { setAdding(false); setAddVal('') }
+              }}
+              maxLength={200}
+            />
+          ) : (
+            <button
+              onClick={() => setAdding(true)}
+              style={{
+                width: '100%',
+                padding: '4px 6px',
+                borderRadius: 7,
+                border: '1.5px dashed var(--border)',
+                background: 'transparent',
+                fontSize: 11,
+                color: 'var(--text-2)',
+                textAlign: 'left',
+                transition: 'border-color 0.12s, color 0.12s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
+            >
+              + add
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
 }
 
-export default function DayColumn({ dayKey, dayDate, slots, onAddSlot, onRemoveSlot, isToday, onDayView }) {
+export default function DayColumn({ dayKey, dayDate, slots, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onMoveToSomeday }) {
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const dayIdx = dayDate ? dayDate.getDay() : 0
-  // Convert JS day (0=Sun) to display (0=Mon)
-  const displayIdx = dayIdx === 0 ? 6 : dayIdx - 1
-  const dayName = dayNames[displayIdx] ?? dayKey?.slice(0, 3).toUpperCase()
+  const jsDay = dayDate ? dayDate.getDay() : 0
+  const dispIdx = jsDay === 0 ? 6 : jsDay - 1
+  const dayName = dayNames[dispIdx] ?? dayKey?.slice(0, 3)
   const dayNum = dayDate ? dayDate.getDate() : ''
+  const today = dayDate ? isToday(dayDate) : false
+
+  // Focus minutes: deep_work + scheduled
+  const focusMinutes = [
+    ...(slots?.deep_work ?? []),
+    ...(slots?.scheduled ?? []),
+  ].reduce((sum, t) => sum + (getMeta(t.id).duration ?? 30), 0)
 
   return (
-    <div style={{ ...S.column, ...(isToday ? S.columnToday : {}) }}>
-      <div style={S.dayHeader} onClick={onDayView} title="Switch to day view">
-        <div style={S.dayName}>{dayName}</div>
-        <div style={{ ...S.dayNum, ...(isToday ? S.dayNumToday : {}) }}>{dayNum}</div>
+    <div style={{
+      flex: 1,
+      minWidth: 130,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 6,
+      padding: '10px 7px',
+      borderRadius: 14,
+      border: `${today ? '2' : '1'}px solid ${today ? 'var(--accent)' : 'var(--border)'}`,
+      background: today ? 'color-mix(in srgb, var(--accent) 3%, var(--surface))' : 'var(--surface)',
+    }}>
+      {/* Day header */}
+      <div style={{ textAlign: 'center', paddingBottom: 6, borderBottom: '1px solid var(--border)' }}>
+        <div style={{
+          fontSize: 10,
+          fontWeight: 600,
+          color: 'var(--text-2)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+        }}>
+          {dayName}
+        </div>
+        <div style={{
+          fontSize: 22,
+          fontWeight: 700,
+          color: today ? 'var(--accent)' : 'var(--text-1)',
+          lineHeight: 1.1,
+        }}>
+          {dayNum}
+        </div>
       </div>
 
-      <SlotSection
-        type="deep_work"
-        slots={slots?.deep_work ?? []}
-        dayKey={dayKey}
-        onAdd={onAddSlot}
-        onRemove={onRemoveSlot}
-      />
-      <SlotSection
-        type="scheduled"
-        slots={slots?.scheduled ?? []}
-        dayKey={dayKey}
-        onAdd={onAddSlot}
-        onRemove={onRemoveSlot}
-      />
-      <SlotSection
-        type="admin"
-        slots={slots?.admin ?? []}
-        dayKey={dayKey}
-        onAdd={onAddSlot}
-        onRemove={onRemoveSlot}
-      />
+      <Section day={dayKey} slotType="deep_work" tasks={slots?.deep_work ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} />
+      <Section day={dayKey} slotType="scheduled" tasks={slots?.scheduled ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} />
+      <Section day={dayKey} slotType="admin" tasks={slots?.admin ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} />
+
+      <FocusBar focusMinutes={focusMinutes} />
     </div>
   )
 }

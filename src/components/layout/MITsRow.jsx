@@ -1,68 +1,7 @@
 import { useState, useEffect } from 'react'
-import { formatWeekRange, getWeekStart, getWeekDays } from '../../lib/dates'
+import { formatWeekRange } from '../../lib/dates'
 
-const S = {
-  row: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '12px 24px',
-    gap: 12,
-    borderBottom: '1px solid #E5E0D8',
-    background: '#FAF4ED',
-    flexShrink: 0,
-  },
-  label: {
-    fontSize: 11,
-    fontWeight: 600,
-    color: '#6B6B6B',
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    marginRight: 4,
-    whiteSpace: 'nowrap',
-  },
-  cardsWrap: {
-    display: 'flex',
-    gap: 10,
-    flex: 1,
-  },
-  card: {
-    flex: 1,
-    background: '#FFF9E6',
-    border: '1.5px solid #FFD156',
-    borderRadius: 12,
-    padding: '8px 12px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    minWidth: 0,
-  },
-  cardLabel: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: '#B8860B',
-    textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-  },
-  input: {
-    background: 'none',
-    border: 'none',
-    outline: 'none',
-    fontSize: 13,
-    fontWeight: 500,
-    color: '#133950',
-    width: '100%',
-    padding: 0,
-  },
-  weekRange: {
-    fontSize: 12,
-    color: '#6B6B6B',
-    fontWeight: 500,
-    whiteSpace: 'nowrap',
-    marginLeft: 8,
-  },
-}
-
-export default function MITsRow({ week, setMITs, weekStart }) {
+export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
   const [localMITs, setLocalMITs] = useState(['', '', ''])
 
   useEffect(() => {
@@ -75,33 +14,111 @@ export default function MITsRow({ week, setMITs, weekStart }) {
     setLocalMITs(next)
   }
 
-  const handleBlur = () => {
-    setMITs?.(localMITs)
-  }
+  const handleBlur = () => setMITs?.(localMITs)
 
   const weekRange = weekStart
     ? formatWeekRange(new Date(weekStart + 'T00:00:00'))
     : ''
 
   return (
-    <div style={S.row}>
-      <span style={S.label}>MITs</span>
-      <div style={S.cardsWrap}>
-        {[0, 1, 2].map(i => (
-          <div key={i} style={S.card}>
-            <span style={S.cardLabel}>MIT {i + 1}</span>
-            <input
-              style={S.input}
-              placeholder={`Most important thing ${i + 1}…`}
-              value={localMITs[i] ?? ''}
-              onChange={e => handleChange(i, e.target.value)}
-              onBlur={handleBlur}
-              maxLength={120}
-            />
-          </div>
-        ))}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      padding: '10px 16px',
+      gap: 10,
+      borderBottom: '1px solid var(--border)',
+      background: 'var(--bg)',
+      flexShrink: 0,
+    }}>
+      <div style={{
+        fontSize: 9,
+        fontWeight: 700,
+        color: 'var(--text-2)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        whiteSpace: 'nowrap',
+        lineHeight: 1.3,
+        maxWidth: 56,
+      }}>
+        This Week's 3 MITs
       </div>
-      <span style={S.weekRange}>{weekRange}</span>
+
+      <div style={{ display: 'flex', gap: 8, flex: 1 }}>
+        {[0, 1, 2].map(i => {
+          // Show the flagged MIT task text if available, otherwise show the week's MIT text
+          const mitTask = allMITs[i]
+          const mitText = mitTask?.text || localMITs[i] || ''
+          const hasMITTask = Boolean(mitTask)
+
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                background: 'color-mix(in srgb, var(--mit) 15%, var(--surface))',
+                border: `1.5px solid ${mitText ? 'var(--mit)' : 'var(--border)'}`,
+                borderRadius: 10,
+                padding: '7px 10px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 3,
+                minWidth: 0,
+                transition: 'border-color 0.15s',
+              }}
+            >
+              <span style={{
+                fontSize: 9,
+                fontWeight: 700,
+                color: '#B8860B',
+                textTransform: 'uppercase',
+                letterSpacing: '0.07em',
+              }}>
+                MIT {i + 1}
+              </span>
+
+              {hasMITTask ? (
+                <div style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: 'var(--text-1)',
+                  lineHeight: 1.3,
+                }}>
+                  {mitTask.text}
+                </div>
+              ) : (
+                <input
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: 'var(--text-1)',
+                    width: '100%',
+                    padding: 0,
+                    fontFamily: 'inherit',
+                  }}
+                  placeholder="What must happen this week…"
+                  value={localMITs[i] ?? ''}
+                  onChange={e => handleChange(i, e.target.value)}
+                  onBlur={handleBlur}
+                  maxLength={120}
+                />
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      <span style={{
+        fontSize: 12,
+        color: 'var(--text-2)',
+        fontWeight: 500,
+        whiteSpace: 'nowrap',
+        marginLeft: 4,
+      }}>
+        {weekRange}
+      </span>
     </div>
   )
 }

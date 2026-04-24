@@ -222,6 +222,21 @@ export function useWeek(user) {
     return {}
   }, [user])
 
+  const reorderSlots = useCallback((day, slotType, tasks) => {
+    setWeek(prev => ({
+      ...prev,
+      slots: {
+        ...prev.slots,
+        [day]: { ...prev.slots[day], [slotType]: tasks },
+      },
+    }))
+  }, [])
+
+  const clearWeek = useCallback(() => {
+    setWeek(emptyWeek())
+    setPlanId(null)
+  }, [])
+
   const getDayStats = useCallback((day) => {
     const slots = week.slots[day] ?? {}
     const tasks = week.tasks[day] ?? []
@@ -244,6 +259,8 @@ export function useWeek(user) {
     removeSlot,
     addTask,
     removeTask,
+    reorderSlots,
+    clearWeek,
     getDayStats,
   }
 }
