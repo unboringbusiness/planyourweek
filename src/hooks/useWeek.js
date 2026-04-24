@@ -4,12 +4,6 @@ import { getWeekPlan, setWeekPlan } from '../lib/storage'
 import { getCurrentWeekStart } from '../lib/dates'
 import { LIMITS } from '../lib/limits'
 
-const SLOT_TYPE_LIMITS = {
-  deep_work: LIMITS.DAILY_DEEP_WORK,
-  scheduled: LIMITS.DAILY_SCHEDULED,
-  admin: LIMITS.DAILY_ADMIN,
-}
-
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
 function emptyWeek() {
@@ -29,10 +23,10 @@ function columnsToMits(row) {
   return [row.mit_1 || '', row.mit_2 || '', row.mit_3 || '']
 }
 
-function totalFocusHours(slots) {
-  const dw = (slots?.deep_work ?? []).reduce((sum, s) => sum + (s.estimated_hours ?? 0), 0)
-  const sc = (slots?.scheduled ?? []).reduce((sum, s) => sum + (s.estimated_hours ?? 0), 0)
-  return dw + sc
+const SLOT_LIMITS = {
+  deep_work: LIMITS.DAILY_DEEP_WORK,
+  scheduled: LIMITS.DAILY_SCHEDULED,
+  admin: LIMITS.DAILY_ADMIN,
 }
 
 export function useWeek(user) {
@@ -114,7 +108,142 @@ export function useWeek(user) {
     return {}
   }, [user, planId, weekStart])
 
-  const addTask = useCallb
+  const addSlot = useCallback(async (day, slotType, text) => {
+    const trimmed = text?.trim()
+    if (!trimmed) return { error: 'Empty task' }
+    const currentSlots = week.slots[day]?.[slotType] ?? []
+    const limit = SLOT_LIMITS[slotType]
+    if (limit && currentSlots.length >= limit) {
+      return { error: `${slotType.replace('_', ' ')} limit reached (${limit} max)` }
+    }
 
-ls src/hooks/
-ls src/hooks/
+    const totalTasks = Object.values(week.slots[day] ?? {}).flat().length
+    if (totalTasks >= LIMITS.DAILY_TOTAL) {
+      return { error: `Daily limit reached (${LIMITS.DAILY_TOTAL} tasks max)` }
+    }
+
+    const newTask = {
+      text: trimmed,
+      slot_type: slotType,
+      day,
+      position: currentSlots.length,
+      created_at: new Date().toISOString(),
+    }
+
+    if (user) {
+      try {
+        const pid = await ensurePlan(planId)
+        const { data, error: insertError } = await supabase
+          .from('tasks').insert({ ...newTask, user_id: user.id, weekly_plan_id: pid }).select().single()
+        if (insertError) return { error: insertError.message }
+        setWeek(prev => ({
+          ...prev,
+          slots: {
+            ...prev.slots,
+            [day]: { ...prev.slots[day], [slotType]: [...prev.slots[day][slotType], data] },
+          },
+        }))
+        return { data }
+      } catch (e) {
+        return { error: e.message }
+      }
+    } else {
+      const local = { ...newTask, id: crypto.randomUUID() }
+      setWeek(prev => ({
+        ...prev,
+        slots: {
+          ...prev.slots,
+          [day]: { ...prev.slots[day], [slotType]: [...prev.slots[day][slotType], local] },
+        },
+      }))
+      return { data: local }
+    }
+  }, [week, user, planId, weekStart])
+
+  const removeSlot = useCallback(async (day, slotId) => {
+    if (user) {
+      const { error: deleteError } = await supabase.from('tasks').delete().eq('id', slotId)
+      if (deleteError) return { error: deleteError.message }
+    }
+    setWeek(prev => {
+      const daySlots = { ...prev.slots[day] }
+      for (const type of Object.keys(daySlots)) {
+        daySlots[type] = daySlots[type].filter(t => t.id !== slotId)
+      }
+      return { ...prev, slots: { ...prev.slots, [day]: daySlots } }
+    })
+    return {}
+  }, [user])
+
+  const addTask = useCallback(async (day, text) => {
+    const trimmed = text?.trim()
+    if (!trimmed) return { error: 'Empty task' }
+    const currentTasks = week.tasks[day] ?? []
+    const totalTasks = currentTasks.length + Object.values(week.slots[day] ?? {}).flat().length
+    if (totalTasks >= LIMITS.DAILY_TOTAL) {
+      return { error: `Daily limit reached (${LIMITS.DAILY_TOTAL} tasks max)` }
+    }
+
+    const newTask = { text: trimmed, day, position: currentTasks.length, created_at: new Date().toISOString() }
+
+    if (user) {
+      try {
+        const pid = await ensurePlan(planId)
+        const { data, error: insertError } = await supabase
+          .from('tasks').insert({ ...newTask, user_id: user.id, weekly_plan_id: pid }).select().single()
+        if (insertError) return { error: insertError.message }
+        setWeek(prev => ({
+          ...prev,
+          tasks: { ...prev.tasks, [day]: [...prev.tasks[day], data] },
+        }))
+        return { data }
+      } catch (e) {
+        return { error: e.message }
+      }
+    } else {
+      const local = { ...newTask, id: crypto.randomUUID() }
+      setWeek(prev => ({
+        ...prev,
+        tasks: { ...prev.tasks, [day]: [...prev.tasks[day], local] },
+      }))
+      return { data: local }
+    }
+  }, [week, user, planId, weekStart])
+
+  const removeTask = useCallback(async (day, taskId) => {
+    if (user) {
+      const { error: deleteError } = await supabase.from('tasks').delete().eq('id', taskId)
+      if (deleteError) return { error: deleteError.message }
+    }
+    setWeek(prev => ({
+      ...prev,
+      tasks: { ...prev.tasks, [day]: prev.tasks[day].filter(t => t.id !== taskId) },
+    }))
+    return {}
+  }, [user])
+
+  const getDayStats = useCallback((day) => {
+    const slots = week.slots[day] ?? {}
+    const tasks = week.tasks[day] ?? []
+    return {
+      deepWork: slots.deep_work?.length ?? 0,
+      scheduled: slots.scheduled?.length ?? 0,
+      admin: slots.admin?.length ?? 0,
+      total: tasks.length + Object.values(slots).flat().length,
+    }
+  }, [week])
+
+  return {
+    week,
+    weekStart,
+    loading,
+    error,
+    days: DAYS,
+    setMITs,
+    addSlot,
+    removeSlot,
+    addTask,
+    removeTask,
+    getDayStats,
+  }
+}
