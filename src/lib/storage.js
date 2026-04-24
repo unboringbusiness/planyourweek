@@ -281,3 +281,12 @@ export const taskStorage = {
     }
   },
 };
+
+// ─── Simple function exports for hooks ───────────────────────────────────────
+
+export const getDumpItems = () => dumpStorage.getAll().data ?? [];
+export const setDumpItems = (items) => write(KEYS.DUMP, items);
+export const getProjects = () => projectStorage.getAll().data ?? [];
+export const setProjects = (projects) => write(KEYS.PROJECTS, projects);
+export const getWeekPlan = (weekStart) => weekStorage.get(weekStart).data;
+export const setWeekPlan = (weekStart, data) => weekStorage.upsert(weekStart, data);

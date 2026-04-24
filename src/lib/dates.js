@@ -44,3 +44,9 @@ export function isToday(date) {
     d.getDate() === today.getDate()
   );
 }
+
+/** Returns the Monday of the current week as 'YYYY-MM-DD'. */
+export function getCurrentWeekStart() {
+  const monday = getWeekStart(new Date());
+  return monday.toISOString().split('T')[0];
+}
