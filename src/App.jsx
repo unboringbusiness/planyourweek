@@ -14,6 +14,7 @@ import { useDump } from './hooks/useDump'
 import { useWeek } from './hooks/useWeek'
 import { useBacklog } from './hooks/useBacklog'
 import { useTaskMeta } from './hooks/useTaskMeta'
+import { useTimer } from './hooks/useTimer'
 import { LIMITS } from './lib/limits'
 
 import TopBar from './components/layout/TopBar'
@@ -21,10 +22,14 @@ import ThisWeekPanel from './components/layout/ThisWeekPanel'
 import MITsRow from './components/layout/MITsRow'
 import WeekView from './components/week/WeekView'
 import { TaskCardBase } from './components/week/TaskCard'
-import DumpScreen from './components/dump/DumpScreen'
+import FloatingTimer from './components/week/FloatingTimer'
+import TaskDetailModal from './components/week/TaskDetailModal'
 import DumpPanel from './components/dump/DumpPanel'
 import ResetScreen from './components/reset/ResetScreen'
 import SettingsPanel from './components/settings/SettingsPanel'
+import StartupRitual from './components/rituals/StartupRitual'
+import ShutdownRitual from './components/rituals/ShutdownRitual'
+import Onboarding from './components/onboarding/Onboarding'
 
 const SLOT_LIMITS = {
   deep_work: LIMITS.DAILY_DEEP_WORK,
@@ -40,23 +45,31 @@ function getStoredTheme() {
   return localStorage.getItem('pyw_theme') || getSystemTheme()
 }
 
-function hasVisited() {
-  return Boolean(localStorage.getItem('pyw_visited'))
-}
-
 export default function App() {
   const { user, loading: authLoading, signInWithEmail, signOut } = useAuth()
   const dump = useDump(user)
   const weekData = useWeek(user)
   const backlog = useBacklog()
   const taskMeta = useTaskMeta()
+  const timerHook = useTimer()
 
   const [theme, setTheme] = useState(getStoredTheme)
   const [view, setView] = useState('week')
-  const [isFirstVisit, setIsFirstVisit] = useState(!hasVisited())
   const [dumpOpen, setDumpOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [activeDragItem, setActiveDragItem] = useState(null)
+
+  // Ritual state: stores { dayKey } when open, null when closed
+  const [startupRitualDay, setStartupRitualDay] = useState(null)
+  const [shutdownRitualDay, setShutdownRitualDay] = useState(null)
+
+  // Task detail modal state
+  const [detailModal, setDetailModal] = useState(null) // { task, day, slotType }
+
+  // Onboarding state
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem('pyw_onboarded')
+  )
 
   // Apply theme to document
   useEffect(() => {
@@ -65,11 +78,6 @@ export default function App() {
   }, [theme])
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
-
-  const handleFirstVisitDone = () => {
-    localStorage.setItem('pyw_visited', '1')
-    setIsFirstVisit(false)
-  }
 
   // Compute MIT items (backlog + day slots, up to 3)
   const { allMITs, mitCount } = useMemo(() => {
@@ -108,7 +116,6 @@ export default function App() {
     const toSection = weekData.week?.slots?.[toDay]?.[toType] ?? []
     if (toSection.length >= (SLOT_LIMITS[toType] ?? 99)) return
 
-    const oldMeta = taskMeta.getMeta(task.id)
     weekData.removeSlot(fromDay, task.id)
     const { data: newTask } = await weekData.addSlot(toDay, toType, task.text)
     if (newTask) taskMeta.copyMeta(task.id, newTask.id)
@@ -134,6 +141,35 @@ export default function App() {
     }
   }
 
+  // Move a slot task to tomorrow (same slot type)
+  const handleMoveToTomorrow = async (task, fromDay, fromSlotType, toDay, toSlotType) => {
+    await moveSlotToSection(task, fromDay, fromSlotType, toDay, toSlotType)
+  }
+
+  // Open task detail modal
+  const handleOpenDetail = (task, day, slotType) => {
+    setDetailModal({ task, day, slotType })
+  }
+
+  // Save detail changes
+  const handleDetailSave = (taskId, changes) => {
+    taskMeta.setTaskMeta(taskId, changes)
+    setDetailModal(null)
+  }
+
+  // Start timer from a task
+  const handleStartTimer = (taskId, text, duration) => {
+    timerHook.start(taskId, text, duration)
+  }
+
+  // Timer completion
+  const handleTimerComplete = () => {
+    if (timerHook.timer?.taskId) {
+      taskMeta.setTaskMeta(timerHook.timer.taskId, { done: true })
+    }
+    timerHook.stop()
+  }
+
   // --- DnD ---
 
   const sensors = useSensors(
@@ -157,19 +193,14 @@ export default function App() {
     if (activeData.type === 'backlog') {
       const item = activeData.item
 
-      // Dropped on a section drop zone
       if (overData?.type === 'section') {
         await moveBacklogItemToSection(item, overData.day, overData.slotType)
         return
       }
-
-      // Dropped on a slot task (drop into that task's section)
       if (overData?.type === 'slot') {
         await moveBacklogItemToSection(item, overData.day, overData.slotType)
         return
       }
-
-      // Dropped on another backlog item (reorder within panel)
       if (overData?.type === 'backlog') {
         const oldIdx = backlog.items.findIndex(i => i.id === active.id)
         const newIdx = backlog.items.findIndex(i => i.id === over.id)
@@ -184,18 +215,15 @@ export default function App() {
     if (activeData.type === 'slot') {
       const { task, day: fromDay, slotType: fromType } = activeData
 
-      // Dropped on a section drop zone
       if (overData?.type === 'section') {
         await moveSlotToSection(task, fromDay, fromType, overData.day, overData.slotType)
         return
       }
 
-      // Dropped on another slot task
       if (overData?.type === 'slot') {
-        const { day: toDay, slotType: toType, task: overTask } = overData
+        const { day: toDay, slotType: toType } = overData
 
         if (fromDay === toDay && fromType === toType) {
-          // Same section: reorder
           const section = weekData.week?.slots?.[fromDay]?.[fromType] ?? []
           const oldIdx = section.findIndex(t => t.id === active.id)
           const newIdx = section.findIndex(t => t.id === over.id)
@@ -203,7 +231,6 @@ export default function App() {
             weekData.reorderSlots(fromDay, fromType, arrayMove(section, oldIdx, newIdx))
           }
         } else {
-          // Different section or day: move
           await moveSlotToSection(task, fromDay, fromType, toDay, toType)
         }
         return
@@ -213,7 +240,6 @@ export default function App() {
 
   // --- Weekly reset handler ---
   const handleReset = (nextWeekTasks = []) => {
-    // Add "next week" items to backlog
     for (const task of nextWeekTasks) {
       backlog.addItem(task.text, taskMeta.getMeta(task.id).duration ?? 30)
     }
@@ -226,30 +252,10 @@ export default function App() {
   if (authLoading) {
     return (
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        background: 'var(--bg)',
-        color: 'var(--text-2)',
-        fontSize: 14,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', background: 'var(--bg)', color: 'var(--text-2)', fontSize: 14,
       }}>
         Loading…
-      </div>
-    )
-  }
-
-  if (isFirstVisit) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)' }}>
-        <TopBar
-          activeView="dump"
-          onViewChange={() => {}}
-          onDumpOpen={() => {}}
-          theme={theme}
-          onThemeToggle={toggleTheme}
-        />
-        <DumpScreen dump={dump} onDone={handleFirstVisitDone} />
       </div>
     )
   }
@@ -266,11 +272,8 @@ export default function App() {
 
   return (
     <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      background: 'var(--bg)',
-      color: 'var(--text-1)',
+      display: 'flex', flexDirection: 'column', height: '100%',
+      background: 'var(--bg)', color: 'var(--text-1)',
       fontFamily: "'DM Sans', sans-serif",
     }}>
       <TopBar
@@ -279,6 +282,7 @@ export default function App() {
         onDumpOpen={() => setDumpOpen(true)}
         theme={theme}
         onThemeToggle={toggleTheme}
+        onHelpOpen={() => setShowOnboarding(true)}
       />
 
       {view === 'reset' ? (
@@ -307,12 +311,10 @@ export default function App() {
           >
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <ThisWeekPanel
-                open={true}
                 items={backlog.items}
                 count={backlog.count}
                 isAtCapacity={backlog.isAtCapacity}
                 mitCount={mitCount}
-                getMeta={getMeta}
                 onAddItem={backlog.addItem}
                 onRemoveItem={backlog.removeItem}
                 onUpdateItem={backlog.updateItem}
@@ -329,6 +331,11 @@ export default function App() {
                 onAddSlot={weekData.addSlot}
                 onRemoveSlot={weekData.removeSlot}
                 onMoveToSomeday={moveSlotToDump}
+                onMoveToTomorrow={handleMoveToTomorrow}
+                onOpenDetail={handleOpenDetail}
+                onStartTimer={handleStartTimer}
+                onStartupRitual={(dayKey) => setStartupRitualDay(dayKey)}
+                onShutdownRitual={(dayKey) => setShutdownRitualDay(dayKey)}
               />
             </div>
 
@@ -347,6 +354,7 @@ export default function App() {
         </>
       )}
 
+      {/* Panels */}
       <DumpPanel
         open={dumpOpen}
         onClose={() => setDumpOpen(false)}
@@ -360,6 +368,62 @@ export default function App() {
         signInWithEmail={signInWithEmail}
         signOut={signOut}
       />
+
+      {/* Floating timer */}
+      {timerHook.timer?.running && (
+        <FloatingTimer
+          timer={timerHook.timer}
+          onComplete={handleTimerComplete}
+          onPause={timerHook.pause}
+          onResume={timerHook.resume}
+          onStop={timerHook.stop}
+        />
+      )}
+
+      {/* Task detail modal */}
+      {detailModal && (
+        <TaskDetailModal
+          task={detailModal.task}
+          meta={getMeta(detailModal.task.id)}
+          onSave={(changes) => handleDetailSave(detailModal.task.id, changes)}
+          onClose={() => setDetailModal(null)}
+          onStartTimer={() => {
+            const meta = getMeta(detailModal.task.id)
+            handleStartTimer(detailModal.task.id, detailModal.task.text, meta.duration ?? 30)
+            setDetailModal(null)
+          }}
+        />
+      )}
+
+      {/* Daily startup ritual */}
+      {startupRitualDay && (
+        <StartupRitual
+          dayKey={startupRitualDay}
+          week={weekData.week}
+          dump={dump}
+          getMeta={getMeta}
+          setTaskMeta={setTaskMetaFn}
+          onAddSlot={weekData.addSlot}
+          onClose={() => setStartupRitualDay(null)}
+        />
+      )}
+
+      {/* Daily shutdown ritual */}
+      {shutdownRitualDay && (
+        <ShutdownRitual
+          dayKey={shutdownRitualDay}
+          week={weekData.week}
+          getMeta={getMeta}
+          setTaskMeta={setTaskMetaFn}
+          onAddSlot={weekData.addSlot}
+          onClose={() => setShutdownRitualDay(null)}
+        />
+      )}
+
+      {/* Onboarding walkthrough */}
+      {showOnboarding && (
+        <Onboarding onClose={() => setShowOnboarding(false)} />
+      )}
     </div>
   )
 }

@@ -1,23 +1,15 @@
 import { useState } from 'react'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import TaskCard from '../week/TaskCard'
+import TaskCard, { PanelTaskCard } from '../week/TaskCard'
 import { BACKLOG_MAX } from '../../hooks/useBacklog'
 
 export default function ThisWeekPanel({
-  open,
-  items,
-  count,
-  isAtCapacity,
-  mitCount,
-  getMeta,
-  onAddItem,
-  onRemoveItem,
-  onUpdateItem,
-  onMoveToSomeday,
-  onMoveOverflowToDump,
+  items, count, isAtCapacity, mitCount,
+  onAddItem, onRemoveItem, onUpdateItem,
+  onMoveToSomeday, onMoveOverflowToDump,
 }) {
   const [inputVal, setInputVal] = useState('')
-  const [panelOpen, setPanelOpen] = useState(true)
+  const [collapsed, setCollapsed] = useState(false)
 
   const handleAdd = () => {
     const trimmed = inputVal.trim()
@@ -28,11 +20,9 @@ export default function ThisWeekPanel({
 
   const showOverflowPrompt = count >= BACKLOG_MAX
 
-  if (!open) return null
-
   return (
-    <aside style={{
-      width: panelOpen ? 280 : 40,
+    <aside data-tour="thisweek" style={{
+      width: collapsed ? 36 : 260,
       flexShrink: 0,
       background: 'var(--surface-2)',
       borderRight: '1px solid var(--border)',
@@ -42,78 +32,70 @@ export default function ThisWeekPanel({
       transition: 'width 0.2s ease',
       position: 'relative',
     }}>
-      {/* Collapse toggle */}
+      {/* Collapse toggle — always visible */}
       <button
-        onClick={() => setPanelOpen(v => !v)}
-        title={panelOpen ? 'Collapse' : 'Expand This Week'}
+        onClick={() => setCollapsed(v => !v)}
+        title={collapsed ? 'Expand This Week' : 'Collapse'}
         style={{
           position: 'absolute',
-          top: 12,
-          right: panelOpen ? 10 : 6,
+          top: 10,
+          right: collapsed ? 6 : 8,
           background: 'var(--surface)',
           border: '1px solid var(--border)',
           borderRadius: 6,
-          width: 24,
-          height: 24,
+          width: 22,
+          height: 22,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: 'var(--text-2)',
-          fontSize: 11,
+          fontSize: 10,
           zIndex: 2,
+          cursor: 'pointer',
           flexShrink: 0,
         }}
       >
-        {panelOpen ? '‹' : '›'}
+        {collapsed ? '›' : '‹'}
       </button>
 
-      {panelOpen && (
+      {!collapsed && (
         <>
           {/* Header */}
           <div style={{
-            padding: '12px 14px 10px',
+            padding: '10px 12px 8px',
             borderBottom: '1px solid var(--border)',
             flexShrink: 0,
-            paddingRight: 40,
+            paddingRight: 36,
           }}>
             <div style={{
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: 700,
               color: 'var(--text-2)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              marginBottom: 10,
+              marginBottom: 8,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
               <span>This Week</span>
               <span style={{
-                fontSize: 10,
-                fontWeight: 600,
+                fontSize: 9, fontWeight: 600,
                 background: isAtCapacity ? '#FEE2E2' : 'var(--surface)',
                 color: isAtCapacity ? 'var(--danger)' : 'var(--text-2)',
                 border: `1px solid ${isAtCapacity ? 'var(--danger)' : 'var(--border)'}`,
-                borderRadius: 8,
-                padding: '1px 6px',
+                borderRadius: 7, padding: '1px 5px',
               }}>
                 {count}/{BACKLOG_MAX}
               </span>
             </div>
 
-            {/* Add input */}
-            <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ display: 'flex', gap: 5 }}>
               <input
                 style={{
-                  flex: 1,
-                  padding: '7px 9px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  fontSize: 13,
-                  color: 'var(--text-1)',
-                  outline: 'none',
-                  fontFamily: 'inherit',
+                  flex: 1, padding: '5px 8px', borderRadius: 7,
+                  border: '1px solid var(--border)', background: 'var(--surface)',
+                  fontSize: 12, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
                 }}
                 placeholder="Add a task…"
                 value={inputVal}
@@ -127,16 +109,10 @@ export default function ThisWeekPanel({
                 disabled={isAtCapacity}
                 style={{
                   background: isAtCapacity ? 'var(--border)' : 'var(--accent)',
-                  border: 'none',
-                  borderRadius: 8,
-                  width: 30,
-                  height: 30,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: 18,
-                  flexShrink: 0,
+                  border: 'none', borderRadius: 7,
+                  width: 26, height: 26,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: 16, flexShrink: 0,
                   cursor: isAtCapacity ? 'not-allowed' : 'pointer',
                 }}
               >
@@ -145,32 +121,21 @@ export default function ThisWeekPanel({
             </div>
           </div>
 
-          {/* Overflow prompt */}
           {showOverflowPrompt && (
             <div style={{
-              margin: '8px 12px 0',
-              padding: '8px 10px',
-              borderRadius: 8,
-              background: 'color-mix(in srgb, var(--sched) 12%, var(--surface))',
+              margin: '6px 10px 0',
+              padding: '7px 9px',
+              borderRadius: 7,
+              background: 'color-mix(in srgb, var(--sched) 10%, var(--surface))',
               border: '1px solid var(--sched)',
-              fontSize: 12,
-              color: 'var(--text-1)',
-              lineHeight: 1.5,
+              fontSize: 11, color: 'var(--text-1)', lineHeight: 1.5,
             }}>
-              <div style={{ marginBottom: 6 }}>
-                This is getting long. Move the rest to your dump?
-              </div>
+              <div style={{ marginBottom: 5 }}>Getting long. Move overflow to dump?</div>
               <button
                 onClick={onMoveOverflowToDump}
                 style={{
-                  background: 'var(--sched)',
-                  border: 'none',
-                  borderRadius: 6,
-                  padding: '4px 10px',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: '#fff',
-                  cursor: 'pointer',
+                  background: 'var(--sched)', border: 'none', borderRadius: 5,
+                  padding: '3px 8px', fontSize: 10, fontWeight: 600, color: '#fff', cursor: 'pointer',
                 }}
               >
                 Yes, move overflow
@@ -178,52 +143,34 @@ export default function ThisWeekPanel({
             </div>
           )}
 
-          {/* Items list */}
           <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '8px 10px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 5,
+            flex: 1, overflowY: 'auto', padding: '6px 8px',
+            display: 'flex', flexDirection: 'column', gap: 3,
           }}>
             {items.length === 0 ? (
               <div style={{
-                padding: '24px 8px',
-                textAlign: 'center',
-                color: 'var(--text-2)',
-                fontSize: 13,
-                lineHeight: 1.6,
+                padding: '20px 6px', textAlign: 'center',
+                color: 'var(--text-2)', fontSize: 12, lineHeight: 1.6,
               }}>
-                Your closed list for this week.<br />
-                Drag tasks to a day column to schedule them.
+                Your closed list.<br />Drag to a day to schedule.
               </div>
             ) : (
               <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                {items.map(item => {
-                  // Backlog items store their own meta inline
-                  const meta = {
-                    duration: item.duration ?? 30,
-                    is_mit: item.is_mit ?? false,
-                    done: item.done ?? false,
-                  }
-                  return (
-                    <TaskCard
-                      key={item.id}
-                      taskId={item.id}
-                      text={item.text}
-                      meta={meta}
-                      mitCount={mitCount}
-                      containerData={{ type: 'backlog', item }}
-                      onTextChange={text => onUpdateItem(item.id, { text })}
-                      onDurationChange={dur => onUpdateItem(item.id, { duration: dur })}
-                      onMITToggle={() => onUpdateItem(item.id, { is_mit: !item.is_mit })}
-                      onDoneToggle={() => onUpdateItem(item.id, { done: !item.done })}
-                      onRemove={() => onRemoveItem(item.id)}
-                      onMoveToSomeday={() => onMoveToSomeday?.(item)}
-                    />
-                  )
-                })}
+                {items.map(item => (
+                  <TaskCard
+                    key={item.id}
+                    taskId={item.id}
+                    text={item.text}
+                    meta={{ duration: item.duration ?? 30, is_mit: item.is_mit ?? false, done: item.done ?? false }}
+                    compact={false}
+                    mitCount={mitCount}
+                    containerData={{ type: 'backlog', item }}
+                    onMITToggle={() => onUpdateItem(item.id, { is_mit: !item.is_mit })}
+                    onDoneToggle={() => onUpdateItem(item.id, { done: !item.done })}
+                    onRemove={() => onRemoveItem(item.id)}
+                    onMoveToSomeday={() => onMoveToSomeday?.(item)}
+                  />
+                ))}
               </SortableContext>
             )}
           </div>

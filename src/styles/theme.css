@@ -1,7 +1,7 @@
 :root {
-  --bg: #FAF4ED;
+  --bg: #F5F3F0;
   --surface: #FFFFFF;
-  --surface-2: #F5EFE8;
+  --surface-2: #EDEBE8;
   --text-1: #133950;
   --text-2: #6B6B6B;
   --accent: #3B82F6;
@@ -15,7 +15,7 @@
   --admin-bg: #F8FAFC;
   --danger: #EF4444;
   --success: #10B981;
-  --overlay: rgba(0, 0, 0, 0.15);
+  --overlay: rgba(0, 0, 0, 0.18);
 }
 
 [data-theme="dark"] {
