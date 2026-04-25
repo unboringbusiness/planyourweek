@@ -319,7 +319,6 @@ export default function App() {
                 onRemoveItem={backlog.removeItem}
                 onUpdateItem={backlog.updateItem}
                 onMoveToSomeday={moveBacklogToDump}
-                onMoveOverflowToDump={moveOverflowToDump}
               />
 
               <WeekView

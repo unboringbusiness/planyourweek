@@ -20,7 +20,7 @@ const DURATION_PRESETS = [
 ]
 
 // Timer chip with popover — used only in day column cards
-function TimerChip({ duration, onDurationChange, onStartTimer }) {
+function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
   const [open, setOpen] = useState(false)
   const [custom, setCustom] = useState(false)
   const [customVal, setCustomVal] = useState('')
@@ -42,21 +42,18 @@ function TimerChip({ duration, onDurationChange, onStartTimer }) {
       <button
         onClick={e => { e.stopPropagation(); setOpen(v => !v) }}
         style={{
-          fontSize: 10,
-          color: 'var(--text-2)',
+          fontSize: 12,
+          color: done ? '#9A9A9A' : 'var(--text-2)',
           background: 'var(--surface-2)',
-          border: '1px solid var(--border)',
-          borderRadius: 20,
-          padding: '2px 7px 2px 5px',
+          border: 'none',
+          borderRadius: 6,
+          padding: '2px 8px',
           cursor: 'pointer',
           fontFamily: 'inherit',
           whiteSpace: 'nowrap',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 3,
+          flexShrink: 0,
         }}
       >
-        <span style={{ fontSize: 9, lineHeight: 1 }}>⏱</span>
         {formatDuration(duration)}
       </button>
 
@@ -180,11 +177,18 @@ function TimerChip({ duration, onDurationChange, onStartTimer }) {
   )
 }
 
+const SLOT_LEFT_COLOR = {
+  deep_work: 'var(--deep)',
+  scheduled: 'var(--sched)',
+  admin: 'var(--admin)',
+}
+
 // Compact day-column card
 export function DayTaskCard({
   taskId,
   text,
   meta = {},
+  slotType,
   onTextChange,
   onDurationChange,
   onMITToggle,
@@ -202,50 +206,36 @@ export function DayTaskCard({
   const [hovered, setHovered] = useState(false)
   const { duration = 30, is_mit = false, done = false } = meta
   const canToggleMIT = mitCount < 3 || is_mit
+  const leftColor = SLOT_LEFT_COLOR[slotType] || 'transparent'
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
       style={{
-        background: done ? 'var(--surface-2)' : 'var(--surface)',
-        border: `1px solid ${is_mit ? 'var(--mit)' : 'var(--border)'}`,
+        background: done ? 'var(--surface-2)' : hovered && !isDragOverlay ? '#FAFAFA' : 'var(--surface)',
+        border: 'none',
+        borderLeft: is_mit ? `3px solid var(--mit)` : `3px solid ${leftColor}`,
         borderRadius: 8,
-        padding: '5px 6px',
+        padding: '8px 10px 8px 9px',
+        minHeight: 40,
         display: 'flex',
         alignItems: 'center',
-        gap: 4,
-        opacity: done ? 0.5 : 1,
-        boxShadow: isDragOverlay ? '0 8px 32px rgba(0,0,0,0.18)' : 'none',
+        gap: 6,
+        boxShadow: isDragOverlay ? '0 8px 32px rgba(0,0,0,0.18)' : '0 1px 3px rgba(0,0,0,0.06)',
         position: 'relative',
         userSelect: 'none',
         cursor: 'default',
+        transition: 'background 0.1s',
       }}
     >
-      {/* Drag handle */}
-      <div
-        {...dragHandleProps}
-        style={{
-          color: hovered ? 'var(--text-2)' : 'transparent',
-          fontSize: 10,
-          cursor: isDragOverlay ? 'grabbing' : 'grab',
-          flexShrink: 0,
-          lineHeight: 1,
-          touchAction: 'none',
-          transition: 'color 0.1s',
-          width: 10,
-        }}
-      >
-        ⠿
-      </div>
-
       {/* Checkbox */}
       <input
         type="checkbox"
         checked={done}
         onChange={() => onDoneToggle?.()}
         onClick={e => e.stopPropagation()}
-        style={{ flexShrink: 0, cursor: 'pointer', accentColor: 'var(--success)', width: 13, height: 13 }}
+        style={{ flexShrink: 0, cursor: 'pointer', accentColor: 'var(--success)', width: 15, height: 15 }}
       />
 
       {/* Task text — click opens detail modal */}
@@ -253,14 +243,15 @@ export function DayTaskCard({
         onClick={() => !isDragOverlay && onOpenDetail?.()}
         style={{
           flex: 1,
-          fontSize: 12,
-          color: done ? 'var(--text-2)' : 'var(--text-1)',
+          fontSize: 13,
+          color: done ? '#9A9A9A' : 'var(--text-1)',
           textDecoration: done ? 'line-through' : 'none',
           cursor: isDragOverlay ? 'grabbing' : 'pointer',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          lineHeight: 1.35,
+          lineHeight: 1.4,
+          fontWeight: 400,
         }}
         title={text}
       >
@@ -273,10 +264,11 @@ export function DayTaskCard({
           duration={duration}
           onDurationChange={onDurationChange}
           onStartTimer={() => onStartTimer?.(taskId, meta.textOverride || text)}
+          done={done}
         />
       )}
       {isDragOverlay && (
-        <span style={{ fontSize: 10, color: 'var(--text-2)', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-2)', whiteSpace: 'nowrap', background: 'var(--surface-2)', borderRadius: 6, padding: '2px 7px' }}>
           {formatDuration(duration)}
         </span>
       )}
@@ -483,8 +475,8 @@ export function TaskCardBase({ text, meta = {}, isDragOverlay = true, dragHandle
   )
 }
 
-// Sortable wrapper for day columns
-export default function TaskCard({ containerData, compact = false, ...props }) {
+// Sortable wrapper for day columns and backlog panel
+export default function TaskCard({ containerData, compact = false, slotType, ...props }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: props.taskId,
     data: containerData,
@@ -498,7 +490,7 @@ export default function TaskCard({ containerData, compact = false, ...props }) {
       {...attributes}
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0 : 1 }}
     >
-      <CardComponent {...props} dragHandleProps={listeners} />
+      <CardComponent {...props} slotType={slotType} dragHandleProps={listeners} />
     </div>
   )
 }

@@ -44,35 +44,25 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
     <div
       ref={setNodeRef}
       style={{
-        borderRadius: 8, padding: '5px',
-        background: isOverFull ? '#FEE2E2' : isOver ? 'color-mix(in srgb, var(--accent) 8%, transparent)' : cfg.bg,
+        borderRadius: 6, padding: '4px',
+        background: isOverFull ? 'color-mix(in srgb, var(--danger) 6%, transparent)' : isOver ? 'color-mix(in srgb, var(--accent) 6%, transparent)' : 'transparent',
         border: `1px solid ${isOverFull ? 'var(--danger)' : isOver ? 'var(--accent)' : 'transparent'}`,
         transition: 'background 0.12s, border-color 0.12s',
-        minHeight: 48,
+        minHeight: 40,
       }}
     >
+      {/* Section label — plain grey, no color */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3, padding: '0 2px' }}>
-        <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: cfg.color }}>
-          {cfg.label}
+        <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-2)' }}>
+          {cfg.label} {tasks.length}/{cfg.max}
         </span>
-        <span style={{
-          fontSize: 9, fontWeight: 600, background: 'var(--surface)',
-          color: isFull ? cfg.color : 'var(--text-2)',
-          borderRadius: 6, padding: '0 4px',
-          border: `1px solid ${isFull ? cfg.color : 'var(--border)'}`,
-        }}>
-          {tasks.length}/{cfg.max}
-        </span>
+        {isOverFull && (
+          <span style={{ fontSize: 9, color: 'var(--danger)', fontWeight: 500 }}>full</span>
+        )}
       </div>
 
-      {isOverFull && (
-        <div style={{ fontSize: 9, color: 'var(--danger)', textAlign: 'center', paddingBottom: 3, fontWeight: 500 }}>
-          {cfg.label} is full
-        </div>
-      )}
-
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {tasks.map(task => {
             const meta = getMeta(task.id)
             const tomorrow = getTomorrow(day)
@@ -83,6 +73,7 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
                 text={task.text}
                 meta={meta}
                 compact={true}
+                slotType={slotType}
                 mitCount={mitCount}
                 containerData={{ type: 'slot', task, day, slotType }}
                 onDurationChange={dur => setTaskMeta(task.id, { duration: dur })}
