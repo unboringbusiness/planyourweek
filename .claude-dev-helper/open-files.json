@@ -1,61 +1,61 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/rituals/ShutdownRitual.jsx",
-    "timestamp": 1777083978445,
+    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
+    "timestamp": 1777085887576,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/onboarding/Onboarding.jsx",
-    "timestamp": 1777084005536,
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777085911684,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777084055934,
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777085915927,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777084075982,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777084080827,
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777085925589,
     "focus": false,
     "openLocation": 0
   },
   {
     "filePath": "/Users/anicca/planyourweek/src/components/layout/ThisWeekPanel.jsx",
-    "timestamp": 1777084092323,
+    "timestamp": 1777085940708,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/TopBar.jsx",
-    "timestamp": 1777084096845,
+    "filePath": "/Users/anicca/planyourweek/src/components/dump/EisenhowerMatrix.jsx",
+    "timestamp": 1777085968853,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
-    "timestamp": 1777084105100,
+    "filePath": "/Users/anicca/planyourweek/src/components/dump/DumpPanel.jsx",
+    "timestamp": 1777085974090,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
-    "timestamp": 1777084110144,
+    "filePath": "/Users/anicca/planyourweek/src/components/dump/DumpPanel.jsx",
+    "timestamp": 1777085977935,
     "focus": false,
     "openLocation": 0
   },
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
-    "timestamp": 1777084113459,
+    "filePath": "/Users/anicca/planyourweek/src/components/dump/DumpPanel.jsx",
+    "timestamp": 1777085987195,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/dump/DumpPanel.jsx",
+    "timestamp": 1777085992499,
     "focus": false,
     "openLocation": 0
   }

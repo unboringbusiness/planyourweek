@@ -46,13 +46,17 @@ function TimerChip({ duration, onDurationChange, onStartTimer }) {
           color: 'var(--text-2)',
           background: 'var(--surface-2)',
           border: '1px solid var(--border)',
-          borderRadius: 4,
-          padding: '1px 5px',
+          borderRadius: 20,
+          padding: '2px 7px 2px 5px',
           cursor: 'pointer',
           fontFamily: 'inherit',
           whiteSpace: 'nowrap',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 3,
         }}
       >
+        <span style={{ fontSize: 9, lineHeight: 1 }}>⏱</span>
         {formatDuration(duration)}
       </button>
 

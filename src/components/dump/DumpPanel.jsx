@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { LIMITS } from '../../lib/limits'
+import EisenhowerMatrix from './EisenhowerMatrix'
 
 export default function DumpPanel({ open, onClose, dump }) {
+
   const [inputVal, setInputVal] = useState('')
   const [error, setError] = useState('')
+  const [triageOpen, setTriageOpen] = useState(false)
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -70,23 +73,32 @@ export default function DumpPanel({ open, onClose, dump }) {
               Your someday/maybe list · {dump.count} items
             </div>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: '1px solid var(--border)',
-              borderRadius: 7,
-              width: 30,
-              height: 30,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-2)',
-              fontSize: 16,
-            }}
-          >
-            ×
-          </button>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {dump.items.length > 0 && (
+              <button
+                onClick={() => setTriageOpen(true)}
+                style={{
+                  background: 'var(--surface-2)', border: '1px solid var(--border)',
+                  borderRadius: 7, padding: '4px 10px',
+                  fontSize: 12, fontWeight: 600, color: 'var(--text-1)',
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                Triage
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none', border: '1px solid var(--border)',
+                borderRadius: 7, width: 30, height: 30,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'var(--text-2)', fontSize: 16, cursor: 'pointer',
+              }}
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         {/* Add input */}
@@ -202,6 +214,15 @@ export default function DumpPanel({ open, onClose, dump }) {
           )}
         </div>
       </div>
+
+      {triageOpen && (
+        <EisenhowerMatrix
+          items={dump.items}
+          onSchedule={() => {}} // items stay in dump — user drags to schedule
+          onDrop={(item) => dump.removeItem(item.id)}
+          onClose={() => setTriageOpen(false)}
+        />
+      )}
     </>
   )
 }

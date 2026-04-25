@@ -32,31 +32,24 @@ export default function ThisWeekPanel({
       transition: 'width 0.2s ease',
       position: 'relative',
     }}>
-      {/* Collapse toggle — always visible */}
-      <button
-        onClick={() => setCollapsed(v => !v)}
-        title={collapsed ? 'Expand This Week' : 'Collapse'}
-        style={{
-          position: 'absolute',
-          top: 10,
-          right: collapsed ? 6 : 8,
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          width: 22,
-          height: 22,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--text-2)',
-          fontSize: 10,
-          zIndex: 2,
-          cursor: 'pointer',
-          flexShrink: 0,
-        }}
-      >
-        {collapsed ? '›' : '‹'}
-      </button>
+      {/* Collapsed state — just show expand button */}
+      {collapsed && (
+        <button
+          onClick={() => setCollapsed(false)}
+          title="Expand This Week"
+          style={{
+            margin: '10px auto 0',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            width: 24, height: 24,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--accent)', fontSize: 14, cursor: 'pointer', flexShrink: 0,
+          }}
+        >
+          ›
+        </button>
+      )}
 
       {!collapsed && (
         <>
@@ -65,7 +58,6 @@ export default function ThisWeekPanel({
             padding: '10px 12px 8px',
             borderBottom: '1px solid var(--border)',
             flexShrink: 0,
-            paddingRight: 36,
           }}>
             <div style={{
               fontSize: 10,
@@ -79,15 +71,29 @@ export default function ThisWeekPanel({
               justifyContent: 'space-between',
             }}>
               <span>This Week</span>
-              <span style={{
-                fontSize: 9, fontWeight: 600,
-                background: isAtCapacity ? '#FEE2E2' : 'var(--surface)',
-                color: isAtCapacity ? 'var(--danger)' : 'var(--text-2)',
-                border: `1px solid ${isAtCapacity ? 'var(--danger)' : 'var(--border)'}`,
-                borderRadius: 7, padding: '1px 5px',
-              }}>
-                {count}/{BACKLOG_MAX}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{
+                  fontSize: 9, fontWeight: 600,
+                  background: isAtCapacity ? '#FEE2E2' : 'var(--surface)',
+                  color: isAtCapacity ? 'var(--danger)' : 'var(--text-2)',
+                  border: `1px solid ${isAtCapacity ? 'var(--danger)' : 'var(--border)'}`,
+                  borderRadius: 7, padding: '1px 5px',
+                }}>
+                  {count}/{BACKLOG_MAX}
+                </span>
+                <button
+                  onClick={() => setCollapsed(true)}
+                  title="Collapse"
+                  style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 5, width: 20, height: 20,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-2)', fontSize: 12, cursor: 'pointer', flexShrink: 0,
+                  }}
+                >
+                  ‹
+                </button>
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: 5 }}>

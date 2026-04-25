@@ -33,14 +33,14 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
       <div style={{
         fontSize: 9,
         fontWeight: 700,
-        color: 'var(--text-2)',
+        color: 'var(--accent)',
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
         whiteSpace: 'nowrap',
         lineHeight: 1.3,
-        maxWidth: 56,
+        maxWidth: 64,
       }}>
-        This Week's 3 MITs
+        Weekly MITs
       </div>
 
       <div style={{ display: 'flex', gap: 8, flex: 1 }}>

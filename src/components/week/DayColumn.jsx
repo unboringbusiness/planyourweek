@@ -5,7 +5,6 @@ import { LIMITS } from '../../lib/limits'
 import { isToday } from '../../lib/dates'
 import TaskCard, { DayTaskCard } from './TaskCard'
 import { formatDuration } from './TaskCard'
-import FocusBar from './FocusBar'
 
 // SCHEDULED → FOCUS, ADMIN → OTHERS (labels only — slot keys unchanged)
 const SECTION_CONFIG = {
@@ -124,14 +123,24 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
             <button
               onClick={() => setAdding(true)}
               style={{
-                width: '100%', padding: '3px 5px', borderRadius: 6,
+                width: '100%', padding: '4px 6px', borderRadius: 6,
                 border: '1.5px dashed var(--border)', background: 'transparent',
                 fontSize: 10, color: 'var(--text-2)', textAlign: 'left',
+                cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', gap: 4,
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--accent)'
+                e.currentTarget.style.color = 'var(--accent)'
+                e.currentTarget.style.background = 'color-mix(in srgb, var(--accent) 6%, transparent)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.color = 'var(--text-2)'
+                e.currentTarget.style.background = 'transparent'
+              }}
             >
-              + add
+              <span style={{ fontSize: 12, lineHeight: 1, fontWeight: 600 }}>+</span> add task
             </button>
           )}
         </div>
@@ -180,21 +189,31 @@ export default function DayColumn({
       background: today ? 'color-mix(in srgb, var(--accent) 3%, var(--surface))' : 'var(--surface)',
     }}>
       {/* Day header */}
-      <div style={{ paddingBottom: 5, borderBottom: '1px solid var(--border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1 }}>
-          <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              {dayName}
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: today ? 'var(--accent)' : 'var(--text-1)', lineHeight: 1.1 }}>
-              {dayNum}
-            </div>
+      <div style={{ paddingBottom: 6, borderBottom: '1px solid var(--border)' }}>
+        {/* Day name + number + focus bar */}
+        <div style={{ textAlign: 'center', marginBottom: 4 }}>
+          <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            {dayName}
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: today ? 'var(--accent)' : 'var(--text-1)', lineHeight: 1.1 }}>
+            {dayNum}
           </div>
         </div>
 
-        {/* Week total */}
-        <div style={{ textAlign: 'center', fontSize: 9, color: totalColor, fontWeight: 500 }}>
-          {formatDuration(totalMinutes)} / 7h
+        {/* Focus progress bar + label */}
+        <div style={{ padding: '0 2px' }}>
+          <div style={{ height: 3, background: 'var(--border)', borderRadius: 2, overflow: 'hidden', marginBottom: 2 }}>
+            <div style={{
+              height: '100%',
+              width: `${Math.min((focusMinutes / 420) * 100, 100)}%`,
+              background: focusMinutes >= 420 ? 'var(--danger)' : focusMinutes >= 300 ? 'var(--sched)' : 'var(--accent)',
+              borderRadius: 2,
+              transition: 'width 0.3s ease, background 0.3s ease',
+            }} />
+          </div>
+          <div style={{ textAlign: 'right', fontSize: 9, color: totalColor, fontWeight: 500 }}>
+            {formatDuration(focusMinutes)} / 7h
+          </div>
         </div>
 
         {/* Today action buttons */}
@@ -205,19 +224,19 @@ export default function DayColumn({
               onClick={onStartupRitual}
               title="Start my day"
               style={{
-                flex: 1, padding: '3px 0', fontSize: 9, fontWeight: 600,
+                flex: 1, padding: '4px 0', fontSize: 9, fontWeight: 700,
                 background: 'var(--success)', color: '#fff', border: 'none',
-                borderRadius: 5, cursor: 'pointer',
+                borderRadius: 5, cursor: 'pointer', letterSpacing: '0.02em',
               }}
             >
-              ☀ Day
+              ☀️ Start
             </button>
             <button
               data-tour="shutdown-btn"
               onClick={onShutdownRitual}
               title="Close my day"
               style={{
-                flex: 1, padding: '3px 0', fontSize: 9, fontWeight: 600,
+                flex: 1, padding: '4px 0', fontSize: 9, fontWeight: 700,
                 background: 'var(--surface-2)', color: 'var(--text-2)', border: '1px solid var(--border)',
                 borderRadius: 5, cursor: 'pointer',
               }}
@@ -228,7 +247,7 @@ export default function DayColumn({
               onClick={onFocusMode}
               title="Focus mode"
               style={{
-                flex: 1, padding: '3px 0', fontSize: 9, fontWeight: 600,
+                flex: 1, padding: '4px 0', fontSize: 9, fontWeight: 700,
                 background: focusModeActive ? 'var(--accent)' : 'var(--surface-2)',
                 color: focusModeActive ? '#fff' : 'var(--text-2)',
                 border: `1px solid ${focusModeActive ? 'var(--accent)' : 'var(--border)'}`,
@@ -244,8 +263,6 @@ export default function DayColumn({
       <Section day={dayKey} slotType="deep_work" tasks={slots?.deep_work ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       <Section day={dayKey} slotType="scheduled" tasks={slots?.scheduled ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       <Section day={dayKey} slotType="admin" tasks={slots?.admin ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-
-      <FocusBar focusMinutes={focusMinutes} />
     </div>
   )
 }
