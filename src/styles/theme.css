@@ -1,39 +1,41 @@
 :root {
-  --bg: #F5F3F0;
+  --bg: #F7F5F2;
   --surface: #FFFFFF;
-  --surface-2: #EDEBE8;
+  --surface-2: #EDEAE6;
   --text-1: #133950;
-  --text-2: #6B6B6B;
+  --text-2: #9A9A9A;
   --accent: #3B82F6;
-  --border: #E8E8E8;
+  --border: #E8E6E2;
   --mit: #FFD156;
   --deep: #3B82F6;
-  --deep-bg: #EFF6FF;
   --sched: #F08F48;
-  --sched-bg: #FFF7ED;
-  --admin: #93C5FD;
-  --admin-bg: #F8FAFC;
+  --admin-border: transparent;
   --danger: #EF4444;
-  --success: #10B981;
+  --success: #7BC67E;
   --overlay: rgba(0, 0, 0, 0.18);
+  --chip-bg: #F2F0EC;
+  --chip-text: #9A9A9A;
+  --col-today-bg: #F0F4FF;
+  --col-sep: #E8E6E2;
 }
 
 [data-theme="dark"] {
-  --bg: #1A1A1A;
-  --surface: #2A2A2A;
+  --bg: #161616;
+  --surface: #1E1E1E;
   --surface-2: #222222;
-  --text-1: #F5F5F5;
-  --text-2: #9A9A9A;
+  --text-1: #E8E6E2;
+  --text-2: #666666;
   --accent: #3B82F6;
-  --border: #3A3A3A;
+  --border: #252525;
   --mit: #FFD156;
   --deep: #3B82F6;
-  --deep-bg: #1E3A5F;
   --sched: #F08F48;
-  --sched-bg: #2A1F0F;
-  --admin: #93C5FD;
-  --admin-bg: #1A2233;
+  --admin-border: transparent;
   --danger: #EF4444;
-  --success: #10B981;
-  --overlay: rgba(0, 0, 0, 0.4);
+  --success: #7BC67E;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --chip-bg: #2A2A2A;
+  --chip-text: #666666;
+  --col-today-bg: #1A1F2E;
+  --col-sep: #252525;
 }

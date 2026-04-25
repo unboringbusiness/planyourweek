@@ -26,7 +26,7 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
       alignItems: 'center',
       padding: '10px 16px',
       gap: 10,
-      borderBottom: '1px solid var(--border)',
+      borderBottom: '1px solid var(--col-sep)',
       background: 'var(--bg)',
       flexShrink: 0,
     }}>

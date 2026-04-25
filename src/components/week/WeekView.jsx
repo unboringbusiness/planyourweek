@@ -4,6 +4,27 @@ import DayColumn from './DayColumn'
 
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
 
+function SlotLegend() {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 16,
+      padding: '6px 14px 0',
+      flexShrink: 0,
+    }}>
+      {[
+        { color: '#3B82F6', label: 'Deep Work' },
+        { color: '#F08F48', label: 'Focus' },
+        { color: '#D0CEC9', label: 'Others' },
+      ].map(({ color, label }) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'var(--text-2)', fontWeight: 400 }}>{label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function WeekView({
   week, weekStart, getMeta, setTaskMeta, mitCount,
   onAddSlot, onRemoveSlot, onMoveToSomeday, onMoveToTomorrow,
@@ -14,8 +35,7 @@ export default function WeekView({
     ? getWeekDays(new Date(weekStart + 'T00:00:00'))
     : Array(7).fill(null)
 
-  const todayIdx = weekDays.findIndex(d => d && isToday(d))
-  const [focusDay, setFocusDay] = useState(null) // dayKey or null
+  const [focusDay, setFocusDay] = useState(null)
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
@@ -25,7 +45,7 @@ export default function WeekView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {focusDay && (
+      {focusDay ? (
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
           padding: '6px 16px 0', flexShrink: 0,
@@ -41,16 +61,19 @@ export default function WeekView({
             Exit Focus
           </button>
         </div>
+      ) : (
+        <SlotLegend />
       )}
 
       <div style={{
-        flex: 1, display: 'flex', gap: 7,
-        padding: '10px 14px 14px',
+        flex: 1,
+        display: 'flex',
         overflowX: focusDay ? 'hidden' : 'auto',
-        overflowY: 'auto', alignItems: 'flex-start',
+        overflowY: 'auto',
       }}>
         {visibleDays.map((dayKey, i) => {
           const actualIdx = DAYS.indexOf(dayKey)
+          const isLastVisible = i === visibleDays.length - 1
           return (
             <DayColumn
               key={dayKey}
@@ -70,6 +93,7 @@ export default function WeekView({
               onStartupRitual={() => onStartupRitual?.(dayKey)}
               onShutdownRitual={() => onShutdownRitual?.(dayKey)}
               focusModeActive={focusDay === dayKey}
+              isLast={isLastVisible}
             />
           )
         })}

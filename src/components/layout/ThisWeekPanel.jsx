@@ -117,7 +117,7 @@ export default function ThisWeekPanel({
         width: collapsed ? 36 : 260,
         flexShrink: 0,
         background: 'var(--surface-2)',
-        borderRight: '1px solid var(--border)',
+        borderRight: '1px solid var(--col-sep)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
