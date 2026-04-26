@@ -47,6 +47,10 @@ export function isToday(date) {
 
 /** Returns the Monday of the current week as 'YYYY-MM-DD'. */
 export function getCurrentWeekStart() {
-  const monday = getWeekStart(new Date());
-  return monday.toISOString().split('T')[0];
+  const d = new Date()
+  const day = d.getDay()
+  const diff = day === 0 ? -6 : 1 - day
+  d.setDate(d.getDate() + diff)
+  d.setHours(0, 0, 0, 0)
+  return d.toISOString().split('T')[0]
 }

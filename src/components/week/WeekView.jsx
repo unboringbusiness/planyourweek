@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getWeekDays, isToday } from '../../lib/dates'
+import { getWeekDays } from '../../lib/dates'
 import DayColumn from './DayColumn'
 
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
@@ -65,38 +65,58 @@ export default function WeekView({
         <SlotLegend />
       )}
 
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        overflowX: focusDay ? 'hidden' : 'auto',
-        overflowY: 'auto',
-      }}>
-        {visibleDays.map((dayKey, i) => {
-          const actualIdx = DAYS.indexOf(dayKey)
-          const isLastVisible = i === visibleDays.length - 1
-          return (
-            <DayColumn
-              key={dayKey}
-              dayKey={dayKey}
-              dayDate={weekDays[actualIdx]}
-              slots={week?.slots?.[dayKey]}
-              getMeta={getMeta}
-              setTaskMeta={setTaskMeta}
-              mitCount={mitCount}
-              onAddSlot={onAddSlot}
-              onRemoveSlot={onRemoveSlot}
-              onMoveToSomeday={onMoveToSomeday}
-              onMoveToTomorrow={onMoveToTomorrow}
-              onOpenDetail={onOpenDetail}
-              onStartTimer={onStartTimer}
-              onFocusMode={() => handleFocusMode(dayKey)}
-              onStartupRitual={() => onStartupRitual?.(dayKey)}
-              onShutdownRitual={() => onShutdownRitual?.(dayKey)}
-              focusModeActive={focusDay === dayKey}
-              isLast={isLastVisible}
-            />
-          )
-        })}
+      {/* Scroll container with right fade gradient */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <div
+          style={{
+            position: 'absolute', inset: 0,
+            display: 'flex',
+            overflowX: focusDay ? 'hidden' : 'auto',
+            overflowY: 'auto',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
+          {visibleDays.map((dayKey, i) => {
+            const actualIdx = DAYS.indexOf(dayKey)
+            const isLastVisible = i === visibleDays.length - 1
+            return (
+              <DayColumn
+                key={dayKey}
+                dayKey={dayKey}
+                dayDate={weekDays[actualIdx]}
+                slots={week?.slots?.[dayKey]}
+                getMeta={getMeta}
+                setTaskMeta={setTaskMeta}
+                mitCount={mitCount}
+                onAddSlot={onAddSlot}
+                onRemoveSlot={onRemoveSlot}
+                onMoveToSomeday={onMoveToSomeday}
+                onMoveToTomorrow={onMoveToTomorrow}
+                onOpenDetail={onOpenDetail}
+                onStartTimer={onStartTimer}
+                onFocusMode={() => handleFocusMode(dayKey)}
+                onStartupRitual={() => onStartupRitual?.(dayKey)}
+                onShutdownRitual={() => onShutdownRitual?.(dayKey)}
+                focusModeActive={focusDay === dayKey}
+                isLast={isLastVisible}
+              />
+            )
+          })}
+        </div>
+
+        {/* Right-edge fade — indicates horizontal scroll without visible scrollbar */}
+        {!focusDay && (
+          <div
+            style={{
+              position: 'absolute', top: 0, right: 0, bottom: 0,
+              width: 48,
+              background: 'linear-gradient(to right, transparent, var(--bg))',
+              pointerEvents: 'none',
+              zIndex: 2,
+            }}
+          />
+        )}
       </div>
     </div>
   )

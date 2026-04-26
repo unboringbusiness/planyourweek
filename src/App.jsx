@@ -13,12 +13,13 @@ import { useAuth } from './hooks/useAuth'
 import { useDump } from './hooks/useDump'
 import { useWeek } from './hooks/useWeek'
 import { useBacklog } from './hooks/useBacklog'
+import { useProjects } from './hooks/useProjects'
 import { useTaskMeta } from './hooks/useTaskMeta'
 import { useTimer } from './hooks/useTimer'
 import { LIMITS } from './lib/limits'
 
 import TopBar from './components/layout/TopBar'
-import ThisWeekPanel from './components/layout/ThisWeekPanel'
+import LeftPanel from './components/layout/LeftPanel'
 import MITsRow from './components/layout/MITsRow'
 import WeekView from './components/week/WeekView'
 import { TaskCardBase } from './components/week/TaskCard'
@@ -50,6 +51,7 @@ export default function App() {
   const dump = useDump(user)
   const weekData = useWeek(user)
   const backlog = useBacklog()
+  const projectsHook = useProjects(user)
   const taskMeta = useTaskMeta()
   const timerHook = useTimer()
 
@@ -94,6 +96,18 @@ export default function App() {
 
   const getMeta = (id) => taskMeta.getMeta(id)
   const setTaskMetaFn = (id, changes) => taskMeta.setTaskMeta(id, changes)
+
+  const moveDumpItemToSection = async (item, day, slotType) => {
+    const sectionTasks = weekData.week?.slots?.[day]?.[slotType] ?? []
+    if (sectionTasks.length >= (SLOT_LIMITS[slotType] ?? 99)) return false
+
+    const { data: newTask } = await weekData.addSlot(day, slotType, item.text)
+    if (newTask) {
+      taskMeta.setTaskMeta(newTask.id, { duration: 30 })
+    }
+    dump.removeItem(item.id)
+    return true
+  }
 
   const moveBacklogItemToSection = async (item, day, slotType) => {
     const sectionTasks = weekData.week?.slots?.[day]?.[slotType] ?? []
@@ -189,7 +203,29 @@ export default function App() {
 
     if (!activeData) return
 
-    // Backlog item dropped somewhere
+    // Dump item dropped onto a day column section
+    if (activeData.type === 'dump') {
+      const item = activeData.item
+
+      if (overData?.type === 'section') {
+        await moveDumpItemToSection(item, overData.day, overData.slotType)
+        return
+      }
+      if (overData?.type === 'slot') {
+        await moveDumpItemToSection(item, overData.day, overData.slotType)
+        return
+      }
+      if (overData?.type === 'dump') {
+        const oldIdx = dump.items.findIndex(i => i.id === active.id)
+        const newIdx = dump.items.findIndex(i => i.id === over.id)
+        if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
+          dump.reorderItems(arrayMove(dump.items, oldIdx, newIdx))
+        }
+        return
+      }
+    }
+
+    // Backlog item dropped somewhere (kept for reset flow compatibility)
     if (activeData.type === 'backlog') {
       const item = activeData.item
 
@@ -261,12 +297,12 @@ export default function App() {
   }
 
   const activeDragMeta = activeDragItem
-    ? activeDragItem.type === 'backlog'
+    ? activeDragItem.type === 'backlog' || activeDragItem.type === 'dump'
       ? { duration: activeDragItem.item?.duration ?? 30, is_mit: activeDragItem.item?.is_mit ?? false, done: activeDragItem.item?.done ?? false }
       : taskMeta.getMeta(activeDragItem.task?.id)
     : null
 
-  const activeDragText = activeDragItem?.type === 'backlog'
+  const activeDragText = activeDragItem?.type === 'backlog' || activeDragItem?.type === 'dump'
     ? activeDragItem.item?.text
     : activeDragItem?.task?.text
 
@@ -310,15 +346,11 @@ export default function App() {
             onDragEnd={handleDragEnd}
           >
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-              <ThisWeekPanel
-                items={backlog.items}
-                count={backlog.count}
-                isAtCapacity={backlog.isAtCapacity}
-                mitCount={mitCount}
-                onAddItem={backlog.addItem}
-                onRemoveItem={backlog.removeItem}
-                onUpdateItem={backlog.updateItem}
-                onMoveToSomeday={moveBacklogToDump}
+              <LeftPanel
+                dump={dump}
+                projects={projectsHook.activeProjects}
+                projectsFull={projectsHook.isFull}
+                onAddProject={projectsHook.addProject}
               />
 
               <WeekView

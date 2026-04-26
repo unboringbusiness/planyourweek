@@ -19,12 +19,8 @@ const DURATION_PRESETS = [
   { label: '2h', value: 120 },
 ]
 
-// Left border color per slot type
-const LEFT_BORDER = {
-  deep_work: '#3B82F6',
-  scheduled: '#F08F48',
-  admin: 'transparent',
-}
+// Left border — MIT gold only, no slot-type coloring (accent lives on section line)
+const MIT_BORDER = '#FFD156'
 
 // Timer chip + duration popover
 function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
@@ -144,7 +140,7 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
 
 // Day column card — Sunsama/Ellie style
 export function DayTaskCard({
-  taskId, text, meta = {}, slotType,
+  taskId, text, meta = {},
   onDurationChange, onMITToggle, onDoneToggle, onRemove,
   onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer,
   mitCount = 0, dragHandleProps = {}, isDragOverlay = false,
@@ -153,7 +149,7 @@ export function DayTaskCard({
   const [hovered, setHovered] = useState(false)
   const { duration = 30, is_mit = false, done = false } = meta
   const canToggleMIT = mitCount < 3 || is_mit
-  const leftBorder = is_mit ? '#FFD156' : (LEFT_BORDER[slotType] ?? 'transparent')
+  const leftBorder = is_mit ? MIT_BORDER : 'transparent'
 
   return (
     <div
@@ -167,7 +163,7 @@ export function DayTaskCard({
         padding: '10px 12px',
         minHeight: 40,
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: 10,
         boxShadow: isDragOverlay
           ? '0 8px 32px rgba(0,0,0,0.18)'
@@ -178,7 +174,7 @@ export function DayTaskCard({
         transition: 'background 0.1s',
       }}
     >
-      {/* Checkbox */}
+      {/* Checkbox — top-aligned with text */}
       <div
         onClick={e => { e.stopPropagation(); onDoneToggle?.() }}
         style={{
@@ -187,6 +183,7 @@ export function DayTaskCard({
           border: done ? 'none' : '1.5px solid #D0CEC9',
           background: done ? 'var(--success)' : 'transparent',
           flexShrink: 0,
+          marginTop: 1,
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'background 0.15s, border 0.15s',
@@ -208,11 +205,9 @@ export function DayTaskCard({
           color: done ? '#B0AEA9' : 'var(--text-1)',
           textDecoration: done ? 'line-through' : 'none',
           cursor: isDragOverlay ? 'grabbing' : 'pointer',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
           lineHeight: 1.4,
           fontWeight: 400,
+          wordBreak: 'break-word',
         }}
         title={meta.textOverride || text}
       >
@@ -407,9 +402,9 @@ export function PanelTaskCard({
 }
 
 // Drag overlay ghost
-export function TaskCardBase({ text, meta = {}, slotType, isDragOverlay = true }) {
+export function TaskCardBase({ text, meta = {}, isDragOverlay = true }) {
   const { duration = 30, is_mit = false } = meta
-  const leftBorder = is_mit ? '#FFD156' : (LEFT_BORDER[slotType] ?? 'transparent')
+  const leftBorder = is_mit ? MIT_BORDER : 'transparent'
   return (
     <div style={{
       background: 'var(--surface)',
@@ -420,8 +415,8 @@ export function TaskCardBase({ text, meta = {}, slotType, isDragOverlay = true }
       opacity: 0.92, boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
       userSelect: 'none', cursor: 'grabbing', minWidth: 140,
     }}>
-      <div style={{ width: 17, height: 17, borderRadius: '50%', border: '1.5px solid #D0CEC9', flexShrink: 0 }} />
-      <span style={{ fontSize: 14, color: 'var(--text-1)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <div style={{ width: 17, height: 17, borderRadius: '50%', border: '1.5px solid #D0CEC9', flexShrink: 0, marginTop: 1 }} />
+      <span style={{ fontSize: 14, color: 'var(--text-1)', flex: 1, lineHeight: 1.4, wordBreak: 'break-word' }}>
         {text}
       </span>
       <span style={{ fontSize: 11, color: 'var(--chip-text)', background: 'var(--chip-bg)', borderRadius: 4, padding: '2px 7px' }}>
