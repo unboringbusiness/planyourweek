@@ -15,8 +15,11 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
       borderBottom: `1px solid ${borderColor}`,
       flexShrink: 0, position: 'sticky', top: 0, zIndex: 100,
     }}>
-      <span style={{ fontWeight: 600, fontSize: 15, color: logoColor, letterSpacing: '-0.01em' }}>
-        planyourweek.co
+      <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1 }}>
+        <span style={{ fontWeight: 400, color: logoColor }}>plan</span>
+        <span style={{ fontWeight: 400, color: logoColor }}>your</span>
+        <span style={{ fontWeight: 700, color: '#3B82F6' }}>week</span>
+        <span style={{ fontWeight: 400, fontSize: 11, color: '#9CA3AF' }}>.co</span>
       </span>
 
       <nav style={{ display: 'flex', gap: 2, alignItems: 'center' }}>

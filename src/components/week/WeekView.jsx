@@ -43,10 +43,10 @@ export default function WeekView({
   useEffect(() => {
     const timer = setTimeout(() => {
       const todayEl = document.querySelector('[data-today="true"]')
-      if (todayEl && todayEl.parentElement) {
-        todayEl.parentElement.scrollLeft = todayEl.offsetLeft - 260
+      if (todayEl && scrollRef.current) {
+        scrollRef.current.scrollLeft = todayEl.offsetLeft
       }
-    }, 200)
+    }, 300)
     return () => clearTimeout(timer)
   }, [])
 

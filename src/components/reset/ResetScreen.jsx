@@ -118,10 +118,10 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
     <div style={{
       flex: 1,
       overflowY: 'auto',
-      background: 'var(--bg)',
+      background: '#F9F8F6',
       padding: '32px',
     }}>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
         {/* Heading */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-1)', marginBottom: 4 }}>
@@ -136,7 +136,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
         <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
           {statCard('Completed', completedTasks.length)}
           {statCard('Unfinished', unfinishedTasks.length)}
-          {statCard('Weekly MITs done', `${mitsDone}/3`)}
+          {statCard('Milestones done', `${mitsDone}/3`)}
           {statCard('Focus hours', focusHours + 'h')}
         </div>
 
@@ -144,7 +144,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
         {completedTasks.length > 0 && (
           <div style={{ marginBottom: 28 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-              Completed this week
+              Completed today
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {completedTasks.map(t => (
@@ -243,6 +243,35 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
           </div>
         </div>
 
+        {/* Do Nothing Timer */}
+        <div style={{
+          borderTop: '1px solid var(--border)',
+          paddingTop: 24,
+          marginBottom: 20,
+        }}>
+          <div style={{ fontSize: 16, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+            Before tomorrow, do nothing for 2 minutes.
+          </div>
+          <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.5, marginBottom: 12 }}>
+            Let your mind settle. No phone. No task. Just rest.
+          </p>
+          <button
+            onClick={() => window.open('https://donothingtimer.com', '_blank')}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: '8px 14px',
+              fontSize: 13,
+              color: '#6B7280',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Open Do Nothing Timer →
+          </button>
+        </div>
+
         {/* Close button */}
         <button
           onClick={handleClose}
@@ -258,7 +287,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
             cursor: 'pointer',
           }}
         >
-          Close the week →
+          Close the day →
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { LIMITS } from '../../lib/limits'
 
-export default function DumpPanel({ open, onClose, dump }) {
+export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
   const [inputVal, setInputVal] = useState('')
   const [error, setError] = useState('')
   const inputRef = useRef(null)
@@ -32,8 +32,8 @@ export default function DumpPanel({ open, onClose, dump }) {
       )}
 
       <div style={{
-        position: 'fixed', top: 0, right: 0, height: '100%', width: 360,
-        background: 'var(--bg)', borderLeft: '1px solid var(--border)',
+        position: 'fixed', top: 0, right: 0, height: '100%', width: 400,
+        background: '#F9F8F6', borderLeft: '1px solid var(--border)',
         zIndex: 201, display: 'flex', flexDirection: 'column',
         transform: open ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)',
@@ -41,15 +41,16 @@ export default function DumpPanel({ open, onClose, dump }) {
       }}>
         {/* Header */}
         <div style={{
-          padding: '16px 18px 14px', borderBottom: '1px solid var(--border)',
+          padding: '16px 20px 14px', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
+          background: '#F9F8F6',
         }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)' }}>
-              Brain Dump
+              Open List
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-2)', marginTop: 1 }}>
-              Your someday/maybe list · {dump.count} items
+              Everything that's not this week · {dump.count} items
             </div>
           </div>
           <button
@@ -64,15 +65,20 @@ export default function DumpPanel({ open, onClose, dump }) {
           </button>
         </div>
 
-        {/* Add input */}
-        <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', gap: 7 }}>
+        {/* Capture input */}
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+          <div style={{
+            display: 'flex', gap: 8, alignItems: 'center',
+            background: '#FFFFFF', borderRadius: 10,
+            border: '1px solid var(--border)',
+            padding: '8px 12px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+          }}>
             <input
               ref={inputRef}
               style={{
-                flex: 1, padding: '8px 11px', borderRadius: 9,
-                border: '1px solid var(--border)', background: 'var(--surface)',
-                fontSize: 13, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
+                flex: 1, background: 'none', border: 'none',
+                fontSize: 14, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
               }}
               placeholder="Capture a thought…"
               value={inputVal}
@@ -89,9 +95,9 @@ export default function DumpPanel({ open, onClose, dump }) {
               disabled={dump.isFull}
               style={{
                 background: dump.isFull ? 'var(--border)' : 'var(--accent)',
-                border: 'none', borderRadius: 9, width: 34, height: 34,
+                border: 'none', borderRadius: 7, width: 28, height: 28,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 20, flexShrink: 0,
+                color: '#fff', fontSize: 18, flexShrink: 0,
                 cursor: dump.isFull ? 'not-allowed' : 'pointer',
               }}
             >
@@ -101,41 +107,63 @@ export default function DumpPanel({ open, onClose, dump }) {
           {error && <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>{error}</div>}
           {dump.isFull && (
             <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>
-              Dump full ({LIMITS.DUMP_MAX} items). Process some items before adding more.
+              Open list full ({LIMITS.DUMP_MAX} items). Process some before adding more.
             </div>
           )}
         </div>
 
         {/* Items */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '10px 16px' }}>
           {dump.items.length === 0 ? (
             <div style={{
-              padding: '32px 16px', textAlign: 'center',
-              color: 'var(--text-2)', fontSize: 13, lineHeight: 1.6,
+              padding: '60px 16px', textAlign: 'center',
             }}>
-              Empty dump. Capture anything on your mind — no filter, no judgment.
+              <div style={{ fontSize: 16, color: '#9CA3AF', marginBottom: 8 }}>Your mind is clear.</div>
+              <div style={{ fontSize: 14, color: '#9CA3AF', lineHeight: 1.5 }}>
+                Add anything here. Process it into your week when ready.
+              </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {dump.items.map(item => (
                 <div
                   key={item.id}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px',
-                    borderRadius: 9, background: 'var(--surface)', border: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    background: '#FFFFFF',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   }}
                 >
+                  {/* Drag handle */}
+                  <span style={{ color: '#D1D5DB', fontSize: 14, cursor: 'grab', flexShrink: 0, lineHeight: 1 }}>
+                    ⠿
+                  </span>
                   <span style={{
-                    flex: 1, fontSize: 13, color: 'var(--text-1)',
+                    flex: 1, fontSize: 14, color: '#1A1A2E',
                     lineHeight: 1.4, wordBreak: 'break-word',
                   }}>
                     {item.text}
                   </span>
                   <button
+                    onClick={() => onMoveToWeek?.(item)}
+                    title="Move to This Week"
+                    style={{
+                      background: 'none', border: 'none',
+                      fontSize: 12, color: '#3B82F6', fontWeight: 500,
+                      cursor: 'pointer', padding: '2px 4px', flexShrink: 0,
+                      fontFamily: 'inherit', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    → This Week
+                  </button>
+                  <button
                     onClick={() => dump.removeItem(item.id)}
                     style={{
-                      background: 'none', border: 'none', color: 'var(--text-2)',
-                      fontSize: 15, padding: '0 3px', cursor: 'pointer',
+                      background: 'none', border: 'none', color: '#D1D5DB',
+                      fontSize: 16, padding: '0 2px', cursor: 'pointer',
                       flexShrink: 0, lineHeight: 1,
                     }}
                     title="Remove"

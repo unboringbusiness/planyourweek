@@ -358,14 +358,6 @@ export default function App() {
           onClose={() => setView('week')}
         />
       ) : (
-        <>
-          <MITsRow
-            week={weekData.week}
-            weekStart={weekData.weekStart}
-            setMITs={weekData.setMITs}
-            allMITs={allMITs}
-          />
-
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -375,21 +367,30 @@ export default function App() {
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <LeftPanel dump={dump} listsHook={listsHook} />
 
-              <WeekView
-                week={weekData.week}
-                weekStart={weekData.weekStart}
-                getMeta={getMeta}
-                setTaskMeta={setTaskMetaFn}
-                mitCount={mitCount}
-                onAddSlot={weekData.addSlot}
-                onRemoveSlot={weekData.removeSlot}
-                onMoveToSomeday={moveSlotToDump}
-                onMoveToTomorrow={handleMoveToTomorrow}
-                onOpenDetail={handleOpenDetail}
-                onStartTimer={handleStartTimer}
-                onStartupRitual={(dayKey) => setStartupRitualDay(dayKey)}
-                onShutdownRitual={(dayKey) => setShutdownRitualDay(dayKey)}
-              />
+              {/* Right column: milestone row + week columns */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <MITsRow
+                  week={weekData.week}
+                  weekStart={weekData.weekStart}
+                  setMITs={weekData.setMITs}
+                  allMITs={allMITs}
+                />
+                <WeekView
+                  week={weekData.week}
+                  weekStart={weekData.weekStart}
+                  getMeta={getMeta}
+                  setTaskMeta={setTaskMetaFn}
+                  mitCount={mitCount}
+                  onAddSlot={weekData.addSlot}
+                  onRemoveSlot={weekData.removeSlot}
+                  onMoveToSomeday={moveSlotToDump}
+                  onMoveToTomorrow={handleMoveToTomorrow}
+                  onOpenDetail={handleOpenDetail}
+                  onStartTimer={handleStartTimer}
+                  onStartupRitual={(dayKey) => setStartupRitualDay(dayKey)}
+                  onShutdownRitual={(dayKey) => setShutdownRitualDay(dayKey)}
+                />
+              </div>
             </div>
 
             <DragOverlay dropAnimation={null}>
@@ -404,7 +405,6 @@ export default function App() {
               )}
             </DragOverlay>
           </DndContext>
-        </>
       )}
 
       {/* Panels */}
@@ -412,6 +412,10 @@ export default function App() {
         open={dumpOpen}
         onClose={() => setDumpOpen(false)}
         dump={dump}
+        onMoveToWeek={async (item) => {
+          await weekData.addSlot('monday', 'admin', item.text)
+          dump.removeItem(item.id)
+        }}
       />
 
       <SettingsPanel

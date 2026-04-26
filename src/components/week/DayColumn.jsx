@@ -67,7 +67,7 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
           }}>
             {cfg.label}
           </span>
-          <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 500 }}>
+          <span style={{ fontSize: 10, color: tasks.length > cfg.max ? 'var(--danger)' : '#9CA3AF', fontWeight: 500 }}>
             {tasks.length}/{cfg.max}
           </span>
         </div>
