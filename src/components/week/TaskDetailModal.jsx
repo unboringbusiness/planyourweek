@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react'
 import { formatDuration } from './TaskCard'
 
-const PRESETS = [5, 15, 25, 45, 60, 120]
-
 export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, onStartTimer }) {
   const [title, setTitle] = useState(meta.textOverride || task?.text || '')
   const [notes, setNotes] = useState(meta.notes || '')
   const [duration, setDuration] = useState(meta.duration ?? 30)
-  const [subtasks, setSubtasks] = useState(meta.subtasks || [])
-  const [newSubtask, setNewSubtask] = useState('')
 
   useEffect(() => {
     const handleKey = e => { if (e.key === 'Escape') onClose() }
@@ -17,22 +13,11 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
   }, [onClose])
 
   const save = () => {
-    onUpdate?.({ textOverride: title, notes, duration, subtasks })
+    onUpdate?.({ textOverride: title, notes, duration })
     onClose()
   }
 
-  const addSubtask = () => {
-    const trimmed = newSubtask.trim()
-    if (!trimmed) return
-    setSubtasks(prev => [...prev, { id: crypto.randomUUID(), text: trimmed, done: false }])
-    setNewSubtask('')
-  }
-
-  const toggleSubtask = (id) => {
-    setSubtasks(prev => prev.map(s => s.id === id ? { ...s, done: !s.done } : s))
-  }
-
-  const removeSubtask = (id) => setSubtasks(prev => prev.filter(s => s.id !== id))
+  const pct = Math.round((duration / 360) * 100)
 
   return (
     <div
@@ -46,9 +31,9 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
         onClick={e => e.stopPropagation()}
         style={{
           background: 'var(--surface)', borderRadius: 16,
-          padding: '24px', width: 480, maxWidth: '95vw', maxHeight: '85vh',
-          overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
-          display: 'flex', flexDirection: 'column', gap: 16,
+          padding: '24px', width: 460, maxWidth: '95vw',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
+          display: 'flex', flexDirection: 'column', gap: 18,
         }}
       >
         {/* Header */}
@@ -79,27 +64,43 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
           </button>
         </div>
 
-        {/* Duration */}
+        {/* Duration slider */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-            Estimated time
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 10,
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+              Estimated time
+            </span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>
+              {formatDuration(duration)}
+            </span>
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {PRESETS.map(p => (
-              <button
-                key={p}
-                onClick={() => setDuration(p)}
-                style={{
-                  padding: '4px 10px', borderRadius: 7,
-                  border: `1.5px solid ${duration === p ? 'var(--accent)' : 'var(--border)'}`,
-                  background: duration === p ? 'var(--accent)' : 'var(--surface-2)',
-                  color: duration === p ? '#fff' : 'var(--text-1)',
-                  fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                {formatDuration(p)}
-              </button>
-            ))}
+          <div style={{ position: 'relative' }}>
+            <input
+              type="range"
+              min={5}
+              max={360}
+              step={5}
+              value={duration}
+              onChange={e => setDuration(Number(e.target.value))}
+              style={{
+                width: '100%',
+                height: 4,
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${pct}%, var(--border) ${pct}%, var(--border) 100%)`,
+                borderRadius: 2,
+                outline: 'none',
+                cursor: 'pointer',
+              }}
+              className="duration-slider"
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+            <span style={{ fontSize: 10, color: 'var(--text-2)' }}>5m</span>
+            <span style={{ fontSize: 10, color: 'var(--text-2)' }}>6h</span>
           </div>
         </div>
 
@@ -118,66 +119,13 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
               border: '1px solid var(--border)', background: 'var(--surface)',
               fontSize: 13, color: 'var(--text-1)', outline: 'none',
               resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5,
+              boxSizing: 'border-box',
             }}
           />
         </div>
 
-        {/* Subtasks */}
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-            Subtasks
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 6 }}>
-            {subtasks.map(s => (
-              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <input
-                  type="checkbox"
-                  checked={s.done}
-                  onChange={() => toggleSubtask(s.id)}
-                  style={{ cursor: 'pointer', accentColor: 'var(--success)' }}
-                />
-                <span style={{
-                  flex: 1, fontSize: 13, color: 'var(--text-1)',
-                  textDecoration: s.done ? 'line-through' : 'none',
-                  opacity: s.done ? 0.55 : 1,
-                }}>
-                  {s.text}
-                </span>
-                <button
-                  onClick={() => removeSubtask(s.id)}
-                  style={{ background: 'none', border: 'none', color: 'var(--text-2)', cursor: 'pointer', fontSize: 14 }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <input
-              value={newSubtask}
-              onChange={e => setNewSubtask(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') addSubtask() }}
-              placeholder="+ Add subtask"
-              style={{
-                flex: 1, padding: '6px 9px', borderRadius: 7, border: '1px solid var(--border)',
-                background: 'var(--surface-2)', fontSize: 12, color: 'var(--text-1)',
-                outline: 'none', fontFamily: 'inherit',
-              }}
-            />
-            <button
-              onClick={addSubtask}
-              style={{
-                background: 'var(--accent)', border: 'none', borderRadius: 7,
-                padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              Add
-            </button>
-          </div>
-        </div>
-
         {/* Footer */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => { onStartTimer?.(task?.id, title || task?.text); onClose() }}
             style={{

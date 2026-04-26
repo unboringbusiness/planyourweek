@@ -1,14 +1,38 @@
-import { useState } from 'react'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useSortable } from '@dnd-kit/sortable'
+import { useState, useRef, useEffect } from 'react'
+import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-// Compact dump row — sortable, draggable to day columns
-function DumpRow({ item, onRemove, dragHandleProps, isDragOverlay }) {
+const PRESET_EMOJIS = ['📋','📌','💡','🎯','🔧','📚','💼','🏃','✍️','🎨','🔬','🌱','⚡','🎵','🏠','💰','🤝','🚀','🔑','📊']
+
+// Circle checkbox — same style as DayColumn tasks
+function CircleCheck({ checked, onChange, size = 15 }) {
+  return (
+    <div
+      onClick={e => { e.stopPropagation(); onChange() }}
+      style={{
+        width: size, height: size, borderRadius: '50%', flexShrink: 0,
+        border: checked ? 'none' : '1.5px solid #D0CEC9',
+        background: checked ? 'var(--success)' : 'transparent',
+        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 0.15s, border 0.15s',
+        marginTop: 1,
+      }}
+    >
+      {checked && (
+        <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+          <path d="M1 3.5l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+    </div>
+  )
+}
+
+// Single item row — sortable + draggable to day columns
+function ListItemRow({ item, onToggle, onRemove, dragType }) {
   const [hovered, setHovered] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
-    data: { type: 'dump', item },
+    data: { type: dragType, item },
   })
 
   return (
@@ -22,37 +46,27 @@ function DumpRow({ item, onRemove, dragHandleProps, isDragOverlay }) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '6px 8px', borderRadius: 6,
+          display: 'flex', alignItems: 'flex-start', gap: 7,
+          padding: '5px 6px', borderRadius: 6,
           background: hovered ? 'var(--surface)' : 'transparent',
-          cursor: 'grab', transition: 'background 0.1s',
-          userSelect: 'none',
+          cursor: 'grab', userSelect: 'none',
         }}
       >
-        {/* Drag indicator */}
-        <div style={{
-          width: 3, flexShrink: 0,
-          display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center',
-        }}>
-          {[0, 1, 2].map(i => (
-            <div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: '#D0CEC9' }} />
-          ))}
-        </div>
-
+        <CircleCheck checked={item.done} onChange={() => onToggle(item.id)} />
         <span style={{
-          flex: 1, fontSize: 13, color: 'var(--text-1)',
+          flex: 1, fontSize: 13,
+          color: item.done ? 'var(--text-2)' : 'var(--text-1)',
+          textDecoration: item.done ? 'line-through' : 'none',
           lineHeight: 1.35, wordBreak: 'break-word',
         }}>
           {item.text}
         </span>
-
-        {hovered && !isDragOverlay && (
+        {hovered && (
           <button
-            onClick={e => { e.stopPropagation(); onRemove?.(item.id) }}
+            onClick={e => { e.stopPropagation(); onRemove(item.id) }}
             style={{
               background: 'none', border: 'none', padding: '0 2px',
-              fontSize: 14, color: '#D0CEC9', cursor: 'pointer',
-              lineHeight: 1, flexShrink: 0,
+              fontSize: 14, color: '#D0CEC9', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
             }}
             onMouseEnter={e => { e.currentTarget.style.color = 'var(--danger)' }}
             onMouseLeave={e => { e.currentTarget.style.color = '#D0CEC9' }}
@@ -65,288 +79,377 @@ function DumpRow({ item, onRemove, dragHandleProps, isDragOverlay }) {
   )
 }
 
-const PROJECT_COLORS = ['#3B82F6', '#F08F48', '#10B981', '#8B5CF6', '#EF4444', '#F59E0B', '#06B6D4', '#EC4899']
+// Expandable list section
+function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onAddItem, canAdd, listId, onRename, onDelete, isPermanent }) {
+  const [expanded, setExpanded] = useState(true)
+  const [addVal, setAddVal] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [renaming, setRenaming] = useState(false)
+  const [renameVal, setRenameVal] = useState(title)
+  const [renameEmoji, setRenameEmoji] = useState(emoji)
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+  const menuRef = useRef(null)
 
-function ProjectDot({ color }) {
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
+  const handleAdd = () => {
+    const trimmed = addVal.trim()
+    if (!trimmed) return
+    onAddItem(listId, trimmed)
+    setAddVal('')
+  }
+
+  const handleRename = () => {
+    const trimmed = renameVal.trim()
+    if (trimmed) onRename?.(listId, { emoji: renameEmoji, name: trimmed })
+    setRenaming(false)
+  }
+
+  const sortedItems = [...items].sort((a, b) => a.done === b.done ? 0 : a.done ? 1 : -1)
+
   return (
-    <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+    <div style={{ marginBottom: 2 }}>
+      {/* List header */}
+      <div
+        style={{
+          display: 'flex', alignItems: 'center', gap: 5,
+          padding: '5px 6px', borderRadius: 6,
+          cursor: 'pointer',
+        }}
+        onClick={() => setExpanded(v => !v)}
+      >
+        <span style={{ fontSize: 13, flexShrink: 0 }}>{emoji}</span>
+        {renaming ? (
+          <input
+            autoFocus
+            value={renameVal}
+            onChange={e => setRenameVal(e.target.value)}
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleRename()
+              if (e.key === 'Escape') setRenaming(false)
+            }}
+            onBlur={handleRename}
+            style={{
+              flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--text-1)',
+              background: 'var(--surface)', border: '1px solid var(--accent)',
+              borderRadius: 4, padding: '1px 5px', outline: 'none', fontFamily: 'inherit',
+            }}
+          />
+        ) : (
+          <span style={{
+            flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--text-1)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {title}
+          </span>
+        )}
+        <span style={{ fontSize: 10, color: 'var(--text-2)', flexShrink: 0 }}>
+          {items.length || ''}
+        </span>
+        <span style={{ fontSize: 10, color: 'var(--text-2)', flexShrink: 0, width: 12, textAlign: 'center' }}>
+          {expanded ? '▾' : '›'}
+        </span>
+        {!isPermanent && (
+          <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
+            <button
+              onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+              style={{
+                background: 'none', border: 'none', padding: '0 2px',
+                fontSize: 12, color: 'var(--text-2)', cursor: 'pointer', lineHeight: 1,
+                letterSpacing: '1px',
+              }}
+            >
+              •••
+            </button>
+            {menuOpen && (
+              <div style={{
+                position: 'absolute', right: 0, top: '100%', marginTop: 2,
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+                zIndex: 100, minWidth: 130, overflow: 'hidden',
+              }}>
+                <button
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); setRenaming(true) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  Rename
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); onDelete?.(listId) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--danger)', cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  Delete list
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Items */}
+      {expanded && (
+        <div style={{ paddingLeft: 4 }}>
+          <SortableContext items={sortedItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+            {sortedItems.map(item => (
+              <ListItemRow
+                key={item.id}
+                item={item}
+                dragType={dragType}
+                onToggle={onToggle}
+                onRemove={onRemove}
+              />
+            ))}
+          </SortableContext>
+          {canAdd && (
+            <div style={{ padding: '3px 6px' }}>
+              <input
+                style={{
+                  width: '100%', background: 'none', border: 'none', outline: 'none',
+                  fontSize: 12, color: 'var(--text-1)', fontFamily: 'inherit',
+                  padding: '3px 0',
+                }}
+                placeholder="+ Add task…"
+                value={addVal}
+                onChange={e => setAddVal(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleAdd()
+                }}
+                onFocus={e => { e.currentTarget.placeholder = '' }}
+                onBlur={e => { e.currentTarget.placeholder = '+ Add task…' }}
+                maxLength={200}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
-export default function LeftPanel({ dump, projects, projectsFull, onAddProject }) {
-  const [collapsed, setCollapsed] = useState(false)
-  const [addVal, setAddVal] = useState('')
-  const [activeProjectId, setActiveProjectId] = useState(null)
-  const [addingProject, setAddingProject] = useState(false)
-  const [newProjectName, setNewProjectName] = useState('')
-  const [newProjectColor, setNewProjectColor] = useState(PROJECT_COLORS[0])
-
-  const activeProjects = projects?.filter(p => !p.archived) ?? []
-
-  const visibleItems = activeProjectId
-    ? dump.items.filter(item => item.project_id === activeProjectId)
-    : dump.items
-
-  const handleAddDump = async () => {
-    const trimmed = addVal.trim()
-    if (!trimmed) return
-    const result = await dump.addItem(trimmed)
-    if (!result?.error) setAddVal('')
-  }
-
-  const handleAddProject = async () => {
-    const trimmed = newProjectName.trim()
-    if (!trimmed) return
-    await onAddProject?.({ name: trimmed, color: newProjectColor })
-    setNewProjectName('')
-    setAddingProject(false)
-  }
-
-  const toggleProjectFilter = (id) => {
-    setActiveProjectId(prev => prev === id ? null : id)
-  }
+// New list modal
+function NewListModal({ onClose, onAdd }) {
+  const [name, setName] = useState('')
+  const [emoji, setEmoji] = useState('📋')
 
   return (
-    <aside
-      data-tour="leftpanel"
+    <div
+      onClick={onClose}
       style={{
-        width: collapsed ? 36 : 256,
-        flexShrink: 0,
-        background: 'var(--surface-2)',
-        borderRight: '1px solid var(--col-sep)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        transition: 'width 0.2s ease',
+        position: 'fixed', inset: 0, background: 'var(--overlay)',
+        zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
-      {/* Collapsed state */}
-      {collapsed && (
-        <button
-          onClick={() => setCollapsed(false)}
-          title="Expand"
-          style={{
-            margin: '10px auto 0',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: 6,
-            width: 24, height: 24,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--accent)', fontSize: 14, cursor: 'pointer', flexShrink: 0,
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'var(--surface)', borderRadius: 14,
+          padding: '20px 22px', width: 300, maxWidth: '90vw',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
+          display: 'flex', flexDirection: 'column', gap: 12,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-1)' }}>New List</div>
+
+        {/* Emoji picker */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {PRESET_EMOJIS.map(e => (
+            <button
+              key={e}
+              onClick={() => setEmoji(e)}
+              style={{
+                width: 30, height: 30, borderRadius: 7, fontSize: 16,
+                background: emoji === e ? 'var(--accent)' : 'var(--surface-2)',
+                border: `1.5px solid ${emoji === e ? 'var(--accent)' : 'var(--border)'}`,
+                cursor: 'pointer',
+              }}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+
+        <input
+          autoFocus
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && name.trim()) { onAdd({ emoji, name }); onClose() }
+            if (e.key === 'Escape') onClose()
           }}
-        >
-          ›
-        </button>
-      )}
+          placeholder="List name…"
+          maxLength={60}
+          style={{
+            padding: '8px 10px', borderRadius: 8,
+            border: '1.5px solid var(--accent)', background: 'var(--surface)',
+            fontSize: 13, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
+          }}
+        />
 
-      {!collapsed && (
-        <>
-          {/* Brain Dump header */}
-          <div style={{
-            padding: '10px 12px 8px',
-            borderBottom: '1px solid var(--border)',
-            flexShrink: 0,
-          }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1, padding: '8px', borderRadius: 8,
+              border: '1px solid var(--border)', background: 'transparent',
+              fontSize: 13, color: 'var(--text-2)', cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => { if (name.trim()) { onAdd({ emoji, name }); onClose() } }}
+            disabled={!name.trim()}
+            style={{
+              flex: 2, padding: '8px', borderRadius: 8, border: 'none',
+              background: name.trim() ? 'var(--accent)' : 'var(--border)',
+              color: '#fff', fontSize: 13, fontWeight: 600,
+              cursor: name.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit',
+            }}
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function LeftPanel({ dump, listsHook: lists }) {
+  const [collapsed, setCollapsed] = useState(false)
+  const [newListOpen, setNewListOpen] = useState(false)
+  // Brain Dump done state — local only (items are ephemeral "processed" markers)
+  const [dumpDone, setDumpDone] = useState({})
+  const toggleDumpDone = (id) => setDumpDone(prev => ({ ...prev, [id]: !prev[id] }))
+
+  return (
+    <>
+      <aside
+        data-tour="leftpanel"
+        style={{
+          width: collapsed ? 36 : 248,
+          flexShrink: 0,
+          background: 'var(--surface-2)',
+          borderRight: '1px solid var(--col-sep)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          transition: 'width 0.2s ease',
+        }}
+      >
+        {/* Collapsed state */}
+        {collapsed && (
+          <button
+            onClick={() => setCollapsed(false)}
+            title="Expand"
+            style={{
+              margin: '10px auto 0',
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 6, width: 24, height: 24,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--accent)', fontSize: 14, cursor: 'pointer', flexShrink: 0,
+            }}
+          >
+            ›
+          </button>
+        )}
+
+        {!collapsed && (
+          <>
+            {/* Panel header */}
             <div style={{
+              padding: '10px 12px 8px',
+              borderBottom: '1px solid var(--border)',
+              flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 8,
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{
-                  fontSize: 10, fontWeight: 700, color: 'var(--text-2)',
-                  textTransform: 'uppercase', letterSpacing: '0.08em',
-                }}>
-                  Brain Dump
-                </span>
-                <span style={{
-                  fontSize: 9, fontWeight: 600,
-                  background: dump.isFull ? '#FEE2E2' : 'var(--surface)',
-                  color: dump.isFull ? 'var(--danger)' : 'var(--text-2)',
-                  border: `1px solid ${dump.isFull ? 'var(--danger)' : 'var(--border)'}`,
-                  borderRadius: 7, padding: '1px 5px',
-                }}>
-                  {dump.count}
-                </span>
-              </div>
-              <button
-                onClick={() => setCollapsed(true)}
-                title="Collapse"
-                style={{
-                  background: 'var(--surface)', border: '1px solid var(--border)',
-                  borderRadius: 5, width: 20, height: 20,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--text-2)', fontSize: 12, cursor: 'pointer', flexShrink: 0,
-                }}
-              >
-                ‹
-              </button>
-            </div>
-
-            {/* Quick add */}
-            <div style={{ display: 'flex', gap: 5 }}>
-              <input
-                style={{
-                  flex: 1, padding: '5px 8px', borderRadius: 7,
-                  border: '1px solid var(--border)', background: 'var(--surface)',
-                  fontSize: 12, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
-                }}
-                placeholder="Capture a thought…"
-                value={addVal}
-                onChange={e => setAddVal(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') handleAddDump() }}
-                maxLength={200}
-              />
-              <button
-                onClick={handleAddDump}
-                style={{
-                  background: 'var(--accent)', border: 'none', borderRadius: 7,
-                  width: 26, height: 26,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontSize: 16, flexShrink: 0, cursor: 'pointer',
-                }}
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Dump items list */}
-          <div style={{
-            flex: 1, overflowY: 'auto', padding: '4px 6px',
-            display: 'flex', flexDirection: 'column',
-          }}>
-            {visibleItems.length === 0 ? (
-              <div style={{
-                padding: '16px 8px', textAlign: 'center',
-                color: 'var(--text-2)', fontSize: 12, lineHeight: 1.6,
+              <span style={{
+                fontSize: 12, fontWeight: 700, color: 'var(--text-1)',
               }}>
-                {activeProjectId ? 'No tasks for this project.' : 'Empty your mind.\nDrag tasks to schedule.'}.
-              </div>
-            ) : (
-              <SortableContext items={visibleItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                {visibleItems.map(item => (
-                  <DumpRow
-                    key={item.id}
-                    item={item}
-                    onRemove={dump.removeItem}
-                  />
-                ))}
-              </SortableContext>
-            )}
-          </div>
-
-          {/* Projects section */}
-          <div style={{
-            borderTop: '1px solid var(--border)',
-            padding: '8px 10px 10px',
-            flexShrink: 0,
-          }}>
-            <div style={{
-              fontSize: 9, fontWeight: 700, color: 'var(--text-2)',
-              textTransform: 'uppercase', letterSpacing: '0.08em',
-              marginBottom: 6,
-            }}>
-              Projects
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {activeProjects.map(project => (
+                My Lists
+              </span>
+              <div style={{ display: 'flex', gap: 4 }}>
                 <button
-                  key={project.id}
-                  onClick={() => toggleProjectFilter(project.id)}
+                  onClick={() => !lists.isFull && setNewListOpen(true)}
+                  title={lists.isFull ? 'Max 4 custom lists' : 'New list'}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '5px 7px', borderRadius: 6,
-                    background: activeProjectId === project.id
-                      ? `color-mix(in srgb, ${project.color} 12%, var(--surface))`
-                      : 'transparent',
-                    border: activeProjectId === project.id
-                      ? `1px solid ${project.color}40`
-                      : '1px solid transparent',
-                    cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
-                    width: '100%',
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 5, width: 22, height: 22,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: lists.isFull ? 'var(--text-2)' : 'var(--accent)',
+                    fontSize: 14, cursor: lists.isFull ? 'not-allowed' : 'pointer', flexShrink: 0,
+                    opacity: lists.isFull ? 0.5 : 1,
                   }}
                 >
-                  <ProjectDot color={project.color} />
-                  <span style={{
-                    flex: 1, fontSize: 12, color: 'var(--text-1)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {project.name}
-                  </span>
-                  <span style={{ fontSize: 10, color: 'var(--text-2)', flexShrink: 0 }}>
-                    {dump.items.filter(i => i.project_id === project.id).length || ''}
-                  </span>
+                  +
                 </button>
+                <button
+                  onClick={() => setCollapsed(true)}
+                  title="Collapse"
+                  style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 5, width: 22, height: 22,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-2)', fontSize: 12, cursor: 'pointer', flexShrink: 0,
+                  }}
+                >
+                  ‹
+                </button>
+              </div>
+            </div>
+
+            {/* Lists */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
+              {/* Brain Dump — permanent */}
+              <ListSection
+                title="Brain Dump"
+                emoji="🧠"
+                listId="brain-dump"
+                items={dump.items.map(i => ({ ...i, done: dumpDone[i.id] ?? false }))}
+                dragType="dump"
+                onToggle={toggleDumpDone}
+                onRemove={dump.removeItem}
+                onAddItem={(_, text) => dump.addItem(text)}
+                canAdd={!dump.isFull}
+                isPermanent={true}
+              />
+
+              {/* Custom lists */}
+              {lists.lists.map(list => (
+                <ListSection
+                  key={list.id}
+                  title={list.name}
+                  emoji={list.emoji}
+                  listId={list.id}
+                  items={lists.getListItems(list.id)}
+                  dragType="list_item"
+                  onToggle={lists.toggleDone}
+                  onRemove={lists.removeItem}
+                  onAddItem={lists.addItem}
+                  canAdd={true}
+                  isPermanent={false}
+                  onRename={lists.renameList}
+                  onDelete={lists.deleteList}
+                />
               ))}
             </div>
+          </>
+        )}
+      </aside>
 
-            {/* Add project */}
-            {!projectsFull && (
-              addingProject ? (
-                <div style={{ marginTop: 6 }}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 5 }}>
-                    {PROJECT_COLORS.map(c => (
-                      <button
-                        key={c}
-                        onClick={() => setNewProjectColor(c)}
-                        style={{
-                          width: 16, height: 16, borderRadius: '50%',
-                          background: c, border: newProjectColor === c ? '2px solid var(--text-1)' : '2px solid transparent',
-                          cursor: 'pointer', padding: 0,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', gap: 5 }}>
-                    <input
-                      autoFocus
-                      style={{
-                        flex: 1, padding: '4px 7px', borderRadius: 6,
-                        border: '1px solid var(--border)', background: 'var(--surface)',
-                        fontSize: 12, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
-                      }}
-                      placeholder="Project name…"
-                      value={newProjectName}
-                      onChange={e => setNewProjectName(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') handleAddProject()
-                        if (e.key === 'Escape') { setAddingProject(false); setNewProjectName('') }
-                      }}
-                      maxLength={60}
-                    />
-                    <button
-                      onClick={handleAddProject}
-                      style={{
-                        background: 'var(--accent)', border: 'none', borderRadius: 6,
-                        width: 24, height: 24,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#fff', fontSize: 14, cursor: 'pointer',
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setAddingProject(true)}
-                  style={{
-                    marginTop: 4, width: '100%', padding: '4px 7px',
-                    border: 'none', background: 'transparent',
-                    fontSize: 11, color: 'var(--text-2)', textAlign: 'left',
-                    cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-2)' }}
-                >
-                  + New project
-                </button>
-              )
-            )}
-          </div>
-        </>
+      {newListOpen && (
+        <NewListModal
+          onClose={() => setNewListOpen(false)}
+          onAdd={(opts) => lists.addList(opts)}
+        />
       )}
-    </aside>
+    </>
   )
 }

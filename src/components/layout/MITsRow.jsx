@@ -40,7 +40,7 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
         lineHeight: 1.3,
         maxWidth: 72,
       }}>
-        This Week's<br />3 Milestones
+        Weekly<br />Milestones
       </div>
 
       <div style={{ display: 'flex', gap: 8, flex: 1 }}>
@@ -72,7 +72,7 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
                 textTransform: 'uppercase',
                 letterSpacing: '0.07em',
               }}>
-                M{i + 1}
+                Milestone {i + 1}
               </span>
 
               {hasMITTask ? (
@@ -97,7 +97,7 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
                     padding: 0,
                     fontFamily: 'inherit',
                   }}
-                  placeholder="What must happen this week…"
+                  placeholder="What's the highest priority to complete this week?"
                   value={localMITs[i] ?? ''}
                   onChange={e => handleChange(i, e.target.value)}
                   onBlur={handleBlur}

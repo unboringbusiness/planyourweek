@@ -19,6 +19,27 @@
   --col-sep: #E8E6E2;
 }
 
+/* Duration slider thumb */
+.duration-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #3B82F6;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(59,130,246,0.3);
+}
+.duration-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #3B82F6;
+  cursor: pointer;
+}
+
 [data-theme="dark"] {
   --bg: #161616;
   --surface: #1E1E1E;

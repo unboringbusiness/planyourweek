@@ -88,7 +88,11 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
             </p>
 
             {completedTasks.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: incompleteTasks.length > 0 ? 12 : 0 }}>
+              <div style={{ marginBottom: incompleteTasks.length > 0 ? 12 : 0 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
+                  Completed today
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {completedTasks.map(task => (
                   <div key={task.id} style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px',
@@ -101,6 +105,7 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
                     </span>
                   </div>
                 ))}
+                </div>
               </div>
             )}
 

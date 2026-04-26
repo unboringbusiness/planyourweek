@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { getWeekDays } from '../../lib/dates'
+import { useState, useEffect, useRef } from 'react'
+import { getWeekDays, isToday } from '../../lib/dates'
 import DayColumn from './DayColumn'
 
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
@@ -36,6 +36,19 @@ export default function WeekView({
     : Array(7).fill(null)
 
   const [focusDay, setFocusDay] = useState(null)
+  const scrollRef = useRef(null)
+  const colRefs = useRef({})
+
+  // Scroll today's column to the leftmost visible position on mount
+  useEffect(() => {
+    const todayIdx = weekDays.findIndex(d => d && isToday(d))
+    if (todayIdx < 0 || !scrollRef.current) return
+    const dayKey = DAYS[todayIdx]
+    const colEl = colRefs.current[dayKey]
+    if (colEl) {
+      scrollRef.current.scrollLeft = colEl.offsetLeft
+    }
+  }, [weekStart])
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
@@ -68,6 +81,7 @@ export default function WeekView({
       {/* Scroll container with right fade gradient */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <div
+          ref={scrollRef}
           style={{
             position: 'absolute', inset: 0,
             display: 'flex',
@@ -81,26 +95,31 @@ export default function WeekView({
             const actualIdx = DAYS.indexOf(dayKey)
             const isLastVisible = i === visibleDays.length - 1
             return (
-              <DayColumn
+              <div
                 key={dayKey}
-                dayKey={dayKey}
-                dayDate={weekDays[actualIdx]}
-                slots={week?.slots?.[dayKey]}
-                getMeta={getMeta}
-                setTaskMeta={setTaskMeta}
-                mitCount={mitCount}
-                onAddSlot={onAddSlot}
-                onRemoveSlot={onRemoveSlot}
-                onMoveToSomeday={onMoveToSomeday}
-                onMoveToTomorrow={onMoveToTomorrow}
-                onOpenDetail={onOpenDetail}
-                onStartTimer={onStartTimer}
-                onFocusMode={() => handleFocusMode(dayKey)}
-                onStartupRitual={() => onStartupRitual?.(dayKey)}
-                onShutdownRitual={() => onShutdownRitual?.(dayKey)}
-                focusModeActive={focusDay === dayKey}
-                isLast={isLastVisible}
-              />
+                ref={el => { colRefs.current[dayKey] = el }}
+                style={{ minWidth: 240, flex: 1, display: 'flex', flexDirection: 'column' }}
+              >
+                <DayColumn
+                  dayKey={dayKey}
+                  dayDate={weekDays[actualIdx]}
+                  slots={week?.slots?.[dayKey]}
+                  getMeta={getMeta}
+                  setTaskMeta={setTaskMeta}
+                  mitCount={mitCount}
+                  onAddSlot={onAddSlot}
+                  onRemoveSlot={onRemoveSlot}
+                  onMoveToSomeday={onMoveToSomeday}
+                  onMoveToTomorrow={onMoveToTomorrow}
+                  onOpenDetail={onOpenDetail}
+                  onStartTimer={onStartTimer}
+                  onFocusMode={() => handleFocusMode(dayKey)}
+                  onStartupRitual={() => onStartupRitual?.(dayKey)}
+                  onShutdownRitual={() => onShutdownRitual?.(dayKey)}
+                  focusModeActive={focusDay === dayKey}
+                  isLast={isLastVisible}
+                />
+              </div>
             )
           })}
         </div>

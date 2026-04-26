@@ -151,10 +151,12 @@ export default function DayColumn({
   focusModeActive, isLast,
 }) {
   const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+  const MON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
   const jsDay = dayDate ? dayDate.getDay() : 0
   const dispIdx = jsDay === 0 ? 6 : jsDay - 1
   const dayName = DAY_NAMES[dispIdx] ?? dayKey?.slice(0, 3)
   const dayNum = dayDate ? dayDate.getDate() : ''
+  const monthName = dayDate ? MON_NAMES[dayDate.getMonth()] : ''
   const today = dayDate ? isToday(dayDate) : false
 
   const allTasks = [
@@ -163,14 +165,13 @@ export default function DayColumn({
     ...(slots?.admin ?? []),
   ]
   const totalMinutes = allTasks.reduce((sum, t) => sum + (getMeta(t.id).duration ?? 30), 0)
-  const totalColor = totalMinutes > 420 ? 'var(--danger)' : totalMinutes > 300 ? 'var(--sched)' : '#9A9A9A'
+  const totalColor = totalMinutes >= 360 ? 'var(--danger)' : totalMinutes >= 270 ? 'var(--sched)' : '#9A9A9A'
 
   return (
     <div
       data-tour={today ? 'day-today' : undefined}
       style={{
         flex: 1,
-        minWidth: 220,
         display: 'flex',
         flexDirection: 'column',
         background: today ? 'var(--col-today-bg)' : 'transparent',
@@ -190,15 +191,22 @@ export default function DayColumn({
             }}>
               {dayName}
             </div>
-            <div style={{
-              fontSize: 28, fontWeight: 700, lineHeight: 1,
-              color: today ? '#3B82F6' : 'var(--text-1)',
-            }}>
-              {dayNum}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+              <div style={{
+                fontSize: 28, fontWeight: 700, lineHeight: 1,
+                color: today ? '#3B82F6' : 'var(--text-1)',
+              }}>
+                {dayNum}
+              </div>
+              <div style={{
+                fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A',
+              }}>
+                {monthName}
+              </div>
             </div>
           </div>
           <div style={{ fontSize: 12, color: totalColor, fontWeight: 500, textAlign: 'right', paddingTop: 2 }}>
-            {formatDuration(totalMinutes)} / 7h
+            {formatDuration(totalMinutes)} / 6h
           </div>
         </div>
 

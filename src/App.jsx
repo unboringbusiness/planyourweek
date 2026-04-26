@@ -14,6 +14,7 @@ import { useDump } from './hooks/useDump'
 import { useWeek } from './hooks/useWeek'
 import { useBacklog } from './hooks/useBacklog'
 import { useProjects } from './hooks/useProjects'
+import { useLists } from './hooks/useLists'
 import { useTaskMeta } from './hooks/useTaskMeta'
 import { useTimer } from './hooks/useTimer'
 import { LIMITS } from './lib/limits'
@@ -52,6 +53,7 @@ export default function App() {
   const weekData = useWeek(user)
   const backlog = useBacklog()
   const projectsHook = useProjects(user)
+  const listsHook = useLists()
   const taskMeta = useTaskMeta()
   const timerHook = useTimer()
 
@@ -96,6 +98,18 @@ export default function App() {
 
   const getMeta = (id) => taskMeta.getMeta(id)
   const setTaskMetaFn = (id, changes) => taskMeta.setTaskMeta(id, changes)
+
+  const moveListItemToSection = async (item, day, slotType) => {
+    const sectionTasks = weekData.week?.slots?.[day]?.[slotType] ?? []
+    if (sectionTasks.length >= (SLOT_LIMITS[slotType] ?? 99)) return false
+
+    const { data: newTask } = await weekData.addSlot(day, slotType, item.text)
+    if (newTask) {
+      taskMeta.setTaskMeta(newTask.id, { duration: item.duration ?? 30 })
+    }
+    listsHook.removeItem(item.id)
+    return true
+  }
 
   const moveDumpItemToSection = async (item, day, slotType) => {
     const sectionTasks = weekData.week?.slots?.[day]?.[slotType] ?? []
@@ -203,6 +217,19 @@ export default function App() {
 
     if (!activeData) return
 
+    // Custom list item dropped onto a day column section
+    if (activeData.type === 'list_item') {
+      const item = activeData.item
+      if (overData?.type === 'section') {
+        await moveListItemToSection(item, overData.day, overData.slotType)
+        return
+      }
+      if (overData?.type === 'slot') {
+        await moveListItemToSection(item, overData.day, overData.slotType)
+        return
+      }
+    }
+
     // Dump item dropped onto a day column section
     if (activeData.type === 'dump') {
       const item = activeData.item
@@ -297,12 +324,12 @@ export default function App() {
   }
 
   const activeDragMeta = activeDragItem
-    ? activeDragItem.type === 'backlog' || activeDragItem.type === 'dump'
-      ? { duration: activeDragItem.item?.duration ?? 30, is_mit: activeDragItem.item?.is_mit ?? false, done: activeDragItem.item?.done ?? false }
+    ? ['backlog', 'dump', 'list_item'].includes(activeDragItem.type)
+      ? { duration: activeDragItem.item?.duration ?? 30, is_mit: false, done: false }
       : taskMeta.getMeta(activeDragItem.task?.id)
     : null
 
-  const activeDragText = activeDragItem?.type === 'backlog' || activeDragItem?.type === 'dump'
+  const activeDragText = ['backlog', 'dump', 'list_item'].includes(activeDragItem?.type)
     ? activeDragItem.item?.text
     : activeDragItem?.task?.text
 
@@ -346,12 +373,7 @@ export default function App() {
             onDragEnd={handleDragEnd}
           >
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-              <LeftPanel
-                dump={dump}
-                projects={projectsHook.activeProjects}
-                projectsFull={projectsHook.isFull}
-                onAddProject={projectsHook.addProject}
-              />
+              <LeftPanel dump={dump} listsHook={listsHook} />
 
               <WeekView
                 week={weekData.week}
