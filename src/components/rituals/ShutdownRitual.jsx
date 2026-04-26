@@ -127,8 +127,8 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
                         {[
                           ['done', 'Mark done'],
                           ...(tomorrowKey ? [['tomorrow', 'Tomorrow']] : []),
-                          ['someday', 'Someday'],
-                          ['drop', 'Drop'],
+                          ['someday', 'Save for Later'],
+                          ['drop', 'Delete'],
                         ].map(([opt, label]) => (
                           <button key={opt} onClick={() => handleChoice(task.id, opt)} style={{
                             padding: '3px 7px', borderRadius: 5,
@@ -160,7 +160,7 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
               One thing before you go.
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-2)', marginBottom: 16, lineHeight: 1.5 }}>
-              What moved the needle today?
+              What's one thing you actually got done today?
             </p>
             <textarea
               autoFocus

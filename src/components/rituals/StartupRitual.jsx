@@ -130,7 +130,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
                               color: choice === opt ? '#fff' : 'var(--text-2)', fontSize: 11,
                               cursor: 'pointer', fontFamily: 'inherit', textTransform: 'capitalize',
                             }}>
-                              {opt === 'today' ? 'Move to Today' : opt === 'someday' ? 'Someday' : 'Drop'}
+                              {opt === 'today' ? 'Move to Today' : opt === 'someday' ? 'Save for Later' : 'Delete'}
                             </button>
                           ))}
                         </div>

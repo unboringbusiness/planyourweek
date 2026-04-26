@@ -41,7 +41,7 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
             Today
           </button>
         )}
-        {[['week','Week'],['reset','Review']].map(([id, label]) => (
+        {[['week','Week'],['reset','End of Week']].map(([id, label]) => (
           <button
             key={id}
             onClick={() => onViewChange(id)}

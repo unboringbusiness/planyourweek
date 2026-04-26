@@ -118,7 +118,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
     <div style={{
       flex: 1,
       overflowY: 'auto',
-      background: '#F9F8F6',
+      background: 'var(--bg)',
       padding: '32px',
     }}>
       <div style={{ maxWidth: 600, margin: '0 auto' }}>
@@ -203,7 +203,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {opt === 'next_week' ? 'Next week' : opt === 'someday' ? 'Someday' : 'Drop'}
+                        {opt === 'next_week' ? 'Next week' : opt === 'someday' ? 'Save for Later' : 'Delete'}
                       </button>
                     ))}
                   </div>
@@ -249,10 +249,10 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
           paddingTop: 24,
           marginBottom: 20,
         }}>
-          <div style={{ fontSize: 16, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-1)', marginBottom: 6 }}>
             Before tomorrow, do nothing for 2 minutes.
           </div>
-          <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.5, marginBottom: 12 }}>
+          <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.5, marginBottom: 12 }}>
             Let your mind settle. No phone. No task. Just rest.
           </p>
           <button
@@ -263,7 +263,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
               borderRadius: 8,
               padding: '8px 14px',
               fontSize: 13,
-              color: '#6B7280',
+              color: 'var(--text-2)',
               cursor: 'pointer',
               fontFamily: 'inherit',
             }}

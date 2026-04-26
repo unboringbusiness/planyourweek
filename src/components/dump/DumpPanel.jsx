@@ -33,7 +33,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
 
       <div style={{
         position: 'fixed', top: 0, right: 0, height: '100%', width: 400,
-        background: '#F9F8F6', borderLeft: '1px solid var(--border)',
+        background: 'var(--bg)', borderLeft: '1px solid var(--border)',
         zIndex: 201, display: 'flex', flexDirection: 'column',
         transform: open ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)',
@@ -43,7 +43,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
         <div style={{
           padding: '16px 20px 14px', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
-          background: '#F9F8F6',
+          background: 'var(--bg)',
         }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)' }}>
@@ -69,7 +69,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
           <div style={{
             display: 'flex', gap: 8, alignItems: 'center',
-            background: '#FFFFFF', borderRadius: 10,
+            background: 'var(--surface)', borderRadius: 10,
             border: '1px solid var(--border)',
             padding: '8px 12px',
             boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
@@ -132,7 +132,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '10px 14px',
                     borderRadius: 8,
-                    background: '#FFFFFF',
+                    background: 'var(--surface)',
                     border: '1px solid var(--border)',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   }}
@@ -142,7 +142,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
                     ⠿
                   </span>
                   <span style={{
-                    flex: 1, fontSize: 14, color: '#1A1A2E',
+                    flex: 1, fontSize: 14, color: 'var(--text-1)',
                     lineHeight: 1.4, wordBreak: 'break-word',
                   }}>
                     {item.text}

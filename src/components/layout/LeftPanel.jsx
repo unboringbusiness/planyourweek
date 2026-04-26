@@ -73,7 +73,7 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           minHeight: 36, padding: '0 8px', borderRadius: 6,
-          background: hovered ? '#F9FAFB' : 'transparent',
+          background: hovered ? 'var(--surface-2)' : 'transparent',
           cursor: editing ? 'default' : 'grab', userSelect: 'none',
         }}
       >
@@ -405,7 +405,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
         style={{
           width: collapsed ? 36 : 260,
           flexShrink: 0,
-          background: '#FFFFFF',
+          background: 'var(--surface)',
           borderRight: '1px solid #F0F0F0',
           display: 'flex',
           flexDirection: 'column',
@@ -476,7 +476,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
               {/* ── CLOSED LIST (max 15) ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>CLOSED LIST</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>THIS WEEK (MAX 15)</div>
               <ListSection
                 title="Closed List"
                 emoji="📋"
@@ -510,7 +510,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
               ))}
 
               {/* ── OPEN LIST (unlimited) ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '12px 8px 2px', borderTop: '1px solid var(--border)', marginTop: 8 }}>OPEN LIST</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '12px 8px 2px', borderTop: '1px solid var(--border)', marginTop: 8 }}>EVERYTHING ELSE</div>
               <ListSection
                 title="Open List"
                 emoji="📂"

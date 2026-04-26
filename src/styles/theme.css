@@ -16,6 +16,7 @@
   --chip-text: #6B7280;
   --col-today-bg: #EEF2FF;
   --col-sep: #F0F0F0;
+  --sched-bg: #FFF7ED;
 }
 
 [data-theme="dark"] {
@@ -36,6 +37,7 @@
   --chip-text: #666666;
   --col-today-bg: #1A1F2E;
   --col-sep: #252525;
+  --sched-bg: #2A1F0F;
 }
 
 /* Duration slider thumb */

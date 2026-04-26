@@ -56,8 +56,8 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
               style={{
                 flex: 1,
                 minWidth: 0,
-                background: done ? '#F0FDF4' : '#FFFFFF',
-                border: `1.5px solid ${done ? '#10B981' : isFilled ? '#3B82F6' : '#E5E7EB'}`,
+                background: done ? 'color-mix(in srgb, var(--success) 10%, var(--surface))' : 'var(--surface)',
+                border: `1.5px solid ${done ? 'var(--success)' : isFilled ? 'var(--accent)' : 'var(--border)'}`,
                 borderRadius: 10,
                 padding: '10px 14px',
                 display: 'flex',
@@ -100,7 +100,7 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
                     style={{
                       background: 'none', border: 'none', outline: 'none',
                       fontSize: 14, fontWeight: 400,
-                      color: '#1A1A2E', width: '100%', padding: 0,
+                      color: 'var(--text-1)', width: '100%', padding: 0,
                       fontFamily: 'inherit',
                     }}
                     placeholder="What will move the needle this week?"
