@@ -1,4 +1,18 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+
+const OPEN_LIST_KEY = 'pyw_open_list'
+function loadOpenList() {
+  try { return JSON.parse(localStorage.getItem(OPEN_LIST_KEY)) ?? [] } catch { return [] }
+}
+
+function SidebarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0.75" y="0.75" width="12.5" height="12.5" rx="2.25" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="4.75" y1="0.75" x2="4.75" y2="13.25" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  )
+}
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -352,9 +366,26 @@ function NewListModal({ onClose, onAdd }) {
 export default function LeftPanel({ dump, listsHook: lists }) {
   const [collapsed, setCollapsed] = useState(false)
   const [newListOpen, setNewListOpen] = useState(false)
-  // Brain Dump done state — local only (items are ephemeral "processed" markers)
   const [dumpDone, setDumpDone] = useState({})
   const toggleDumpDone = (id) => setDumpDone(prev => ({ ...prev, [id]: !prev[id] }))
+
+  // Open List — localStorage only, unlimited
+  const [openItems, setOpenItemsState] = useState(loadOpenList)
+  const [openDone, setOpenDone] = useState({})
+  const saveOpen = useCallback((items) => {
+    setOpenItemsState(items)
+    localStorage.setItem(OPEN_LIST_KEY, JSON.stringify(items))
+  }, [])
+  const addOpenItem = useCallback((_, text) => {
+    const trimmed = text?.trim(); if (!trimmed) return
+    saveOpen([...openItems, { id: crypto.randomUUID(), text: trimmed, created_at: new Date().toISOString() }])
+  }, [openItems, saveOpen])
+  const removeOpenItem = useCallback((id) => saveOpen(openItems.filter(i => i.id !== id)), [openItems, saveOpen])
+  const updateOpenItem = useCallback((id, text) => {
+    const trimmed = text?.trim(); if (!trimmed) return
+    saveOpen(openItems.map(i => i.id === id ? { ...i, text: trimmed } : i))
+  }, [openItems, saveOpen])
+  const toggleOpenDone = (id) => setOpenDone(prev => ({ ...prev, [id]: !prev[id] }))
 
   return (
     <>
@@ -398,10 +429,8 @@ export default function LeftPanel({ dump, listsHook: lists }) {
               flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
-              <span style={{
-                fontSize: 13, fontWeight: 600, color: '#6B7280',
-              }}>
-                This Week
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>
+                This Week's List
               </span>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button
@@ -425,17 +454,18 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                     background: 'var(--surface)', border: '1px solid var(--border)',
                     borderRadius: 5, width: 22, height: 22,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--text-2)', fontSize: 12, cursor: 'pointer', flexShrink: 0,
+                    color: 'var(--text-2)', cursor: 'pointer', flexShrink: 0,
                   }}
                 >
-                  ‹
+                  <SidebarIcon />
                 </button>
               </div>
             </div>
 
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
-              {/* Closed List (Brain Dump) — permanent */}
+              {/* ── CLOSED LIST (max 15) ── */}
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>CLOSED LIST</div>
               <ListSection
                 title="Closed List"
                 emoji="📋"
@@ -449,11 +479,43 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                 canAdd={!dump.isFull}
                 isPermanent={true}
               />
-
-              {/* Custom lists */}
               {lists.lists.map(list => (
                 <ListSection
-                  key={list.id}
+                  key={`closed-${list.id}`}
+                  title={list.name}
+                  emoji={list.emoji}
+                  listId={list.id}
+                  items={lists.getListItems(list.id)}
+                  dragType="list_item"
+                  onToggle={lists.toggleDone}
+                  onRemove={lists.removeItem}
+                  onUpdate={lists.updateItem}
+                  onAddItem={lists.addItem}
+                  canAdd={true}
+                  isPermanent={false}
+                  onRename={lists.renameList}
+                  onDelete={lists.deleteList}
+                />
+              ))}
+
+              {/* ── OPEN LIST (unlimited) ── */}
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '12px 8px 2px', borderTop: '1px solid var(--border)', marginTop: 8 }}>OPEN LIST</div>
+              <ListSection
+                title="Open List"
+                emoji="📂"
+                listId="open-list"
+                items={openItems.map(i => ({ ...i, done: openDone[i.id] ?? false }))}
+                dragType="list_item"
+                onToggle={toggleOpenDone}
+                onRemove={removeOpenItem}
+                onUpdate={updateOpenItem}
+                onAddItem={addOpenItem}
+                canAdd={true}
+                isPermanent={true}
+              />
+              {lists.lists.map(list => (
+                <ListSection
+                  key={`open-${list.id}`}
                   title={list.name}
                   emoji={list.emoji}
                   listId={list.id}

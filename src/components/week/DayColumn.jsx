@@ -9,7 +9,7 @@ import { formatDuration } from './TaskCard'
 // Line gradient: thin left accent cap for Deep Work / Focus, plain for Others
 const SLOT_CONFIG = {
   deep_work: { label: 'Most Important', max: LIMITS.DAILY_DEEP_WORK, lineAccent: '#3B82F6', placeholder: 'Most important task' },
-  scheduled: { label: 'Focus',          max: LIMITS.DAILY_SCHEDULED, lineAccent: '#F08F48', placeholder: 'Focus task' },
+  scheduled: { label: 'Scheduled',       max: LIMITS.DAILY_SCHEDULED, lineAccent: '#F08F48', placeholder: 'Focus task' },
   admin:     { label: 'Other Tasks',    max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
 }
 
@@ -165,7 +165,10 @@ export default function DayColumn({
     ...(slots?.admin ?? []),
   ]
   const totalMinutes = allTasks.reduce((sum, t) => sum + (getMeta(t.id).duration ?? 30), 0)
-  const totalColor = totalMinutes >= 360 ? 'var(--danger)' : totalMinutes >= 270 ? 'var(--sched)' : 'var(--text-2)'
+  const isOverLimit = totalMinutes > 480
+  const isNearLimit = totalMinutes >= 360
+  const totalColor = isOverLimit ? 'var(--danger)' : isNearLimit ? 'var(--sched)' : 'var(--text-2)'
+  const overBy = totalMinutes - 480
 
   return (
     <div
@@ -191,7 +194,7 @@ export default function DayColumn({
           <span style={{ fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A' }}>
             {monthName}
           </span>
-          <span style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, color: today ? '#3B82F6' : 'var(--text-1)' }}>
+          <span style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, color: today ? '#3B82F6' : 'var(--text-1)' }}>
             {dayNum}
           </span>
           {today && (
@@ -248,8 +251,21 @@ export default function DayColumn({
       <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
 
       {/* Time footer */}
-      <div style={{ marginTop: 'auto', paddingTop: 12, fontSize: 11, color: totalColor, fontWeight: 500, textAlign: 'right' }}>
-        {formatDuration(totalMinutes)} / 6h
+      <div style={{ marginTop: 'auto', paddingTop: 12, textAlign: 'right', position: 'relative' }}>
+        <span style={{ fontSize: 11, color: totalColor, fontWeight: 500 }}>
+          {formatDuration(totalMinutes)} / 8:00
+        </span>
+        {isOverLimit && (
+          <div style={{
+            position: 'absolute', bottom: '100%', right: 0, marginBottom: 6,
+            background: '#1F2937', color: '#fff', fontSize: 11, fontWeight: 500,
+            borderRadius: 8, padding: '6px 10px', whiteSpace: 'nowrap',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 10,
+            pointerEvents: 'none',
+          }}>
+            😓 Exceeded 8h by {formatDuration(overBy)}
+          </div>
+        )}
       </div>
     </div>
   )

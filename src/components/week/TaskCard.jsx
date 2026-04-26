@@ -23,19 +23,6 @@ const MIT_BORDER = '#FFD156'
 // Timer chip + duration popover
 function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
   const [open, setOpen] = useState(false)
-  const [custom, setCustom] = useState(false)
-  const [customVal, setCustomVal] = useState('')
-
-  const handlePreset = (val) => {
-    onDurationChange?.(val)
-    setOpen(false)
-    setCustom(false)
-  }
-
-  const handleCustomSave = () => {
-    const val = parseInt(customVal, 10)
-    if (val > 0) { onDurationChange?.(val); setOpen(false); setCustom(false); setCustomVal('') }
-  }
 
   return (
     <div style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
@@ -57,16 +44,28 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
           style={{
             position: 'absolute', bottom: '100%', right: 0, marginBottom: 4,
             background: 'var(--surface)', border: '1px solid var(--border)',
-            borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-            zIndex: 100, minWidth: 160, padding: '8px',
+            borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+            zIndex: 100, width: 160, padding: '12px',
           }}
           onClick={e => e.stopPropagation()}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+          {/* Estimated time display — Ellie style */}
+          <div style={{
+            textAlign: 'center', marginBottom: 10,
+            paddingBottom: 10, borderBottom: '1px solid var(--border)',
+          }}>
+            <div style={{ fontSize: 11, color: 'var(--text-2)', marginBottom: 2 }}>Estimated</div>
+            <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-1)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+              {formatDuration(duration)}
+            </div>
+          </div>
+
+          {/* Presets */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
             {DURATION_PRESETS.map(p => (
               <button
                 key={p.value}
-                onClick={() => handlePreset(p.value)}
+                onClick={() => { onDurationChange?.(p.value); setOpen(false) }}
                 style={{
                   padding: '3px 8px', borderRadius: 6,
                   border: `1px solid ${duration === p.value ? 'var(--accent)' : 'var(--border)'}`,
@@ -78,50 +77,12 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
                 {p.label}
               </button>
             ))}
-            <button
-              onClick={() => setCustom(v => !v)}
-              style={{
-                padding: '3px 8px', borderRadius: 6,
-                border: '1px solid var(--border)',
-                background: custom ? 'var(--surface-2)' : 'transparent',
-                color: 'var(--text-2)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              Custom
-            </button>
           </div>
-
-          {custom && (
-            <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
-              <input
-                autoFocus
-                type="number" min={1} max={480}
-                value={customVal}
-                onChange={e => setCustomVal(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') handleCustomSave() }}
-                placeholder="min"
-                style={{
-                  flex: 1, padding: '3px 6px', borderRadius: 6,
-                  border: '1px solid var(--border)', background: 'var(--surface)',
-                  fontSize: 12, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
-                }}
-              />
-              <button
-                onClick={handleCustomSave}
-                style={{
-                  padding: '3px 8px', borderRadius: 6, border: 'none',
-                  background: 'var(--accent)', color: '#fff', fontSize: 11, cursor: 'pointer',
-                }}
-              >
-                Set
-              </button>
-            </div>
-          )}
 
           <button
             onClick={() => { onStartTimer?.(); setOpen(false) }}
             style={{
-              width: '100%', padding: '5px', borderRadius: 6, border: 'none',
+              width: '100%', padding: '6px', borderRadius: 8, border: 'none',
               background: 'var(--success)', color: '#fff',
               fontSize: 12, fontWeight: 600, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
