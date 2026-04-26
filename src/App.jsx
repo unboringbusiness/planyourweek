@@ -486,6 +486,8 @@ export default function App() {
           getMeta={getMeta}
           setTaskMeta={setTaskMetaFn}
           onAddSlot={weekData.addSlot}
+          onRemoveSlot={weekData.removeSlot}
+          onMoveToDump={async (task) => { await dump.addItem(task.text) }}
           onClose={() => setShutdownRitualDay(null)}
         />
       )}

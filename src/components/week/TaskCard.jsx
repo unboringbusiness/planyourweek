@@ -178,18 +178,16 @@ export function DayTaskCard({
         {meta.textOverride || text}
       </div>
 
-      {/* MIT star — always rendered for discoverability, faint when not active */}
-      {!isDragOverlay && (
+      {/* MIT star — shown when active (is_mit) or on hover */}
+      {!isDragOverlay && (hovered || is_mit) && (
         <button
           onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
           title={is_mit ? 'Remove most important' : canToggleMIT ? 'Mark as most important' : '3 most important already set'}
           style={{
             background: 'none', border: 'none', padding: '1px 2px',
-            fontSize: 13,
-            color: is_mit ? '#FFD156' : hovered ? '#C0BDB8' : '#E8E4DF',
+            fontSize: 13, color: is_mit ? '#FFD156' : '#D0CEC9',
             cursor: canToggleMIT ? 'pointer' : 'default',
             flexShrink: 0, lineHeight: 1,
-            transition: 'color 0.15s',
           }}
         >
           ★

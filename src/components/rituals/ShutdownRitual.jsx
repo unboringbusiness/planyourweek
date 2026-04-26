@@ -16,7 +16,7 @@ function ProgressBar({ step, total }) {
 
 const DAYS_ORDER = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
-export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onAddSlot, onClose }) {
+export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onAddSlot, onRemoveSlot, onMoveToDump, onClose }) {
   const [step, setStep] = useState(1)
   const [choices, setChoices] = useState({})
   const [reflection, setReflection] = useState('')
@@ -39,8 +39,13 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
         setTaskMeta(task.id, { done: true })
       } else if (choice === 'tomorrow' && tomorrowKey) {
         await onAddSlot(tomorrowKey, task.slotType ?? 'admin', task.text)
+        onRemoveSlot?.(dayKey, task.id)
+      } else if (choice === 'someday') {
+        await onMoveToDump?.(task)
+        onRemoveSlot?.(dayKey, task.id)
+      } else if (choice === 'drop') {
+        onRemoveSlot?.(dayKey, task.id)
       }
-      // 'someday' and 'drop' — no action needed (task stays or is ignored)
     }
     setStep(2)
   }
@@ -157,48 +162,52 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
         {step === 2 && (
           <>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-1)', marginBottom: 6 }}>
-              One thing before you go.
+              Before you close the day.
             </div>
-            <p style={{ fontSize: 13, color: 'var(--text-2)', marginBottom: 16, lineHeight: 1.5 }}>
-              What's one thing you actually got done today?
+
+            {/* Reflection */}
+            <p style={{ fontSize: 13, color: 'var(--text-2)', marginBottom: 8, lineHeight: 1.5 }}>
+              What was worth your time today?
             </p>
             <textarea
               autoFocus
-              placeholder="One sentence."
+              placeholder="One sentence is enough."
               value={reflection}
               onChange={e => setReflection(e.target.value)}
               style={{
-                width: '100%', minHeight: 100, padding: '10px 12px',
+                width: '100%', minHeight: 80, padding: '10px 12px',
                 borderRadius: 10, border: '1.5px solid var(--border)',
                 background: 'var(--surface-2)', color: 'var(--text-1)',
-                fontSize: 14, fontFamily: 'inherit', resize: 'vertical',
+                fontSize: 14, fontFamily: 'inherit', resize: 'none',
                 outline: 'none', lineHeight: 1.6, boxSizing: 'border-box',
               }}
               onFocus={e => { e.target.style.borderColor = 'var(--accent)' }}
               onBlur={e => { e.target.style.borderColor = 'var(--border)' }}
             />
 
-            {/* Do Nothing Timer */}
+            {/* Do Nothing — core part of the closing ritual */}
             <div style={{
-              marginTop: 16, paddingTop: 16,
-              borderTop: '1px solid var(--border)',
+              marginTop: 14, padding: '14px 16px',
+              borderRadius: 12,
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border)',
             }}>
-              <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-1)', marginBottom: 4 }}>
-                Take 2 minutes to do nothing.
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>
+                🌿 2 minutes of nothing
               </div>
-              <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.5, marginBottom: 12 }}>
-                Before tomorrow, let your mind settle. No phone. No task. Just rest.
+              <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.5, margin: '0 0 10px' }}>
+                Put the phone down. Don't plan tomorrow. Just let today settle.
               </p>
               <button
                 onClick={() => window.open('https://donothingtimer.com', '_blank')}
                 style={{
                   background: 'none', border: '1px solid var(--border)',
-                  borderRadius: 8, padding: '8px 14px',
-                  fontSize: 13, color: 'var(--text-2)', cursor: 'pointer',
+                  borderRadius: 7, padding: '6px 12px',
+                  fontSize: 12, color: 'var(--text-2)', cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
               >
-                Open Do Nothing Timer →
+                Start timer →
               </button>
             </div>
 

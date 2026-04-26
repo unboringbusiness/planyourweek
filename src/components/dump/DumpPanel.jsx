@@ -107,7 +107,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
           {error && <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>{error}</div>}
           {dump.isFull && (
             <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>
-              Open list full ({LIMITS.DUMP_MAX} items). Process some before adding more.
+              Dump is full ({LIMITS.DUMP_MAX} items max). Move or delete some to add more.
             </div>
           )}
         </div>
