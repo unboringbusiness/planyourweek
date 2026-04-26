@@ -177,6 +177,31 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
               onFocus={e => { e.target.style.borderColor = 'var(--accent)' }}
               onBlur={e => { e.target.style.borderColor = 'var(--border)' }}
             />
+
+            {/* Do Nothing Timer */}
+            <div style={{
+              marginTop: 16, paddingTop: 16,
+              borderTop: '1px solid var(--border)',
+            }}>
+              <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-1)', marginBottom: 4 }}>
+                Take 2 minutes to do nothing.
+              </div>
+              <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.5, marginBottom: 12 }}>
+                Before tomorrow, let your mind settle. No phone. No task. Just rest.
+              </p>
+              <button
+                onClick={() => window.open('https://donothingtimer.com', '_blank')}
+                style={{
+                  background: 'none', border: '1px solid var(--border)',
+                  borderRadius: 8, padding: '8px 14px',
+                  fontSize: 13, color: 'var(--text-2)', cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Open Do Nothing Timer →
+              </button>
+            </div>
+
             <div style={btnRow}>
               <button style={btn(false)} onClick={() => setStep(1)}>← Back</button>
               <button style={btn(true)} onClick={handleClose}>Close the day 🌙</button>

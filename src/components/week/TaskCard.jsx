@@ -44,10 +44,10 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
       <button
         onClick={e => { e.stopPropagation(); setOpen(v => !v) }}
         style={{
-          fontSize: 11, color: done ? 'var(--chip-text)' : 'var(--chip-text)',
-          background: 'var(--chip-bg)',
-          border: 'none', borderRadius: 4,
-          padding: '2px 7px', cursor: 'pointer',
+          fontSize: 12, color: done ? '#D1D5DB' : 'var(--chip-text)',
+          background: done ? 'transparent' : 'var(--chip-bg)',
+          border: 'none', borderRadius: 6,
+          padding: '3px 8px', cursor: 'pointer',
           fontFamily: 'inherit', whiteSpace: 'nowrap',
         }}
       >
@@ -156,31 +156,31 @@ export function DayTaskCard({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
       style={{
-        background: 'var(--surface)',
+        background: done ? 'var(--surface)' : 'var(--surface)',
         border: 'none',
         borderLeft: `3px solid ${done ? leftBorder + '4D' : leftBorder}`,
         borderRadius: 8,
-        padding: '10px 12px',
-        minHeight: 40,
+        padding: '11px 14px',
+        minHeight: 42,
         display: 'flex',
         alignItems: 'flex-start',
         gap: 10,
         boxShadow: isDragOverlay
           ? '0 8px 32px rgba(0,0,0,0.18)'
-          : '0 1px 2px rgba(0,0,0,0.04)',
+          : done ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
         position: 'relative',
         userSelect: 'none',
         cursor: 'default',
         transition: 'background 0.1s',
       }}
     >
-      {/* Checkbox — top-aligned with text */}
+      {/* Checkbox — 20px, top-aligned */}
       <div
         onClick={e => { e.stopPropagation(); onDoneToggle?.() }}
         style={{
-          width: 17, height: 17,
+          width: 20, height: 20,
           borderRadius: '50%',
-          border: done ? 'none' : '1.5px solid #D0CEC9',
+          border: done ? 'none' : '1.5px solid #D1D5DB',
           background: done ? 'var(--success)' : 'transparent',
           flexShrink: 0,
           marginTop: 1,
@@ -202,7 +202,7 @@ export function DayTaskCard({
         style={{
           flex: 1,
           fontSize: 14,
-          color: done ? '#B0AEA9' : 'var(--text-1)',
+          color: done ? '#9CA3AF' : 'var(--text-1)',
           textDecoration: done ? 'line-through' : 'none',
           cursor: isDragOverlay ? 'grabbing' : 'pointer',
           lineHeight: 1.4,
@@ -214,8 +214,8 @@ export function DayTaskCard({
         {meta.textOverride || text}
       </div>
 
-      {/* Hover actions: MIT star + three-dot */}
-      {(hovered || is_mit) && !isDragOverlay && (
+      {/* Hover actions: MIT star — always in DOM, opacity transition */}
+      {!isDragOverlay && (
         <button
           onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
           title={is_mit ? 'Remove MIT' : canToggleMIT ? 'Mark as MIT' : '3 MITs set'}
@@ -223,16 +223,17 @@ export function DayTaskCard({
             background: 'none', border: 'none', padding: '1px 2px',
             fontSize: 13, color: is_mit ? '#FFD156' : '#D0CEC9',
             cursor: canToggleMIT ? 'pointer' : 'not-allowed',
-            flexShrink: 0, lineHeight: 1, opacity: hovered || is_mit ? 1 : 0,
-            transition: 'opacity 0.1s',
+            flexShrink: 0, lineHeight: 1,
+            opacity: hovered || is_mit ? 1 : 0,
+            transition: 'opacity 0.2s',
           }}
         >
           ★
         </button>
       )}
 
-      {hovered && !isDragOverlay && (
-        <div style={{ position: 'relative', flexShrink: 0 }}>
+      {!isDragOverlay && (
+        <div style={{ position: 'relative', flexShrink: 0, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}>
           <button
             onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
             style={{
@@ -283,8 +284,8 @@ export function DayTaskCard({
         />
       ) : (
         <span style={{
-          fontSize: 11, color: 'var(--chip-text)',
-          background: 'var(--chip-bg)', borderRadius: 4, padding: '2px 7px',
+          fontSize: 12, color: 'var(--chip-text)',
+          background: 'var(--chip-bg)', borderRadius: 6, padding: '3px 8px', flexShrink: 0,
         }}>
           {formatDuration(duration)}
         </span>
@@ -410,16 +411,16 @@ export function TaskCardBase({ text, meta = {}, isDragOverlay = true }) {
       background: 'var(--surface)',
       border: 'none',
       borderLeft: `3px solid ${leftBorder}`,
-      borderRadius: 8, padding: '10px 12px',
-      display: 'flex', alignItems: 'center', gap: 10,
+      borderRadius: 8, padding: '11px 14px',
+      display: 'flex', alignItems: 'flex-start', gap: 10,
       opacity: 0.92, boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
       userSelect: 'none', cursor: 'grabbing', minWidth: 140,
     }}>
-      <div style={{ width: 17, height: 17, borderRadius: '50%', border: '1.5px solid #D0CEC9', flexShrink: 0, marginTop: 1 }} />
+      <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #D1D5DB', flexShrink: 0, marginTop: 1 }} />
       <span style={{ fontSize: 14, color: 'var(--text-1)', flex: 1, lineHeight: 1.4, wordBreak: 'break-word' }}>
         {text}
       </span>
-      <span style={{ fontSize: 11, color: 'var(--chip-text)', background: 'var(--chip-bg)', borderRadius: 4, padding: '2px 7px' }}>
+      <span style={{ fontSize: 12, color: 'var(--chip-text)', background: 'var(--chip-bg)', borderRadius: 6, padding: '3px 8px' }}>
         {formatDuration(duration)}
       </span>
     </div>

@@ -4,18 +4,16 @@ import { CSS } from '@dnd-kit/utilities'
 
 const PRESET_EMOJIS = ['📋','📌','💡','🎯','🔧','📚','💼','🏃','✍️','🎨','🔬','🌱','⚡','🎵','🏠','💰','🤝','🚀','🔑','📊']
 
-// Circle checkbox — same style as DayColumn tasks
-function CircleCheck({ checked, onChange, size = 15 }) {
+function CircleCheck({ checked, onChange }) {
   return (
     <div
       onClick={e => { e.stopPropagation(); onChange() }}
       style={{
-        width: size, height: size, borderRadius: '50%', flexShrink: 0,
-        border: checked ? 'none' : '1.5px solid #D0CEC9',
+        width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+        border: checked ? 'none' : '1.5px solid #D1D5DB',
         background: checked ? 'var(--success)' : 'transparent',
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'background 0.15s, border 0.15s',
-        marginTop: 1,
       }}
     >
       {checked && (
@@ -46,34 +44,43 @@ function ListItemRow({ item, onToggle, onRemove, dragType }) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          display: 'flex', alignItems: 'flex-start', gap: 7,
-          padding: '5px 6px', borderRadius: 6,
+          display: 'flex', alignItems: 'center', gap: 8,
+          minHeight: 36, padding: '0 8px', borderRadius: 6,
           background: hovered ? 'var(--surface)' : 'transparent',
           cursor: 'grab', userSelect: 'none',
         }}
       >
         <CircleCheck checked={item.done} onChange={() => onToggle(item.id)} />
         <span style={{
-          flex: 1, fontSize: 13,
-          color: item.done ? 'var(--text-2)' : 'var(--text-1)',
+          flex: 1, fontSize: 14,
+          color: item.done ? '#9CA3AF' : 'var(--text-1)',
           textDecoration: item.done ? 'line-through' : 'none',
-          lineHeight: 1.35, wordBreak: 'break-word',
+          lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
           {item.text}
         </span>
-        {hovered && (
-          <button
-            onClick={e => { e.stopPropagation(); onRemove(item.id) }}
-            style={{
-              background: 'none', border: 'none', padding: '0 2px',
-              fontSize: 14, color: '#D0CEC9', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--danger)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#D0CEC9' }}
-          >
-            ×
-          </button>
+        {item.duration && (
+          <span style={{
+            fontSize: 11, color: '#9CA3AF', background: '#F3F4F6',
+            borderRadius: 4, padding: '1px 6px', flexShrink: 0,
+          }}>
+            {typeof item.duration === 'number'
+              ? (item.duration < 60 ? `${item.duration}m` : `${Math.floor(item.duration/60)}h${item.duration%60?` ${item.duration%60}m`:''}`)
+              : item.duration}
+          </span>
         )}
+        <button
+          onClick={e => { e.stopPropagation(); onRemove(item.id) }}
+          style={{
+            background: 'none', border: 'none', padding: '0 2px',
+            fontSize: 14, color: '#D1D5DB', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
+            opacity: hovered ? 1 : 0, transition: 'opacity 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--danger)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#D1D5DB' }}
+        >
+          ×
+        </button>
       </div>
     </div>
   )
@@ -119,13 +126,13 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onAddI
       {/* List header */}
       <div
         style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          padding: '5px 6px', borderRadius: 6,
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '6px 8px', borderRadius: 6,
           cursor: 'pointer',
         }}
         onClick={() => setExpanded(v => !v)}
       >
-        <span style={{ fontSize: 13, flexShrink: 0 }}>{emoji}</span>
+        <span style={{ fontSize: 14, flexShrink: 0 }}>{emoji}</span>
         {renaming ? (
           <input
             autoFocus
@@ -138,23 +145,23 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onAddI
             }}
             onBlur={handleRename}
             style={{
-              flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--text-1)',
+              flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-1)',
               background: 'var(--surface)', border: '1px solid var(--accent)',
               borderRadius: 4, padding: '1px 5px', outline: 'none', fontFamily: 'inherit',
             }}
           />
         ) : (
           <span style={{
-            flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--text-1)',
+            flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-1)',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
             {title}
           </span>
         )}
-        <span style={{ fontSize: 10, color: 'var(--text-2)', flexShrink: 0 }}>
-          {items.length || ''}
+        <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>
+          {items.length > 0 ? items.length : ''}
         </span>
-        <span style={{ fontSize: 10, color: 'var(--text-2)', flexShrink: 0, width: 12, textAlign: 'center' }}>
+        <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0, width: 12, textAlign: 'center' }}>
           {expanded ? '▾' : '›'}
         </span>
         {!isPermanent && (
@@ -209,21 +216,17 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onAddI
             ))}
           </SortableContext>
           {canAdd && (
-            <div style={{ padding: '3px 6px' }}>
+            <div style={{ padding: '0 8px', minHeight: 32, display: 'flex', alignItems: 'center' }}>
               <input
                 style={{
                   width: '100%', background: 'none', border: 'none', outline: 'none',
-                  fontSize: 12, color: 'var(--text-1)', fontFamily: 'inherit',
-                  padding: '3px 0',
+                  fontSize: 13, color: '#9CA3AF', fontFamily: 'inherit',
+                  padding: '4px 0',
                 }}
                 placeholder="+ Add task…"
                 value={addVal}
                 onChange={e => setAddVal(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') handleAdd()
-                }}
-                onFocus={e => { e.currentTarget.placeholder = '' }}
-                onBlur={e => { e.currentTarget.placeholder = '+ Add task…' }}
+                onKeyDown={e => { if (e.key === 'Enter') handleAdd() }}
                 maxLength={200}
               />
             </div>
@@ -334,9 +337,9 @@ export default function LeftPanel({ dump, listsHook: lists }) {
       <aside
         data-tour="leftpanel"
         style={{
-          width: collapsed ? 36 : 248,
+          width: collapsed ? 36 : 260,
           flexShrink: 0,
-          background: 'var(--surface-2)',
+          background: '#EDEAE6',
           borderRight: '1px solid var(--col-sep)',
           display: 'flex',
           flexDirection: 'column',
@@ -371,7 +374,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <span style={{
-                fontSize: 12, fontWeight: 700, color: 'var(--text-1)',
+                fontSize: 13, fontWeight: 600, color: 'var(--text-1)',
               }}>
                 My Lists
               </span>

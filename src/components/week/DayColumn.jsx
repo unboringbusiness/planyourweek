@@ -6,10 +6,11 @@ import { isToday } from '../../lib/dates'
 import TaskCard from './TaskCard'
 import { formatDuration } from './TaskCard'
 
+// Line gradient: thin left accent cap for Deep Work / Focus, plain for Others
 const SLOT_CONFIG = {
-  deep_work: { label: 'Deep Work', max: LIMITS.DAILY_DEEP_WORK, lineColor: '#3B82F6', placeholder: 'Most important task' },
-  scheduled: { label: 'Focus',     max: LIMITS.DAILY_SCHEDULED, lineColor: '#F08F48', placeholder: 'Focus task' },
-  admin:     { label: 'Others',    max: LIMITS.DAILY_ADMIN,     lineColor: '#E8E6E2', placeholder: 'Other task' },
+  deep_work: { label: 'Deep Work', max: LIMITS.DAILY_DEEP_WORK, lineAccent: '#3B82F6', placeholder: 'Most important task' },
+  scheduled: { label: 'Focus',     max: LIMITS.DAILY_SCHEDULED, lineAccent: '#F08F48', placeholder: 'Focus task' },
+  admin:     { label: 'Others',    max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
 }
 
 const DAYS_ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
@@ -39,40 +40,43 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
     if (!error) { setAddVal(''); setAdding(false) }
   }
 
+  const lineBg = isOverFull
+    ? 'var(--danger)'
+    : isOver
+      ? `linear-gradient(to right, var(--accent) 3px, var(--border) 3px)`
+      : cfg.lineAccent
+        ? `linear-gradient(to right, ${cfg.lineAccent} 3px, var(--border) 3px)`
+        : 'var(--border)'
+
   return (
-    <div ref={setNodeRef} style={{ marginBottom: 4 }}>
+    <div ref={setNodeRef} style={{ marginBottom: 8 }}>
       {/* Section label row */}
-      <div style={{ marginTop: 10, marginBottom: 5 }}>
+      <div style={{ marginTop: 16, marginBottom: 8 }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: 4,
+          marginBottom: 5,
         }}>
           <span style={{
-            fontSize: 10, fontWeight: 500, textTransform: 'uppercase',
-            letterSpacing: '0.08em', color: '#C0BDB8',
+            fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+            letterSpacing: '0.08em', color: '#9CA3AF',
           }}>
             {cfg.label}
           </span>
-          <span style={{ fontSize: 10, color: '#C0BDB8', fontWeight: 500 }}>
+          <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 500 }}>
             {tasks.length}/{cfg.max}
           </span>
         </div>
-        {/* Accent 1px line */}
+        {/* 1px accent line */}
         <div style={{
           height: 1,
-          background: isOverFull
-            ? 'var(--danger)'
-            : isOver
-              ? 'var(--accent)'
-              : cfg.lineColor,
-          borderRadius: 1,
+          background: lineBg,
           transition: 'background 0.12s',
         }} />
       </div>
 
       {/* Tasks */}
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {tasks.map(task => {
             const meta = getMeta(task.id)
             const tomorrow = getTomorrow(day)
@@ -101,16 +105,16 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
 
       {/* Add task — hidden when full */}
       {!isFull && (
-        <div style={{ marginTop: tasks.length > 0 ? 4 : 2 }}>
+        <div style={{ marginTop: 2 }}>
           {adding ? (
             <input
               autoFocus
               style={{
-                width: '100%', padding: '10px 12px', borderRadius: 8,
-                border: '1.5px solid var(--accent)', background: '#FFFFFF',
+                width: '100%', padding: '11px 14px', borderRadius: 8,
+                border: '1.5px solid var(--accent)', background: 'var(--surface)',
                 fontSize: 14, color: 'var(--text-1)', outline: 'none',
                 fontFamily: 'inherit', boxSizing: 'border-box',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
               placeholder={`+ ${cfg.placeholder}`}
               value={addVal}
@@ -126,13 +130,13 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
             <button
               onClick={() => setAdding(true)}
               style={{
-                width: '100%', padding: '5px 2px',
+                width: '100%', padding: '8px 14px',
                 border: 'none', background: 'transparent',
-                fontSize: 13, color: '#BBBBBB', textAlign: 'left',
+                fontSize: 14, color: '#9CA3AF', textAlign: 'left',
                 cursor: 'pointer', fontFamily: 'inherit',
               }}
               onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = '#BBBBBB' }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#9CA3AF' }}
             >
               + {cfg.placeholder}
             </button>
@@ -165,7 +169,7 @@ export default function DayColumn({
     ...(slots?.admin ?? []),
   ]
   const totalMinutes = allTasks.reduce((sum, t) => sum + (getMeta(t.id).duration ?? 30), 0)
-  const totalColor = totalMinutes >= 360 ? 'var(--danger)' : totalMinutes >= 270 ? 'var(--sched)' : '#9A9A9A'
+  const totalColor = totalMinutes >= 360 ? 'var(--danger)' : totalMinutes >= 270 ? 'var(--sched)' : 'var(--text-2)'
 
   return (
     <div
@@ -193,15 +197,15 @@ export default function DayColumn({
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
               <div style={{
+                fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A',
+              }}>
+                {monthName}
+              </div>
+              <div style={{
                 fontSize: 28, fontWeight: 700, lineHeight: 1,
                 color: today ? '#3B82F6' : 'var(--text-1)',
               }}>
                 {dayNum}
-              </div>
-              <div style={{
-                fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A',
-              }}>
-                {monthName}
               </div>
             </div>
           </div>
