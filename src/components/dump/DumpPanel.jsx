@@ -47,7 +47,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
         }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)' }}>
-              Open List
+              Dump
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-2)', marginTop: 1 }}>
               Everything that's not this week · {dump.count} items

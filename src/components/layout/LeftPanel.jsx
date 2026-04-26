@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 const OPEN_LIST_KEY = 'pyw_open_list'
+const DUMP_DONE_KEY = 'pyw_dump_done'
 function loadOpenList() {
   try { return JSON.parse(localStorage.getItem(OPEN_LIST_KEY)) ?? [] } catch { return [] }
+}
+function loadDumpDone() {
+  try { return JSON.parse(localStorage.getItem(DUMP_DONE_KEY)) ?? {} } catch { return {} }
 }
 
 function SidebarIcon() {
@@ -366,26 +370,33 @@ function NewListModal({ onClose, onAdd }) {
 export default function LeftPanel({ dump, listsHook: lists }) {
   const [collapsed, setCollapsed] = useState(false)
   const [newListOpen, setNewListOpen] = useState(false)
-  const [dumpDone, setDumpDone] = useState({})
-  const toggleDumpDone = (id) => setDumpDone(prev => ({ ...prev, [id]: !prev[id] }))
+  const [dumpDone, setDumpDone] = useState(loadDumpDone)
+  const toggleDumpDone = useCallback((id) => {
+    setDumpDone(prev => {
+      const next = { ...prev, [id]: !prev[id] }
+      localStorage.setItem(DUMP_DONE_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
 
   // Open List — localStorage only, unlimited
   const [openItems, setOpenItemsState] = useState(loadOpenList)
-  const [openDone, setOpenDone] = useState({})
   const saveOpen = useCallback((items) => {
     setOpenItemsState(items)
     localStorage.setItem(OPEN_LIST_KEY, JSON.stringify(items))
   }, [])
   const addOpenItem = useCallback((_, text) => {
     const trimmed = text?.trim(); if (!trimmed) return
-    saveOpen([...openItems, { id: crypto.randomUUID(), text: trimmed, created_at: new Date().toISOString() }])
+    saveOpen([...openItems, { id: crypto.randomUUID(), text: trimmed, done: false, created_at: new Date().toISOString() }])
   }, [openItems, saveOpen])
   const removeOpenItem = useCallback((id) => saveOpen(openItems.filter(i => i.id !== id)), [openItems, saveOpen])
   const updateOpenItem = useCallback((id, text) => {
     const trimmed = text?.trim(); if (!trimmed) return
     saveOpen(openItems.map(i => i.id === id ? { ...i, text: trimmed } : i))
   }, [openItems, saveOpen])
-  const toggleOpenDone = (id) => setOpenDone(prev => ({ ...prev, [id]: !prev[id] }))
+  const toggleOpenDone = useCallback((id) => {
+    saveOpen(openItems.map(i => i.id === id ? { ...i, done: !i.done } : i))
+  }, [openItems, saveOpen])
 
   return (
     <>
@@ -504,7 +515,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                 title="Open List"
                 emoji="📂"
                 listId="open-list"
-                items={openItems.map(i => ({ ...i, done: openDone[i.id] ?? false }))}
+                items={openItems}
                 dragType="list_item"
                 onToggle={toggleOpenDone}
                 onRemove={removeOpenItem}

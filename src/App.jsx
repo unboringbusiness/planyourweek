@@ -424,7 +424,9 @@ export default function App() {
         onClose={() => setDumpOpen(false)}
         dump={dump}
         onMoveToWeek={async (item) => {
-          await weekData.addSlot('monday', 'admin', item.text)
+          const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+          const todayKey = days[new Date().getDay()]
+          await weekData.addSlot(todayKey, 'admin', item.text)
           dump.removeItem(item.id)
         }}
       />
@@ -453,7 +455,7 @@ export default function App() {
         <TaskDetailModal
           task={detailModal.task}
           meta={getMeta(detailModal.task.id)}
-          onSave={(changes) => handleDetailSave(detailModal.task.id, changes)}
+          onUpdate={(changes) => handleDetailSave(detailModal.task.id, changes)}
           onClose={() => setDetailModal(null)}
           onStartTimer={() => {
             const meta = getMeta(detailModal.task.id)

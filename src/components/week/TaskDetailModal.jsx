@@ -17,7 +17,7 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
     onClose()
   }
 
-  const pct = Math.round((duration / 360) * 100)
+  const pct = Math.round((duration / 480) * 100)
 
   return (
     <div
@@ -81,7 +81,7 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
             <input
               type="range"
               min={5}
-              max={360}
+              max={480}
               step={5}
               value={duration}
               onChange={e => setDuration(Number(e.target.value))}
@@ -100,7 +100,7 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
             <span style={{ fontSize: 10, color: 'var(--text-2)' }}>5m</span>
-            <span style={{ fontSize: 10, color: 'var(--text-2)' }}>6h</span>
+            <span style={{ fontSize: 10, color: 'var(--text-2)' }}>8h</span>
           </div>
         </div>
 
