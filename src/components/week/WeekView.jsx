@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { getWeekDays, isToday } from '../../lib/dates'
 import DayColumn from './DayColumn'
 
-const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+const DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
 function SlotLegend() {
   return (

@@ -2,14 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 
 function getWeekRange() {
   const d = new Date()
-  const day = d.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  const monday = new Date(d)
-  monday.setDate(d.getDate() + diff)
-  const sunday = new Date(monday)
-  sunday.setDate(monday.getDate() + 6)
+  const sunday = new Date(d)
+  sunday.setDate(d.getDate() - d.getDay()) // back to Sunday
+  const saturday = new Date(sunday)
+  saturday.setDate(sunday.getDate() + 6)
   const fmt = (dt) => dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  return `${fmt(monday)} – ${fmt(sunday)}`
+  return `${fmt(sunday)} – ${fmt(saturday)}`
 }
 
 export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {

@@ -1,53 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
-    "timestamp": 1777233879254,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
-    "timestamp": 1777233882427,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
-    "timestamp": 1777233887295,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
-    "timestamp": 1777233902210,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/styles/theme.css",
-    "timestamp": 1777233911930,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
-    "timestamp": 1777234788036,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
-    "timestamp": 1777234793908,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/WeekView.jsx",
-    "timestamp": 1777234800905,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/App.jsx",
     "timestamp": 1777234823100,
     "focus": false,
@@ -56,6 +8,54 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
     "timestamp": 1777234830838,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/lib/dates.js",
+    "timestamp": 1777235124903,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/lib/dates.js",
+    "timestamp": 1777235130687,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/WeekView.jsx",
+    "timestamp": 1777235134054,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777235139819,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777235143550,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/TopBar.jsx",
+    "timestamp": 1777235162588,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
+    "timestamp": 1777235168060,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
+    "timestamp": 1777235174067,
     "focus": false,
     "openLocation": 0
   }

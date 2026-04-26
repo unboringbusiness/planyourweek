@@ -15,7 +15,18 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
       borderBottom: `1px solid ${borderColor}`,
       flexShrink: 0, position: 'sticky', top: 0, zIndex: 100,
     }}>
+      {/* Left: logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1 }}>
+          <span style={{ fontWeight: 400, color: logoColor }}>plan</span>
+          <span style={{ fontWeight: 400, color: logoColor }}>your</span>
+          <span style={{ fontWeight: 700, color: '#3B82F6' }}>week</span>
+          <span style={{ fontWeight: 400, fontSize: 11, color: '#9CA3AF' }}>.co</span>
+        </span>
+      </div>
+
+      {/* Right: nav + controls */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         {activeView === 'week' && (
           <button
             onClick={onScrollToToday}
@@ -30,29 +41,16 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
             Today
           </button>
         )}
-      <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1 }}>
-        <span style={{ fontWeight: 400, color: logoColor }}>plan</span>
-        <span style={{ fontWeight: 400, color: logoColor }}>your</span>
-        <span style={{ fontWeight: 700, color: '#3B82F6' }}>week</span>
-        <span style={{ fontWeight: 400, fontSize: 11, color: '#9CA3AF' }}>.co</span>
-      </span>
-      </div>
-
-      <nav style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
         {[['week','Week'],['reset','Review']].map(([id, label]) => (
           <button
             key={id}
             onClick={() => onViewChange(id)}
             style={{
-              background: 'none',
-              border: 'none',
+              background: 'none', border: 'none',
               borderBottom: activeView === id ? '2px solid #3B82F6' : '2px solid transparent',
-              padding: '4px 14px',
-              fontSize: 14, fontWeight: 500,
+              padding: '4px 14px', fontSize: 14, fontWeight: 500,
               color: activeView === id ? activeColor : inactiveColor,
-              cursor: 'pointer',
-              transition: 'color 0.12s',
-              lineHeight: '44px',
+              cursor: 'pointer', transition: 'color 0.12s', lineHeight: '44px',
             }}
           >
             {label}
@@ -65,21 +63,17 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
             background: 'none', border: 'none',
             borderBottom: '2px solid transparent',
             padding: '4px 14px', fontSize: 14, fontWeight: 500,
-            color: inactiveColor, cursor: 'pointer',
-            lineHeight: '44px',
+            color: inactiveColor, cursor: 'pointer', lineHeight: '44px',
           }}
         >
           Dump
         </button>
-      </nav>
-
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <div style={{ width: 1, height: 20, background: borderColor, margin: '0 4px' }} />
         <button
           onClick={onHelpOpen}
           title="Guided walkthrough"
           style={{
-            background: 'none', border: 'none',
-            width: 30, height: 30, borderRadius: '50%',
+            background: 'none', border: 'none', width: 30, height: 30, borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 15, fontWeight: 600, color: iconColor, cursor: 'pointer',
           }}
@@ -90,8 +84,7 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
           onClick={onThemeToggle}
           title={isDark ? 'Light mode' : 'Dark mode'}
           style={{
-            background: 'none', border: 'none', borderRadius: 6,
-            width: 30, height: 30,
+            background: 'none', border: 'none', borderRadius: 6, width: 30, height: 30,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 16, cursor: 'pointer', color: iconColor,
           }}

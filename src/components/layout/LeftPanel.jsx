@@ -92,16 +92,6 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
             {item.text}
           </span>
         )}
-        {item.duration && (
-          <span style={{
-            fontSize: 11, color: '#9CA3AF', background: '#F3F4F6',
-            borderRadius: 4, padding: '1px 6px', flexShrink: 0,
-          }}>
-            {typeof item.duration === 'number'
-              ? (item.duration < 60 ? `${item.duration}m` : `${Math.floor(item.duration/60)}h${item.duration%60?` ${item.duration%60}m`:''}`)
-              : item.duration}
-          </span>
-        )}
         <button
           onClick={e => { e.stopPropagation(); onRemove(item.id) }}
           style={{

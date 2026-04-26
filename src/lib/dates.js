@@ -1,11 +1,10 @@
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** Returns the Monday of the week containing the given date. */
+/** Returns the Sunday of the week containing the given date. */
 export function getWeekStart(date = new Date()) {
   const d = new Date(date);
   const day = d.getDay(); // 0 = Sunday
-  const diff = day === 0 ? -6 : 1 - day; // shift so Monday = 0
-  d.setDate(d.getDate() + diff);
+  d.setDate(d.getDate() - day); // Sunday = day 0, no shift needed
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -45,12 +44,11 @@ export function isToday(date) {
   );
 }
 
-/** Returns the Monday of the current week as 'YYYY-MM-DD' (local date, not UTC). */
+/** Returns the Sunday of the current week as 'YYYY-MM-DD' (local date, not UTC). */
 export function getCurrentWeekStart() {
   const d = new Date()
-  const day = d.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  d.setDate(d.getDate() + diff)
+  const day = d.getDay() // 0 = Sunday, so subtract day to get Sunday
+  d.setDate(d.getDate() - day)
   d.setHours(0, 0, 0, 0)
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')

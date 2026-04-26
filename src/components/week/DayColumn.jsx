@@ -138,11 +138,10 @@ export default function DayColumn({
   onFocusMode, onStartupRitual, onShutdownRitual,
   focusModeActive, isLast,
 }) {
-  const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   const MON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
   const jsDay = dayDate ? dayDate.getDay() : 0
-  const dispIdx = jsDay === 0 ? 6 : jsDay - 1
-  const dayName = DAY_NAMES[dispIdx] ?? dayKey?.slice(0, 3)
+  const dayName = DAY_NAMES[jsDay] ?? dayKey?.slice(0, 3)
   const dayNum = dayDate ? dayDate.getDate() : ''
   const monthName = dayDate ? MON_NAMES[dayDate.getMonth()] : ''
   const today = dayDate ? isToday(dayDate) : false
@@ -163,7 +162,6 @@ export default function DayColumn({
         display: 'flex',
         flexDirection: 'column',
         background: today ? 'var(--col-today-bg)' : 'transparent',
-        borderRight: isLast ? 'none' : '1px solid var(--col-sep)',
         padding: '12px 14px 16px',
       }}
     >
