@@ -3,8 +3,19 @@ import { useState, useCallback } from 'react'
 const LISTS_KEY = 'pyw_custom_lists'
 const ITEMS_KEY = 'pyw_list_items'
 
+const DEFAULT_LISTS = [
+  { id: 'default-work',     emoji: '💼', name: 'Work',     created_at: '2026-01-01T00:00:00.000Z' },
+  { id: 'default-personal', emoji: '🏠', name: 'Personal', created_at: '2026-01-01T00:00:01.000Z' },
+]
+
 function loadLists() {
-  try { return JSON.parse(localStorage.getItem(LISTS_KEY)) ?? [] } catch { return [] }
+  try {
+    const stored = JSON.parse(localStorage.getItem(LISTS_KEY))
+    if (stored !== null) return stored
+    // First load — seed defaults
+    localStorage.setItem(LISTS_KEY, JSON.stringify(DEFAULT_LISTS))
+    return DEFAULT_LISTS
+  } catch { return DEFAULT_LISTS }
 }
 function loadItems() {
   try { return JSON.parse(localStorage.getItem(ITEMS_KEY)) ?? [] } catch { return [] }

@@ -47,14 +47,27 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
 
   return (
     <div ref={setNodeRef} style={{ marginBottom: 4 }}>
-      {/* Subtle drop-zone indicator — visible only when dragging over */}
-      {(isOver) && (
+      {/* Section label — subtle, lowercase */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginTop: 12, marginBottom: 6,
+      }}>
+        <span style={{
+          fontSize: 10, fontWeight: 500, color: cfg.lineAccent ?? '#C0BDB8',
+          letterSpacing: '0.04em',
+        }}>
+          {cfg.label}
+        </span>
+        <span style={{ fontSize: 10, color: tasks.length > cfg.max ? 'var(--danger)' : '#C0BDB8', fontWeight: 400 }}>
+          {tasks.length}/{cfg.max}
+        </span>
+      </div>
+
+      {/* Drop-zone flash when dragging over */}
+      {isOver && (
         <div style={{
-          height: 2,
-          background: isOverFull ? 'var(--danger)' : 'var(--accent)',
-          borderRadius: 1,
-          marginBottom: 4,
-          transition: 'background 0.12s',
+          height: 2, background: isOverFull ? 'var(--danger)' : 'var(--accent)',
+          borderRadius: 1, marginBottom: 4, transition: 'background 0.12s',
         }} />
       )}
 

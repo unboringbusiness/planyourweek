@@ -208,8 +208,7 @@ export function DayTaskCard({
           cursor: isDragOverlay ? 'grabbing' : 'pointer',
           lineHeight: 1.4,
           fontWeight: 400,
-          wordBreak: 'keep-all',
-          overflowWrap: 'break-word',
+          overflowWrap: 'normal',
           hyphens: 'none',
           whiteSpace: 'normal',
         }}

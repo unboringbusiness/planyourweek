@@ -392,7 +392,8 @@ export default function LeftPanel({ dump, listsHook: lists }) {
           <>
             {/* Panel header */}
             <div style={{
-              padding: '10px 12px 8px',
+              padding: '0 12px',
+              height: 57,
               borderBottom: '1px solid var(--border)',
               flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -400,7 +401,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
               <span style={{
                 fontSize: 13, fontWeight: 600, color: '#6B7280',
               }}>
-                Projects
+                This Week
               </span>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button
