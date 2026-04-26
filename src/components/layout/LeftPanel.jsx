@@ -444,10 +444,10 @@ export default function LeftPanel({ dump, listsHook: lists }) {
 
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
-              {/* Brain Dump — permanent */}
+              {/* Open List — permanent */}
               <ListSection
-                title="Brain Dump"
-                emoji="🧠"
+                title="Open List"
+                emoji="📋"
                 listId="brain-dump"
                 items={dump.items.map(i => ({ ...i, done: dumpDone[i.id] ?? false }))}
                 dragType="dump"

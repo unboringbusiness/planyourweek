@@ -1,4 +1,4 @@
-export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, onThemeToggle, onHelpOpen }) {
+export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, onThemeToggle, onHelpOpen, onScrollToToday }) {
   const isDark = theme === 'dark'
   const bg = isDark ? '#1E1E1E' : '#FFFFFF'
   const borderColor = isDark ? '#2A2A2A' : '#E5E7EB'
@@ -15,12 +15,28 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, on
       borderBottom: `1px solid ${borderColor}`,
       flexShrink: 0, position: 'sticky', top: 0, zIndex: 100,
     }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {activeView === 'week' && (
+          <button
+            onClick={onScrollToToday}
+            style={{
+              padding: '4px 12px', borderRadius: 6,
+              border: `1px solid ${isDark ? '#3B82F6' : '#E5E7EB'}`,
+              background: isDark ? 'rgba(59,130,246,0.1)' : '#FFFFFF',
+              fontSize: 13, fontWeight: 500,
+              color: '#3B82F6', cursor: 'pointer',
+            }}
+          >
+            Today
+          </button>
+        )}
       <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1 }}>
         <span style={{ fontWeight: 400, color: logoColor }}>plan</span>
         <span style={{ fontWeight: 400, color: logoColor }}>your</span>
         <span style={{ fontWeight: 700, color: '#3B82F6' }}>week</span>
         <span style={{ fontWeight: 400, fontSize: 11, color: '#9CA3AF' }}>.co</span>
       </span>
+      </div>
 
       <nav style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
         {[['week','Week'],['reset','Review']].map(([id, label]) => (

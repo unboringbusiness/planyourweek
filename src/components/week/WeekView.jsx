@@ -39,16 +39,16 @@ export default function WeekView({
   const scrollRef = useRef(null)
   const colRefs = useRef({})
 
-  // Scroll so today is the first visible column.
+  // Scroll so today is the first visible column on mount.
   useEffect(() => {
     const timer = setTimeout(() => {
       const todayEl = document.querySelector('[data-today="true"]')
       if (todayEl && scrollRef.current) {
         scrollRef.current.scrollLeft = todayEl.offsetLeft
       }
-    }, 300)
+    }, 250)
     return () => clearTimeout(timer)
-  }, [])
+  }, [weekStart])
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
@@ -80,6 +80,7 @@ export default function WeekView({
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <div
           ref={scrollRef}
+          data-scroll-container
           style={{
             position: 'absolute', inset: 0,
             display: 'flex',

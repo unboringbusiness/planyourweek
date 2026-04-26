@@ -346,6 +346,13 @@ export default function App() {
         theme={theme}
         onThemeToggle={toggleTheme}
         onHelpOpen={() => setShowOnboarding(true)}
+        onScrollToToday={() => {
+          const todayEl = document.querySelector('[data-today="true"]')
+          if (todayEl) {
+            const scrollEl = todayEl.closest('[data-scroll-container]')
+            if (scrollEl) scrollEl.scrollLeft = todayEl.offsetLeft
+          }
+        }}
       />
 
       {view === 'reset' ? (
