@@ -207,6 +207,11 @@ export default function DayColumn({
               }}>
                 {dayNum}
               </div>
+              {today && (
+                <div style={{ fontSize: 11, fontWeight: 500, color: '#3B82F6', marginLeft: 2 }}>
+                  Today
+                </div>
+              )}
             </div>
           </div>
           <div style={{ fontSize: 12, color: totalColor, fontWeight: 500, textAlign: 'right', paddingTop: 2 }}>
@@ -258,6 +263,7 @@ export default function DayColumn({
       </div>
 
       {/* Sections */}
+      <div style={{ paddingTop: 12 }} />
       <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />

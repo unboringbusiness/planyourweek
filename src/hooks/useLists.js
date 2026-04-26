@@ -69,11 +69,17 @@ export function useLists() {
     return items.filter(i => i.listId === listId)
   }, [items])
 
+  const updateItem = useCallback((id, text) => {
+    const trimmed = text?.trim()
+    if (!trimmed) return
+    setItems(prev => prev.map(i => i.id === id ? { ...i, text: trimmed } : i))
+  }, [setItems])
+
   return {
     lists,
     items,
     isFull: lists.length >= MAX_CUSTOM_LISTS,
     addList, renameList, deleteList,
-    addItem, removeItem, toggleDone, getListItems,
+    addItem, removeItem, toggleDone, updateItem, getListItems,
   }
 }

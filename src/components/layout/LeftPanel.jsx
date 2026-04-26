@@ -26,18 +26,27 @@ function CircleCheck({ checked, onChange }) {
 }
 
 // Single item row — sortable + draggable to day columns
-function ListItemRow({ item, onToggle, onRemove, dragType }) {
+function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
   const [hovered, setHovered] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editVal, setEditVal] = useState(item.text)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
     data: { type: dragType, item },
   })
 
+  const commitEdit = () => {
+    const trimmed = editVal.trim()
+    if (trimmed && trimmed !== item.text) onUpdate?.(item.id, trimmed)
+    else setEditVal(item.text)
+    setEditing(false)
+  }
+
   return (
     <div
       ref={setNodeRef}
       {...attributes}
-      {...listeners}
+      {...(editing ? {} : listeners)}
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0 : 1 }}
     >
       <div
@@ -46,19 +55,43 @@ function ListItemRow({ item, onToggle, onRemove, dragType }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           minHeight: 36, padding: '0 8px', borderRadius: 6,
-          background: hovered ? 'var(--surface)' : 'transparent',
-          cursor: 'grab', userSelect: 'none',
+          background: hovered ? '#F9FAFB' : 'transparent',
+          cursor: editing ? 'default' : 'grab', userSelect: 'none',
         }}
       >
         <CircleCheck checked={item.done} onChange={() => onToggle(item.id)} />
-        <span style={{
-          flex: 1, fontSize: 14,
-          color: item.done ? '#9CA3AF' : 'var(--text-1)',
-          textDecoration: item.done ? 'line-through' : 'none',
-          lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {item.text}
-        </span>
+        {editing ? (
+          <input
+            autoFocus
+            value={editVal}
+            onChange={e => setEditVal(e.target.value)}
+            onBlur={commitEdit}
+            onKeyDown={e => {
+              if (e.key === 'Enter') commitEdit()
+              if (e.key === 'Escape') { setEditVal(item.text); setEditing(false) }
+            }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              flex: 1, fontSize: 14, color: 'var(--text-1)', background: 'none',
+              border: 'none', borderBottom: '1px solid var(--accent)',
+              outline: 'none', fontFamily: 'inherit', padding: '1px 0', lineHeight: 1.35,
+            }}
+            maxLength={200}
+          />
+        ) : (
+          <span
+            onClick={e => { e.stopPropagation(); setEditing(true) }}
+            style={{
+              flex: 1, fontSize: 14,
+              color: item.done ? '#9CA3AF' : 'var(--text-1)',
+              textDecoration: item.done ? 'line-through' : 'none',
+              lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              cursor: 'text',
+            }}
+          >
+            {item.text}
+          </span>
+        )}
         {item.duration && (
           <span style={{
             fontSize: 11, color: '#9CA3AF', background: '#F3F4F6',
@@ -87,7 +120,7 @@ function ListItemRow({ item, onToggle, onRemove, dragType }) {
 }
 
 // Expandable list section
-function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onAddItem, canAdd, listId, onRename, onDelete, isPermanent }) {
+function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, canAdd, listId, onRename, onDelete, isPermanent }) {
   const [expanded, setExpanded] = useState(true)
   const [addVal, setAddVal] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -212,6 +245,7 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onAddI
                 dragType={dragType}
                 onToggle={onToggle}
                 onRemove={onRemove}
+                onUpdate={onUpdate}
               />
             ))}
           </SortableContext>
@@ -339,8 +373,8 @@ export default function LeftPanel({ dump, listsHook: lists }) {
         style={{
           width: collapsed ? 36 : 260,
           flexShrink: 0,
-          background: '#EDEAE6',
-          borderRight: '1px solid var(--col-sep)',
+          background: '#FFFFFF',
+          borderRight: '1px solid #F0F0F0',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -419,6 +453,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                 dragType="dump"
                 onToggle={toggleDumpDone}
                 onRemove={dump.removeItem}
+                onUpdate={dump.updateItem}
                 onAddItem={(_, text) => dump.addItem(text)}
                 canAdd={!dump.isFull}
                 isPermanent={true}
@@ -435,6 +470,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                   dragType="list_item"
                   onToggle={lists.toggleDone}
                   onRemove={lists.removeItem}
+                  onUpdate={lists.updateItem}
                   onAddItem={lists.addItem}
                   canAdd={true}
                   isPermanent={false}

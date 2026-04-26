@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react'
-import { formatWeekRange } from '../../lib/dates'
+
+function getWeekRange() {
+  const d = new Date()
+  const day = d.getDay()
+  const diff = day === 0 ? -6 : 1 - day
+  const monday = new Date(d)
+  monday.setDate(d.getDate() + diff)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  const fmt = (dt) => dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return `${fmt(monday)} – ${fmt(sunday)}`
+}
 
 export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
   const [localMITs, setLocalMITs] = useState(['', '', ''])
@@ -16,20 +27,19 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
 
   const handleBlur = () => setMITs?.(localMITs)
 
-  const weekRange = weekStart
-    ? formatWeekRange(new Date(weekStart + 'T00:00:00'))
-    : ''
+  const weekRange = getWeekRange()
 
   return (
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      padding: '10px 16px',
+      padding: '8px 20px',
       gap: 12,
+      margin: '8px 0',
       borderBottom: '1px solid var(--col-sep)',
       background: 'var(--surface)',
       flexShrink: 0,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      overflow: 'visible',
     }}>
       <div style={{
         fontSize: 10,
@@ -44,7 +54,7 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
         Weekly<br />Milestones
       </div>
 
-      <div style={{ display: 'flex', gap: 12, flex: 1 }}>
+      <div style={{ display: 'flex', gap: 12, flex: 1, minWidth: 0 }}>
         {[0, 1, 2].map(i => {
           const mitTask = allMITs[i]
           const hasMITTask = Boolean(mitTask)
@@ -55,14 +65,14 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
               key={i}
               style={{
                 flex: 1,
-                background: '#F9FAFB',
-                border: `1.5px solid ${isFilled ? 'rgba(59,130,246,0.4)' : '#E5E7EB'}`,
-                borderRadius: 8,
-                padding: '10px 14px',
+                minWidth: 0,
+                background: '#FFFFFF',
+                border: `1.5px solid ${isFilled ? '#3B82F6' : '#E5E7EB'}`,
+                borderRadius: 10,
+                padding: '12px 16px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 4,
-                minWidth: 0,
               }}
             >
               <span style={{
