@@ -201,13 +201,17 @@ export function DayTaskCard({
         onClick={() => !isDragOverlay && onOpenDetail?.()}
         style={{
           flex: 1,
+          minWidth: 0,
           fontSize: 14,
           color: done ? '#9CA3AF' : 'var(--text-1)',
           textDecoration: done ? 'line-through' : 'none',
           cursor: isDragOverlay ? 'grabbing' : 'pointer',
           lineHeight: 1.4,
           fontWeight: 400,
-          wordBreak: 'break-word',
+          wordBreak: 'keep-all',
+          overflowWrap: 'break-word',
+          hyphens: 'none',
+          whiteSpace: 'normal',
         }}
         title={meta.textOverride || text}
       >

@@ -39,21 +39,16 @@ export default function WeekView({
   const scrollRef = useRef(null)
   const colRefs = useRef({})
 
-  // Scroll today's column to the leftmost visible position on mount.
-  // setTimeout ensures the DOM has been painted before reading offsetLeft.
+  // Scroll today's column into view after paint.
   useEffect(() => {
-    if (!weekStart) return
-    const todayIdx = weekDays.findIndex(d => d && isToday(d))
-    if (todayIdx < 0) return
-    const dayKey = DAYS[todayIdx]
     const timer = setTimeout(() => {
-      const colEl = colRefs.current[dayKey]
-      if (colEl && scrollRef.current) {
-        scrollRef.current.scrollLeft = colEl.offsetLeft
+      const todayEl = document.querySelector('[data-today="true"]')
+      if (todayEl) {
+        todayEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
       }
-    }, 100)
+    }, 150)
     return () => clearTimeout(timer)
-  }, [weekStart])
+  }, [])
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
@@ -103,7 +98,8 @@ export default function WeekView({
               <div
                 key={dayKey}
                 ref={el => { colRefs.current[dayKey] = el }}
-                style={{ minWidth: 240, flex: 1, display: 'flex', flexDirection: 'column' }}
+                data-today={weekDays[actualIdx] && isToday(weekDays[actualIdx]) ? 'true' : undefined}
+                style={{ minWidth: 260, flexShrink: 0, display: 'flex', flexDirection: 'column' }}
               >
                 <DayColumn
                   dayKey={dayKey}
