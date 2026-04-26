@@ -39,14 +39,14 @@ export default function WeekView({
   const scrollRef = useRef(null)
   const colRefs = useRef({})
 
-  // Scroll today's column into view after paint.
+  // Scroll so today is the first visible column.
   useEffect(() => {
     const timer = setTimeout(() => {
       const todayEl = document.querySelector('[data-today="true"]')
-      if (todayEl) {
-        todayEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+      if (todayEl && todayEl.parentElement) {
+        todayEl.parentElement.scrollLeft = todayEl.offsetLeft - 260
       }
-    }, 150)
+    }, 200)
     return () => clearTimeout(timer)
   }, [])
 
@@ -74,9 +74,7 @@ export default function WeekView({
             Exit Focus
           </button>
         </div>
-      ) : (
-        <SlotLegend />
-      )}
+      ) : null}
 
       {/* Scroll container with right fade gradient */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>

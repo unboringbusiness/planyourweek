@@ -33,27 +33,13 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      padding: '8px 20px',
+      padding: '10px 20px',
       gap: 12,
-      margin: '8px 0',
       borderBottom: '1px solid var(--col-sep)',
       background: 'var(--surface)',
       flexShrink: 0,
       overflow: 'visible',
     }}>
-      <div style={{
-        fontSize: 10,
-        fontWeight: 600,
-        color: '#9CA3AF',
-        textTransform: 'uppercase',
-        letterSpacing: '0.08em',
-        whiteSpace: 'nowrap',
-        lineHeight: 1.4,
-        minWidth: 72,
-      }}>
-        Weekly<br />Milestones
-      </div>
-
       <div style={{ display: 'flex', gap: 12, flex: 1, minWidth: 0 }}>
         {[0, 1, 2].map(i => {
           const mitTask = allMITs[i]
@@ -98,9 +84,9 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
                     background: 'none',
                     border: 'none',
                     outline: 'none',
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: 400,
-                    color: 'var(--text-1)',
+                    color: '#1A1A2E',
                     width: '100%',
                     padding: 0,
                     fontFamily: 'inherit',

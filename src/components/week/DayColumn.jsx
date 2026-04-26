@@ -20,6 +20,8 @@ function getTomorrow(dayKey) {
   return idx < 6 ? DAYS_ORDER[idx + 1] : null
 }
 
+const DEFAULT_DURATION = { deep_work: 90, scheduled: 25, admin: 25 }
+
 function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer }) {
   const cfg = SLOT_CONFIG[slotType]
   const isFull = tasks.length >= cfg.max
@@ -36,8 +38,11 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
   const handleAdd = async () => {
     const trimmed = addVal.trim()
     if (!trimmed) { setAdding(false); return }
-    const { error } = await onAddSlot(day, slotType, trimmed)
-    if (!error) { setAddVal(''); setAdding(false) }
+    const { error, data } = await onAddSlot(day, slotType, trimmed)
+    if (!error) {
+      if (data?.id) setTaskMeta(data.id, { duration: DEFAULT_DURATION[slotType] })
+      setAddVal(''); setAdding(false)
+    }
   }
 
   const lineBg = isOverFull
@@ -184,43 +189,28 @@ export default function DayColumn({
       }}
     >
       {/* Column header */}
-      <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid var(--col-sep)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{
-              fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: today ? '#3B82F6' : '#9A9A9A',
-              marginBottom: 2,
-            }}>
-              {dayName}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-              <div style={{
-                fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A',
-              }}>
-                {monthName}
-              </div>
-              <div style={{
-                fontSize: 28, fontWeight: 700, lineHeight: 1,
-                color: today ? '#3B82F6' : 'var(--text-1)',
-              }}>
-                {dayNum}
-              </div>
-              {today && (
-                <div style={{ fontSize: 11, fontWeight: 500, color: '#3B82F6', marginLeft: 2 }}>
-                  Today
-                </div>
-              )}
-            </div>
-          </div>
-          <div style={{ fontSize: 12, color: totalColor, fontWeight: 500, textAlign: 'right', paddingTop: 2 }}>
-            {formatDuration(totalMinutes)} / 6h
-          </div>
+      <div style={{ paddingBottom: 10, borderBottom: '1px solid #F0F0F0' }}>
+        {/* Single-line: SUN Apr 26 Today */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.06em', color: today ? '#3B82F6' : '#9A9A9A',
+          }}>
+            {dayName}
+          </span>
+          <span style={{ fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A' }}>
+            {monthName}
+          </span>
+          <span style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, color: today ? '#3B82F6' : 'var(--text-1)' }}>
+            {dayNum}
+          </span>
+          {today && (
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#3B82F6' }}>Today</span>
+          )}
         </div>
 
         {today && (
-          <div style={{ display: 'flex', gap: 4, marginTop: 10 }}>
+          <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
             <button
               data-tour="startup-btn"
               onClick={onStartupRitual}
@@ -262,11 +252,15 @@ export default function DayColumn({
         )}
       </div>
 
-      {/* Sections */}
-      <div style={{ paddingTop: 12 }} />
+      {/* Sections — no extra spacer, sections start right after header */}
       <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+
+      {/* Time footer */}
+      <div style={{ marginTop: 'auto', paddingTop: 12, fontSize: 11, color: totalColor, fontWeight: 500, textAlign: 'right' }}>
+        {formatDuration(totalMinutes)} / 6h
+      </div>
     </div>
   )
 }

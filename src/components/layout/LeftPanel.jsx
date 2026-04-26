@@ -408,9 +408,9 @@ export default function LeftPanel({ dump, listsHook: lists }) {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <span style={{
-                fontSize: 13, fontWeight: 600, color: 'var(--text-1)',
+                fontSize: 13, fontWeight: 600, color: '#6B7280',
               }}>
-                My Lists
+                Projects
               </span>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button
