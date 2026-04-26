@@ -350,7 +350,11 @@ export default function App() {
           const todayEl = document.querySelector('[data-today="true"]')
           if (todayEl) {
             const scrollEl = todayEl.closest('[data-scroll-container]')
-            if (scrollEl) scrollEl.scrollLeft = todayEl.offsetLeft
+            if (scrollEl) {
+              const containerRect = scrollEl.getBoundingClientRect()
+              const elRect = todayEl.getBoundingClientRect()
+              scrollEl.scrollLeft += elRect.left - containerRect.left
+            }
           }
         }}
       />

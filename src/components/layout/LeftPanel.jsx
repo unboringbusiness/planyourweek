@@ -444,9 +444,9 @@ export default function LeftPanel({ dump, listsHook: lists }) {
 
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
-              {/* Open List — permanent */}
+              {/* Closed List (Brain Dump) — permanent */}
               <ListSection
-                title="Open List"
+                title="Closed List"
                 emoji="📋"
                 listId="brain-dump"
                 items={dump.items.map(i => ({ ...i, done: dumpDone[i.id] ?? false }))}

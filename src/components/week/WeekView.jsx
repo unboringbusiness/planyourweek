@@ -44,7 +44,9 @@ export default function WeekView({
     const timer = setTimeout(() => {
       const todayEl = document.querySelector('[data-today="true"]')
       if (todayEl && scrollRef.current) {
-        scrollRef.current.scrollLeft = todayEl.offsetLeft
+        const containerRect = scrollRef.current.getBoundingClientRect()
+        const elRect = todayEl.getBoundingClientRect()
+        scrollRef.current.scrollLeft += elRect.left - containerRect.left
       }
     }, 250)
     return () => clearTimeout(timer)

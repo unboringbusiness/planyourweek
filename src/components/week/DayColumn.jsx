@@ -45,39 +45,18 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
     }
   }
 
-  const lineBg = isOverFull
-    ? 'var(--danger)'
-    : isOver
-      ? `linear-gradient(to right, var(--accent) 3px, var(--border) 3px)`
-      : cfg.lineAccent
-        ? `linear-gradient(to right, ${cfg.lineAccent} 3px, var(--border) 3px)`
-        : 'var(--border)'
-
   return (
-    <div ref={setNodeRef} style={{ marginBottom: 8 }}>
-      {/* Section label row */}
-      <div style={{ marginTop: 16, marginBottom: 8 }}>
+    <div ref={setNodeRef} style={{ marginBottom: 4 }}>
+      {/* Subtle drop-zone indicator — visible only when dragging over */}
+      {(isOver) && (
         <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: 5,
-        }}>
-          <span style={{
-            fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
-            letterSpacing: '0.08em', color: '#9CA3AF',
-          }}>
-            {cfg.label}
-          </span>
-          <span style={{ fontSize: 10, color: tasks.length > cfg.max ? 'var(--danger)' : '#9CA3AF', fontWeight: 500 }}>
-            {tasks.length}/{cfg.max}
-          </span>
-        </div>
-        {/* 1px accent line */}
-        <div style={{
-          height: 1,
-          background: lineBg,
+          height: 2,
+          background: isOverFull ? 'var(--danger)' : 'var(--accent)',
+          borderRadius: 1,
+          marginBottom: 4,
           transition: 'background 0.12s',
         }} />
-      </div>
+      )}
 
       {/* Tasks */}
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
