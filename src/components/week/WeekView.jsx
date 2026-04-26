@@ -4,26 +4,6 @@ import DayColumn from './DayColumn'
 
 const DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
-function SlotLegend() {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 16,
-      padding: '6px 14px 0',
-      flexShrink: 0,
-    }}>
-      {[
-        { color: '#3B82F6', label: 'Deep Work' },
-        { color: '#F08F48', label: 'Focus' },
-        { color: '#D0CEC9', label: 'Others' },
-      ].map(({ color, label }) => (
-        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: 'var(--text-2)', fontWeight: 400 }}>{label}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default function WeekView({
   week, weekStart, getMeta, setTaskMeta, mitCount,
@@ -100,7 +80,7 @@ export default function WeekView({
                 key={dayKey}
                 ref={el => { colRefs.current[dayKey] = el }}
                 data-today={weekDays[actualIdx] && isToday(weekDays[actualIdx]) ? 'true' : undefined}
-                style={{ minWidth: 260, flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+                style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
               >
                 <DayColumn
                   dayKey={dayKey}

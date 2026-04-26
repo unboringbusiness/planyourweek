@@ -13,7 +13,7 @@ const SLOT_CONFIG = {
   admin:     { label: 'Others',    max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
 }
 
-const DAYS_ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+const DAYS_ORDER = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
 function getTomorrow(dayKey) {
   const idx = DAYS_ORDER.indexOf(dayKey)
