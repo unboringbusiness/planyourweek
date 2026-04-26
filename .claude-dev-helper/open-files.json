@@ -1,23 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
-    "timestamp": 1777235168060,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
-    "timestamp": 1777235174067,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
-    "timestamp": 1777235304518,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/components/week/WeekView.jsx",
     "timestamp": 1777235310699,
     "focus": false,
@@ -56,6 +38,24 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
     "timestamp": 1777235970439,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
+    "timestamp": 1777236425907,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777236433504,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
+    "timestamp": 1777236436838,
     "focus": false,
     "openLocation": 0
   }

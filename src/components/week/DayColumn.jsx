@@ -8,9 +8,9 @@ import { formatDuration } from './TaskCard'
 
 // Line gradient: thin left accent cap for Deep Work / Focus, plain for Others
 const SLOT_CONFIG = {
-  deep_work: { label: 'Deep Work', max: LIMITS.DAILY_DEEP_WORK, lineAccent: '#3B82F6', placeholder: 'Most important task' },
-  scheduled: { label: 'Focus',     max: LIMITS.DAILY_SCHEDULED, lineAccent: '#F08F48', placeholder: 'Focus task' },
-  admin:     { label: 'Others',    max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
+  deep_work: { label: 'Most Important', max: LIMITS.DAILY_DEEP_WORK, lineAccent: '#3B82F6', placeholder: 'Most important task' },
+  scheduled: { label: 'Focus',          max: LIMITS.DAILY_SCHEDULED, lineAccent: '#F08F48', placeholder: 'Focus task' },
+  admin:     { label: 'Other Tasks',    max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
 }
 
 const DAYS_ORDER = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']

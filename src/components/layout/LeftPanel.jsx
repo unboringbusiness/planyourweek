@@ -393,7 +393,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
             {/* Panel header */}
             <div style={{
               padding: '0 12px',
-              height: 57,
+              height: 80,
               borderBottom: '1px solid var(--border)',
               flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',

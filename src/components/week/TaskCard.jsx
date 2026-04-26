@@ -217,8 +217,8 @@ export function DayTaskCard({
         {meta.textOverride || text}
       </div>
 
-      {/* Hover actions: MIT star — always in DOM, opacity transition */}
-      {!isDragOverlay && (
+      {/* MIT star — only rendered when relevant to avoid consuming horizontal space */}
+      {!isDragOverlay && (hovered || is_mit) && (
         <button
           onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
           title={is_mit ? 'Remove MIT' : canToggleMIT ? 'Mark as MIT' : '3 MITs set'}
@@ -227,16 +227,14 @@ export function DayTaskCard({
             fontSize: 13, color: is_mit ? '#FFD156' : '#D0CEC9',
             cursor: canToggleMIT ? 'pointer' : 'not-allowed',
             flexShrink: 0, lineHeight: 1,
-            opacity: hovered || is_mit ? 1 : 0,
-            transition: 'opacity 0.2s',
           }}
         >
           ★
         </button>
       )}
 
-      {!isDragOverlay && (
-        <div style={{ position: 'relative', flexShrink: 0, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}>
+      {!isDragOverlay && hovered && (
+        <div style={{ position: 'relative', flexShrink: 0 }}>
           <button
             onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
             style={{
