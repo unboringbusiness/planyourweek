@@ -5,7 +5,7 @@ const STEPS = [
     id: 'thisweek',
     title: 'This Week — your closed list',
     body: 'Add up to 15 tasks here. This is your commitment for the week. Drag any task to a day column to schedule it.',
-    target: '[data-tour="thisweek"]',
+    target: '[data-tour="leftpanel"]',
     placement: 'right',
   },
   {

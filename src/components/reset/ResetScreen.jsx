@@ -144,7 +144,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
         {completedTasks.length > 0 && (
           <div style={{ marginBottom: 28 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-              Completed today
+              Completed this week
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {completedTasks.map(t => (
@@ -287,7 +287,7 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
             cursor: 'pointer',
           }}
         >
-          Close the day →
+          Close the week →
         </button>
       </div>
     </div>

@@ -14,7 +14,7 @@ function ProgressBar({ step, total }) {
   )
 }
 
-const DAYS_ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+const DAYS_ORDER = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
 export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onAddSlot, onClose }) {
   const [step, setStep] = useState(1)

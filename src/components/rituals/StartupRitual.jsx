@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { formatDuration } from '../week/TaskCard'
 
-const DAYS_ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+const DAYS_ORDER = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
 function ProgressBar({ step, total }) {
   return (
@@ -36,7 +36,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
   const todaySlots = week?.slots?.[dayKey] ?? {}
   const todayTasks = Object.values(todaySlots).flat()
   const totalMinutes = todayTasks.reduce((s, t) => s + (getMeta(t.id).duration ?? 30), 0)
-  const overCap = totalMinutes > 420
+  const overCap = totalMinutes > 480
 
   const [capacityChoices, setCapacityChoices] = useState({})
 
@@ -98,7 +98,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
               What did you get done yesterday?
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-2)', marginBottom: 16, lineHeight: 1.5 }}>
-              {yesterdayKey ? `Reviewing ${yesterdayKey}` : 'No previous day to review — it\'s Monday!'}
+              {yesterdayKey ? `Reviewing ${yesterdayKey}` : 'No previous day to review — it\'s the start of the week!'}
             </p>
             {yesterdayTasks.length === 0 ? (
               <p style={{ color: 'var(--text-2)', fontSize: 13, fontStyle: 'italic' }}>Nothing planned yesterday.</p>
@@ -155,7 +155,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
             <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
               {/* Dump list */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Brain Dump</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Dump</div>
                 <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 280 }}>
                   {dump.items.length === 0 ? (
                     <p style={{ color: 'var(--text-2)', fontSize: 12 }}>Dump is empty.</p>
@@ -188,7 +188,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Today</div>
                   <span style={{ fontSize: 11, color: overCap ? 'var(--sched)' : 'var(--text-2)', fontWeight: 500 }}>
-                    {formatDuration(totalMinutes)} / 7h
+                    {formatDuration(totalMinutes)} / 8:00
                   </span>
                 </div>
                 {overCap && (
