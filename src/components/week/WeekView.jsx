@@ -39,15 +39,20 @@ export default function WeekView({
   const scrollRef = useRef(null)
   const colRefs = useRef({})
 
-  // Scroll today's column to the leftmost visible position on mount
+  // Scroll today's column to the leftmost visible position on mount.
+  // setTimeout ensures the DOM has been painted before reading offsetLeft.
   useEffect(() => {
+    if (!weekStart) return
     const todayIdx = weekDays.findIndex(d => d && isToday(d))
-    if (todayIdx < 0 || !scrollRef.current) return
+    if (todayIdx < 0) return
     const dayKey = DAYS[todayIdx]
-    const colEl = colRefs.current[dayKey]
-    if (colEl) {
-      scrollRef.current.scrollLeft = colEl.offsetLeft
-    }
+    const timer = setTimeout(() => {
+      const colEl = colRefs.current[dayKey]
+      if (colEl && scrollRef.current) {
+        scrollRef.current.scrollLeft = colEl.offsetLeft
+      }
+    }, 100)
+    return () => clearTimeout(timer)
   }, [weekStart])
 
   const handleFocusMode = (dayKey) => {
