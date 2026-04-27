@@ -26,10 +26,18 @@ export function useAuth() {
     return { error }
   }
 
+  async function signInWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+    return { error }
+  }
+
   async function signOut() {
     const { error } = await supabase.auth.signOut()
     return { error }
   }
 
-  return { user, loading, signInWithEmail, signOut }
+  return { user, loading, signInWithEmail, signInWithGoogle, signOut }
 }

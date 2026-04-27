@@ -49,7 +49,7 @@ function getStoredTheme() {
 }
 
 export default function App() {
-  const { user, loading: authLoading, signInWithEmail, signOut } = useAuth()
+  const { user, loading: authLoading, signInWithEmail, signInWithGoogle, signOut } = useAuth()
   const dump = useDump(user)
 
   // Week navigation
@@ -508,6 +508,7 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         user={user}
         signInWithEmail={signInWithEmail}
+        signInWithGoogle={signInWithGoogle}
         signOut={signOut}
       />
 
