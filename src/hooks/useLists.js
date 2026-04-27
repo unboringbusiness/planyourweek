@@ -30,6 +30,7 @@ function saveLists(lists) { localStorage.setItem(LISTS_KEY, JSON.stringify(lists
 function saveItems(items) { localStorage.setItem(ITEMS_KEY, JSON.stringify(items)) }
 
 const MAX_CUSTOM_LISTS = 4
+const MAX_ITEMS_PER_LIST = 15
 
 export function useLists() {
   const [lists, setListsState] = useState(loadLists)
@@ -69,10 +70,12 @@ export function useLists() {
   const addItem = useCallback((listId, text, duration = 30) => {
     const trimmed = text?.trim()
     if (!trimmed) return
+    const listItemCount = items.filter(i => i.listId === listId).length
+    if (listItemCount >= MAX_ITEMS_PER_LIST) return { error: `List is full (${MAX_ITEMS_PER_LIST} items max)` }
     const item = { id: crypto.randomUUID(), listId, text: trimmed, done: false, duration, created_at: new Date().toISOString() }
     setItems(prev => [...prev, item])
     return item
-  }, [setItems])
+  }, [items, setItems])
 
   const removeItem = useCallback((id) => {
     setItems(prev => prev.filter(i => i.id !== id))
@@ -96,11 +99,15 @@ export function useLists() {
     setItems(prev => prev.map(i => i.id === itemId ? { ...i, listId: toListId } : i))
   }, [setItems])
 
+  const isListFull = useCallback((listId) => {
+    return items.filter(i => i.listId === listId).length >= MAX_ITEMS_PER_LIST
+  }, [items])
+
   return {
     lists,
     items,
     isFull: lists.length >= MAX_CUSTOM_LISTS,
     addList, renameList, deleteList,
-    addItem, removeItem, toggleDone, updateItem, getListItems, moveItemToList,
+    addItem, removeItem, toggleDone, updateItem, getListItems, moveItemToList, isListFull,
   }
 }

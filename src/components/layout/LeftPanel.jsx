@@ -405,7 +405,7 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>
-                This Week's List
+                Projects
               </span>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button
@@ -451,7 +451,7 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
                   onRemove={lists.removeItem}
                   onUpdate={lists.updateItem}
                   onAddItem={lists.addItem}
-                  canAdd={true}
+                  canAdd={!lists.isListFull(list.id)}
                   isPermanent={list.isPermanent ?? false}
                   onRename={lists.renameList}
                   onDelete={lists.deleteList}

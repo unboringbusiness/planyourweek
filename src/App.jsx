@@ -475,7 +475,14 @@ export default function App() {
         onMoveToWeek={async (item) => {
           const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
           const todayKey = days[new Date().getDay()]
-          await weekData.addSlot(todayKey, 'admin', item.text)
+          // Find first slot with space: deep_work → scheduled → admin
+          const slots = weekData.week?.slots?.[todayKey] ?? {}
+          let targetSlot = 'admin'
+          if ((slots.deep_work?.length ?? 0) < SLOT_LIMITS.deep_work) targetSlot = 'deep_work'
+          else if ((slots.scheduled?.length ?? 0) < SLOT_LIMITS.scheduled) targetSlot = 'scheduled'
+          else if ((slots.admin?.length ?? 0) < SLOT_LIMITS.admin) targetSlot = 'admin'
+          const { data: newTask } = await weekData.addSlot(todayKey, targetSlot, item.text)
+          if (newTask) taskMeta.setTaskMeta(newTask.id, { duration: 30 })
           dump.removeItem(item.id)
         }}
       />
