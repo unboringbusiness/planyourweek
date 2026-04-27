@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -18,6 +18,7 @@ import { useLists } from './hooks/useLists'
 import { useTaskMeta } from './hooks/useTaskMeta'
 import { useTimer } from './hooks/useTimer'
 import { LIMITS } from './lib/limits'
+import { getCurrentWeekStart } from './lib/dates'
 
 import TopBar from './components/layout/TopBar'
 import LeftPanel from './components/layout/LeftPanel'
@@ -50,7 +51,21 @@ function getStoredTheme() {
 export default function App() {
   const { user, loading: authLoading, signInWithEmail, signOut } = useAuth()
   const dump = useDump(user)
-  const weekData = useWeek(user)
+
+  // Week navigation
+  const [weekOffset, setWeekOffset] = useState(0) // in weeks from current
+  const activeWeekStart = useMemo(() => {
+    const base = getCurrentWeekStart()
+    if (weekOffset === 0) return base
+    const d = new Date(base + 'T00:00:00')
+    d.setDate(d.getDate() + weekOffset * 7)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const dt = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${dt}`
+  }, [weekOffset])
+
+  const weekData = useWeek(user, activeWeekStart)
   const backlog = useBacklog()
   const projectsHook = useProjects(user)
   const listsHook = useLists()
@@ -389,16 +404,24 @@ export default function App() {
         theme={theme}
         onThemeToggle={toggleTheme}
         onHelpOpen={() => setShowOnboarding(true)}
+        weekOffset={weekOffset}
+        weekStart={activeWeekStart}
+        onPrevWeek={() => setWeekOffset(o => o - 1)}
+        onNextWeek={() => setWeekOffset(o => o + 1)}
+        onGoToToday={() => setWeekOffset(0)}
         onScrollToToday={() => {
-          const todayEl = document.querySelector('[data-today="true"]')
-          if (todayEl) {
-            const scrollEl = todayEl.closest('[data-scroll-container]')
-            if (scrollEl) {
-              const containerRect = scrollEl.getBoundingClientRect()
-              const elRect = todayEl.getBoundingClientRect()
-              scrollEl.scrollLeft += elRect.left - containerRect.left
+          setWeekOffset(0)
+          setTimeout(() => {
+            const todayEl = document.querySelector('[data-today="true"]')
+            if (todayEl) {
+              const scrollEl = todayEl.closest('[data-scroll-container]')
+              if (scrollEl) {
+                const containerRect = scrollEl.getBoundingClientRect()
+                const elRect = todayEl.getBoundingClientRect()
+                scrollEl.scrollLeft += elRect.left - containerRect.left
+              }
             }
-          }
+          }, 100)
         }}
       />
 

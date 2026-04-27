@@ -1,4 +1,10 @@
-export default function TopBar({ activeView, onViewChange, onDumpOpen, onSettingsOpen, theme, onThemeToggle, onHelpOpen, onScrollToToday }) {
+import { formatWeekRange } from '../../lib/dates'
+
+export default function TopBar({
+  activeView, onViewChange, onDumpOpen, onSettingsOpen,
+  theme, onThemeToggle, onHelpOpen, onScrollToToday,
+  weekOffset, weekStart, onPrevWeek, onNextWeek, onGoToToday,
+}) {
   const isDark = theme === 'dark'
   const bg = isDark ? '#1E1E1E' : '#FFFFFF'
   const borderColor = isDark ? '#2A2A2A' : '#E5E7EB'
@@ -6,6 +12,9 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, onSetting
   const inactiveColor = isDark ? 'rgba(245,245,245,0.5)' : '#6B7280'
   const activeColor = isDark ? '#F5F5F5' : '#1A1A2E'
   const iconColor = isDark ? 'rgba(245,245,245,0.5)' : '#6B7280'
+
+  const weekLabel = weekStart ? formatWeekRange(new Date(weekStart + 'T00:00:00')) : ''
+  const isCurrentWeek = weekOffset === 0
 
   return (
     <header style={{
@@ -25,9 +34,60 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, onSetting
         </span>
       </div>
 
+      {/* Center: week navigation (only on week view) */}
+      {activeView === 'week' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button
+            onClick={onPrevWeek}
+            title="Previous week"
+            style={{
+              background: 'none', border: 'none', width: 28, height: 28, borderRadius: 6,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, cursor: 'pointer', color: iconColor,
+            }}
+          >
+            ‹
+          </button>
+          <span style={{
+            fontSize: 13, fontWeight: 500, color: isCurrentWeek ? activeColor : '#3B82F6',
+            minWidth: 120, textAlign: 'center', cursor: isCurrentWeek ? 'default' : 'pointer',
+          }}
+            onClick={!isCurrentWeek ? onGoToToday : undefined}
+            title={!isCurrentWeek ? 'Click to go to current week' : undefined}
+          >
+            {isCurrentWeek ? weekLabel : `${weekLabel} ↩`}
+          </span>
+          <button
+            onClick={onNextWeek}
+            title="Next week"
+            style={{
+              background: 'none', border: 'none', width: 28, height: 28, borderRadius: 6,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, cursor: 'pointer', color: iconColor,
+            }}
+          >
+            ›
+          </button>
+        </div>
+      )}
+
       {/* Right: nav + controls */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        {activeView === 'week' && (
+        {activeView === 'week' && !isCurrentWeek && (
+          <button
+            onClick={onGoToToday}
+            style={{
+              padding: '4px 12px', borderRadius: 6,
+              border: `1px solid ${isDark ? '#3B82F6' : '#E5E7EB'}`,
+              background: isDark ? 'rgba(59,130,246,0.1)' : '#FFFFFF',
+              fontSize: 13, fontWeight: 500,
+              color: '#3B82F6', cursor: 'pointer',
+            }}
+          >
+            Today
+          </button>
+        )}
+        {activeView === 'week' && isCurrentWeek && (
           <button
             onClick={onScrollToToday}
             style={{

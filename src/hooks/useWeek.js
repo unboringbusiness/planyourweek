@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { getWeekPlan, setWeekPlan } from '../lib/storage'
-import { getCurrentWeekStart } from '../lib/dates'
 import { LIMITS } from '../lib/limits'
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -29,16 +28,15 @@ const SLOT_LIMITS = {
   admin: LIMITS.DAILY_ADMIN,
 }
 
-export function useWeek(user) {
+export function useWeek(user, weekStart) {
   const [week, setWeek] = useState(emptyWeek())
-  const [weekStart, setWeekStart] = useState(null)
   const [planId, setPlanId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const currentWeekStart = getCurrentWeekStart()
-    setWeekStart(currentWeekStart)
+    if (!weekStart) return
+    setPlanId(null)
 
     async function load() {
       setLoading(true)
@@ -46,7 +44,7 @@ export function useWeek(user) {
       if (user) {
         const { data: planData, error: planError } = await supabase
           .from('weekly_plans').select('*')
-          .eq('user_id', user.id).eq('week_start', currentWeekStart).single()
+          .eq('user_id', user.id).eq('week_start', weekStart).single()
 
         if (planError && planError.code !== 'PGRST116') {
           setError(planError.message); setLoading(false); return
@@ -69,13 +67,13 @@ export function useWeek(user) {
           setWeek(emptyWeek())
         }
       } else {
-        const local = getWeekPlan(currentWeekStart)
+        const local = getWeekPlan(weekStart)
         setWeek(local ?? emptyWeek())
       }
       setLoading(false)
     }
     load()
-  }, [user])
+  }, [user, weekStart])
 
   useEffect(() => {
     if (!user && weekStart && !loading) setWeekPlan(weekStart, week)
