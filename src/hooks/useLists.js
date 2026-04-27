@@ -81,8 +81,22 @@ export function useLists() {
   }, [setItems])
 
   const toggleDone = useCallback((id) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, done: !i.done } : i))
-  }, [setItems])
+    const item = items.find(i => i.id === id)
+    if (!item) return
+    if (!item.done) {
+      // Marking done — remove after a brief visual delay so user sees the checkmark
+      setItems(prev => prev.map(i => i.id === id ? { ...i, done: true } : i))
+      setTimeout(() => {
+        setItems(prev => {
+          const next = prev.filter(i => i.id !== id)
+          saveItems(next)
+          return next
+        })
+      }, 600)
+    } else {
+      setItems(prev => prev.map(i => i.id === id ? { ...i, done: false } : i))
+    }
+  }, [items, setItems])
 
   const getListItems = useCallback((listId) => {
     return items.filter(i => i.listId === listId)
