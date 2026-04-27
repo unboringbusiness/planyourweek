@@ -1,43 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 
-function getWeekRange() {
-  const d = new Date()
-  const sunday = new Date(d)
-  sunday.setDate(d.getDate() - d.getDay()) // back to Sunday
-  const saturday = new Date(sunday)
-  saturday.setDate(sunday.getDate() + 6)
-  const fmt = (dt) => dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  return `${fmt(sunday)} – ${fmt(saturday)}`
-}
-
-export default function MITsRow({ week, weekStart, setMITs, allMITs = [], setTaskMeta }) {
+export default function MITsRow({ week, weekStart, setMITs }) {
   const [localMITs, setLocalMITs] = useState(['', '', ''])
-  const [milestoneDone, setMilestoneDone] = useState([false, false, false])
 
   useEffect(() => {
     if (week?.mits) setLocalMITs([...week.mits])
   }, [week?.mits])
-
-  // Sync milestone done state from linked tasks
-  useEffect(() => {
-    setMilestoneDone(prev => prev.map((v, i) => {
-      const mitTask = allMITs[i]
-      if (mitTask?.done !== undefined) return mitTask.done
-      return v
-    }))
-  }, [allMITs])
-
-  const toggleDone = useCallback((i) => {
-    const mitTask = allMITs[i]
-    setMilestoneDone(prev => {
-      const next = prev.map((v, idx) => idx === i ? !v : v)
-      // Sync to the linked task if present
-      if (mitTask?.id && setTaskMeta) {
-        setTaskMeta(mitTask.id, { done: next[i] })
-      }
-      return next
-    })
-  }, [allMITs, setTaskMeta])
 
   const handleChange = (i, val) => {
     const next = [...localMITs]
@@ -47,7 +15,12 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [], setTas
 
   const handleBlur = () => setMITs?.(localMITs)
 
-  const weekRange = getWeekRange()
+  const handleClear = (i) => {
+    const next = [...localMITs]
+    next[i] = ''
+    setLocalMITs(next)
+    setMITs?.(next)
+  }
 
   return (
     <div style={{
@@ -58,89 +31,60 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [], setTas
       borderBottom: '1px solid var(--col-sep)',
       background: 'var(--surface)',
       flexShrink: 0,
-      overflow: 'visible',
     }}>
       <div style={{ display: 'flex', gap: 12, flex: 1, minWidth: 0 }}>
         {[0, 1, 2].map(i => {
-          const mitTask = allMITs[i]
-          const hasMITTask = Boolean(mitTask)
-          const isFilled = Boolean(mitTask?.text || localMITs[i])
-
-          const done = milestoneDone[i]
+          const isFilled = Boolean(localMITs[i])
           return (
             <div
               key={i}
               style={{
-                flex: 1,
-                minWidth: 0,
-                background: done ? 'color-mix(in srgb, var(--success) 10%, var(--surface))' : 'var(--surface)',
-                border: `1.5px solid ${done ? 'var(--success)' : isFilled ? 'var(--accent)' : 'var(--border)'}`,
+                flex: 1, minWidth: 0,
+                border: `1.5px solid ${isFilled ? 'var(--accent)' : 'var(--border)'}`,
                 borderRadius: 10,
-                padding: '10px 14px',
+                padding: '8px 12px',
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: 10,
+                gap: 8,
+                position: 'relative',
               }}
             >
-              {/* Done checkbox */}
-              <div
-                onClick={() => toggleDone(i)}
-                style={{
-                  width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 2,
-                  border: done ? 'none' : '1.5px solid #D1D5DB',
-                  background: done ? '#10B981' : 'transparent',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                {done && (
-                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                    <path d="M1 3.5l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-              </div>
-
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, fontWeight: 500, color: done ? '#10B981' : '#3B82F6', marginBottom: 3 }}>
+                <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--accent)', marginBottom: 3 }}>
                   Milestone {i + 1}
                 </div>
-                {hasMITTask ? (
-                  <div style={{
-                    fontSize: 14, fontWeight: 400,
-                    color: done ? '#9CA3AF' : 'var(--text-1)',
-                    lineHeight: 1.4,
-                    textDecoration: done ? 'line-through' : 'none',
-                  }}>
-                    {mitTask.text}
-                  </div>
-                ) : (
-                  <input
-                    style={{
-                      background: 'none', border: 'none', outline: 'none',
-                      fontSize: 14, fontWeight: 400,
-                      color: 'var(--text-1)', width: '100%', padding: 0,
-                      fontFamily: 'inherit',
-                    }}
-                    placeholder="What will move the needle this week?"
-                    value={localMITs[i] ?? ''}
-                    onChange={e => handleChange(i, e.target.value)}
-                    onBlur={handleBlur}
-                    maxLength={120}
-                  />
-                )}
+                <input
+                  style={{
+                    background: 'none', border: 'none', outline: 'none',
+                    fontSize: 13, fontWeight: 400,
+                    color: 'var(--text-1)', width: '100%', padding: 0,
+                    fontFamily: 'inherit',
+                  }}
+                  placeholder="Set a weekly goal…"
+                  value={localMITs[i] ?? ''}
+                  onChange={e => handleChange(i, e.target.value)}
+                  onBlur={handleBlur}
+                  onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
+                  maxLength={120}
+                />
               </div>
+              {isFilled && (
+                <button
+                  onClick={() => handleClear(i)}
+                  title="Clear milestone"
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--text-2)', fontSize: 14, lineHeight: 1,
+                    padding: '0 2px', flexShrink: 0,
+                  }}
+                >
+                  ×
+                </button>
+              )}
             </div>
           )
         })}
       </div>
-
-      <span style={{
-        fontSize: 12,
-        color: '#9CA3AF',
-        fontWeight: 400,
-        whiteSpace: 'nowrap',
-      }}>
-        {weekRange}
-      </span>
     </div>
   )
 }

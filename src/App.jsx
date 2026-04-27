@@ -99,19 +99,10 @@ export default function App() {
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
 
-  // Compute MIT items (backlog + day slots, up to 3)
-  const { allMITs, mitCount } = useMemo(() => {
-    const backlogMITs = backlog.items.filter(i => i.is_mit)
-    const allSlotTasks = weekData.days.flatMap(day =>
-      Object.values(weekData.week?.slots?.[day] ?? {}).flat()
-    )
-    // Enrich with done state from taskMeta so MITsRow can sync milestone checkboxes
-    const slotMITs = allSlotTasks
-      .filter(t => taskMeta.getMeta(t.id).is_mit)
-      .map(t => ({ ...t, done: taskMeta.getMeta(t.id).done ?? false }))
-    const allMITs = [...backlogMITs, ...slotMITs]
-    return { allMITs, mitCount: allMITs.length }
-  }, [backlog.items, weekData.week, weekData.days, taskMeta.getMeta])
+  // Count filled milestone slots (used by TaskCard to gate "Set as Milestone" action)
+  const mitCount = useMemo(() => {
+    return (weekData.week?.mits ?? []).filter(m => m && m.trim()).length
+  }, [weekData.week?.mits])
 
   // --- Helpers ---
 
@@ -465,8 +456,6 @@ export default function App() {
                   week={weekData.week}
                   weekStart={weekData.weekStart}
                   setMITs={weekData.setMITs}
-                  allMITs={allMITs}
-                  setTaskMeta={setTaskMetaFn}
                 />
                 <WeekView
                   week={weekData.week}
