@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -73,7 +73,26 @@ export default function App() {
   const timerHook = useTimer()
 
   const [theme, setTheme] = useState(getStoredTheme)
-  const [view, setView] = useState('week')
+
+  // URL-based view routing
+  function viewFromPath() {
+    const path = window.location.pathname
+    if (path === '/review') return 'reset'
+    return 'week'
+  }
+  const [view, setViewState] = useState(viewFromPath)
+  const setView = useCallback((v) => {
+    setViewState(v)
+    const path = v === 'reset' ? '/review' : '/'
+    window.history.pushState(null, '', path)
+  }, [])
+
+  useEffect(() => {
+    const onPop = () => setViewState(viewFromPath())
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
   const [dumpOpen, setDumpOpen] = useState(false)
 
   const [settingsOpen, setSettingsOpen] = useState(false)

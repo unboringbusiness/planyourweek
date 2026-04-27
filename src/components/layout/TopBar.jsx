@@ -26,13 +26,21 @@ export default function TopBar({
       flexShrink: 0, position: 'sticky', top: 0, zIndex: 100,
     }}>
       {/* Left: logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={onLogoClick}>
-        <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1, cursor: 'pointer' }} onClick={onLogoClick}>
           <span style={{ fontWeight: 400, color: logoColor }}>plan</span>
           <span style={{ fontWeight: 400, color: logoColor }}>your</span>
           <span style={{ fontWeight: 700, color: '#3B82F6' }}>week</span>
           <span style={{ fontWeight: 400, fontSize: 11, color: '#9CA3AF' }}>.co</span>
         </span>
+        <a
+          href="https://ultrafocus.co"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: 10, color: '#9CA3AF', textDecoration: 'none', marginLeft: 2 }}
+        >
+          by ultrafocus
+        </a>
       </div>
 
       {/* Right: nav + controls */}
