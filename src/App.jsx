@@ -61,24 +61,6 @@ export default function App() {
   const [view, setView] = useState('week')
   const [dumpOpen, setDumpOpen] = useState(false)
 
-  // Open List — "Save for Later" destination, localStorage only
-  const [openItems, setOpenItems] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('pyw_open_list')) ?? [] } catch { return [] }
-  })
-  useEffect(() => {
-    localStorage.setItem('pyw_open_list', JSON.stringify(openItems))
-  }, [openItems])
-  const addToOpenList = (text) => {
-    const trimmed = typeof text === 'string' ? text.trim() : text?.text?.trim()
-    if (!trimmed) return
-    setOpenItems(prev => [...prev, { id: crypto.randomUUID(), text: trimmed, done: false, created_at: new Date().toISOString() }])
-  }
-  const removeFromOpenList = (id) => setOpenItems(prev => prev.filter(i => i.id !== id))
-  const updateOpenItem = (id, text) => {
-    const trimmed = text?.trim(); if (!trimmed) return
-    setOpenItems(prev => prev.map(i => i.id === id ? { ...i, text: trimmed } : i))
-  }
-  const toggleOpenDone = (id) => setOpenItems(prev => prev.map(i => i.id === id ? { ...i, done: !i.done } : i))
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [activeDragItem, setActiveDragItem] = useState(null)
 
@@ -172,14 +154,8 @@ export default function App() {
     taskMeta.removeMeta(task.id)
   }
 
-  // "Save for Later" from week → Open List (left panel EVERYTHING ELSE)
-  const moveSlotToOpen = (task, day) => {
-    addToOpenList(task.text)
-    weekData.removeSlot(day, task.id)
-    taskMeta.removeMeta(task.id)
-  }
-
-  const moveSlotToDump = async (task, day) => {
+  // "Save for Later" from week → Backlog
+  const moveSlotToOpen = async (task, day) => {
     await dump.addItem(task.text)
     weekData.removeSlot(day, task.id)
     taskMeta.removeMeta(task.id)
@@ -381,6 +357,7 @@ export default function App() {
         activeView={view}
         onViewChange={setView}
         onDumpOpen={() => setDumpOpen(true)}
+        onSettingsOpen={() => setSettingsOpen(true)}
         theme={theme}
         onThemeToggle={toggleTheme}
         onHelpOpen={() => setShowOnboarding(true)}
@@ -417,11 +394,6 @@ export default function App() {
               <LeftPanel
                 dump={dump}
                 listsHook={listsHook}
-                openItems={openItems}
-                onAddToOpen={addToOpenList}
-                onRemoveFromOpen={removeFromOpenList}
-                onUpdateOpen={updateOpenItem}
-                onToggleOpenDone={toggleOpenDone}
               />
 
               {/* Right column: milestone row + week columns */}
@@ -489,7 +461,7 @@ export default function App() {
 
       <SettingsPanel
         open={settingsOpen}
-        onClose={() => setSettingsOpen(prev => !prev)}
+        onClose={() => setSettingsOpen(false)}
         user={user}
         signInWithEmail={signInWithEmail}
         signOut={signOut}
@@ -530,6 +502,7 @@ export default function App() {
           getMeta={getMeta}
           setTaskMeta={setTaskMetaFn}
           onAddSlot={weekData.addSlot}
+          onRemoveSlot={weekData.removeSlot}
           onClose={() => setStartupRitualDay(null)}
         />
       )}
@@ -543,7 +516,7 @@ export default function App() {
           setTaskMeta={setTaskMetaFn}
           onAddSlot={weekData.addSlot}
           onRemoveSlot={weekData.removeSlot}
-          onMoveToDump={(task) => { addToOpenList(task.text) }}
+          onMoveToDump={async (task) => { await dump.addItem(task.text) }}
           onClose={() => setShutdownRitualDay(null)}
         />
       )}

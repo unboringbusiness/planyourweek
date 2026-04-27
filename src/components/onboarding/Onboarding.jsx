@@ -2,16 +2,16 @@ import { useState, useEffect, useRef } from 'react'
 
 const STEPS = [
   {
-    id: 'thisweek',
-    title: 'This Week — your closed list',
-    body: 'Add up to 15 tasks here. This is your commitment for the week. Drag any task to a day column to schedule it.',
+    id: 'projects',
+    title: 'Projects — your task lists',
+    body: 'Work and Personal lists are always here. Add up to 2 more. Each list holds 15 tasks. Drag any task to a day column to schedule it.',
     target: '[data-tour="leftpanel"]',
     placement: 'right',
   },
   {
     id: 'dump',
-    title: 'Brain Dump — everything else',
-    body: 'Capture anything here without pressure. No limit. Use it as your Someday/Maybe list too.',
+    title: 'Backlog — capture everything',
+    body: 'Capture anything here without pressure. No limit. When ready, move items to today with one click.',
     target: '[data-tour="dump-btn"]',
     placement: 'bottom',
   },

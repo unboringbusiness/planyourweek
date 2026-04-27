@@ -17,7 +17,7 @@ function ProgressBar({ step, total }) {
   )
 }
 
-export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta, onAddSlot, onClose }) {
+export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta, onAddSlot, onRemoveSlot, onClose }) {
   const [step, setStep] = useState(1)
   const [yesterdayChoices, setYesterdayChoices] = useState({})
 
@@ -49,8 +49,13 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
       const choice = yesterdayChoices[task.id]
       if (choice === 'today') {
         await onAddSlot(dayKey, task.slotType, task.text)
+        onRemoveSlot?.(yesterdayKey, task.id)
+      } else if (choice === 'someday') {
+        await dump.addItem(task.text)
+        onRemoveSlot?.(yesterdayKey, task.id)
+      } else if (choice === 'drop') {
+        onRemoveSlot?.(yesterdayKey, task.id)
       }
-      // 'someday' and 'drop' are handled by parent if needed
     }
     setStep(2)
   }
@@ -155,7 +160,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
             <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
               {/* Dump list */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Dump</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Backlog</div>
                 <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 280 }}>
                   {dump.items.length === 0 ? (
                     <p style={{ color: 'var(--text-2)', fontSize: 12 }}>Dump is empty.</p>

@@ -37,8 +37,8 @@ export default function ShutdownRitual({ dayKey, week, getMeta, setTaskMeta, onA
       const choice = choices[task.id]
       if (choice === 'done') {
         setTaskMeta(task.id, { done: true })
-      } else if (choice === 'tomorrow' && tomorrowKey) {
-        await onAddSlot(tomorrowKey, task.slotType ?? 'admin', task.text)
+      } else if (choice === 'tomorrow') {
+        if (tomorrowKey) await onAddSlot(tomorrowKey, task.slotType ?? 'admin', task.text)
         onRemoveSlot?.(dayKey, task.id)
       } else if (choice === 'someday') {
         await onMoveToDump?.(task)

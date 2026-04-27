@@ -358,7 +358,7 @@ function NewListModal({ onClose, onAdd }) {
   )
 }
 
-export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOpen, onRemoveFromOpen, onUpdateOpen, onToggleOpenDone }) {
+export default function LeftPanel({ dump, listsHook: lists }) {
   const [collapsed, setCollapsed] = useState(false)
   const [newListOpen, setNewListOpen] = useState(false)
 
@@ -410,7 +410,7 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
               <div style={{ display: 'flex', gap: 4 }}>
                 <button
                   onClick={() => !lists.isFull && setNewListOpen(true)}
-                  title={lists.isFull ? 'Max 4 custom lists' : 'New list'}
+                  title={lists.isFull ? 'Max 4 lists reached' : 'New list'}
                   style={{
                     background: 'var(--surface)', border: '1px solid var(--border)',
                     borderRadius: 5, width: 22, height: 22,
