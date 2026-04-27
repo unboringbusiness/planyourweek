@@ -4,6 +4,7 @@ export default function TopBar({
   activeView, onViewChange, onDumpOpen, onSettingsOpen,
   theme, onThemeToggle, onHelpOpen, onScrollToToday,
   weekOffset, weekStart, onPrevWeek, onNextWeek, onGoToToday,
+  onLogoClick,
 }) {
   const isDark = theme === 'dark'
   const bg = isDark ? '#1E1E1E' : '#FFFFFF'
@@ -25,7 +26,7 @@ export default function TopBar({
       flexShrink: 0, position: 'sticky', top: 0, zIndex: 100,
     }}>
       {/* Left: logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={onLogoClick}>
         <span style={{ fontSize: 18, letterSpacing: '-0.01em', lineHeight: 1 }}>
           <span style={{ fontWeight: 400, color: logoColor }}>plan</span>
           <span style={{ fontWeight: 400, color: logoColor }}>your</span>

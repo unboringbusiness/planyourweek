@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { getMilestonesDone } from '../layout/MITsRow'
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 const DAY_LABEL = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' }
@@ -37,8 +38,10 @@ export default function ResetScreen({ week, getMeta, onClose, onReset, backlogIt
   const completedTasks = allTasks.filter(t => getMeta(t.id).done)
   const unfinishedTasks = allTasks.filter(t => !getMeta(t.id).done)
 
-  const mitCount = allTasks.filter(t => getMeta(t.id).is_mit).length
-  const mitsDone = allTasks.filter(t => getMeta(t.id).is_mit && getMeta(t.id).done).length
+  const mits = week?.mits ?? ['', '', '']
+  const mitsDoneArr = getMilestonesDone()
+  const mitCount = mits.filter(m => m && m.trim()).length
+  const mitsDone = mitsDoneArr.filter((d, i) => d && mits[i] && mits[i].trim()).length
 
   const focusMinutes = allTasks
     .filter(t => t.slotType === 'deep_work' || t.slotType === 'scheduled')

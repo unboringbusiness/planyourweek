@@ -41,7 +41,8 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
     const { error, data } = await onAddSlot(day, slotType, trimmed)
     if (!error) {
       if (data?.id) setTaskMeta(data.id, { duration: DEFAULT_DURATION[slotType] })
-      setAddVal(''); setAdding(false)
+      setAddVal('')
+      // Stay open for next task — close only on Escape or clicking away
     }
   }
 

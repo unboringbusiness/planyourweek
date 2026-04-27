@@ -395,6 +395,7 @@ export default function App() {
         theme={theme}
         onThemeToggle={toggleTheme}
         onHelpOpen={() => setShowOnboarding(true)}
+        onLogoClick={() => { setView('week'); setWeekOffset(0) }}
         weekOffset={weekOffset}
         weekStart={activeWeekStart}
         onPrevWeek={() => setWeekOffset(o => o - 1)}
