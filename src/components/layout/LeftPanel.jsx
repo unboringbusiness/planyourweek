@@ -1,0 +1,534 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
+
+function SidebarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0.75" y="0.75" width="12.5" height="12.5" rx="2.25" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="4.75" y1="0.75" x2="4.75" y2="13.25" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  )
+}
+import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+
+const PRESET_EMOJIS = ['📋','📌','💡','🎯','🔧','📚','💼','🏃','✍️','🎨','🔬','🌱','⚡','🎵','🏠','💰','🤝','🚀','🔑','📊']
+
+function CircleCheck({ checked, onChange }) {
+  return (
+    <div
+      onClick={e => { e.stopPropagation(); onChange() }}
+      style={{
+        width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+        border: checked ? 'none' : '1.5px solid #D1D5DB',
+        background: checked ? 'var(--success)' : 'transparent',
+        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 0.15s, border 0.15s',
+      }}
+    >
+      {checked && (
+        <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+          <path d="M1 3.5l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+    </div>
+  )
+}
+
+// Single item row — sortable + draggable to day columns
+function ListItemRow({ item, onToggle, onRemove, onUpdate, onSendToBacklog, onSendToMilestone, dragType }) {
+  const [hovered, setHovered] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [editVal, setEditVal] = useState(item.text)
+  const menuRef = useRef(null)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+    data: { type: dragType, item },
+  })
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
+  const commitEdit = () => {
+    const trimmed = editVal.trim()
+    if (trimmed && trimmed !== item.text) onUpdate?.(item.id, trimmed)
+    else setEditVal(item.text)
+    setEditing(false)
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...(editing ? {} : listeners)}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0 : 1 }}
+    >
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          minHeight: 36, padding: '0 8px', borderRadius: 6,
+          background: hovered ? 'var(--surface-2)' : 'transparent',
+          cursor: editing ? 'default' : 'grab', userSelect: 'none',
+        }}
+      >
+        <CircleCheck checked={item.done} onChange={() => onToggle(item.id)} />
+        {editing ? (
+          <input
+            autoFocus
+            value={editVal}
+            onChange={e => setEditVal(e.target.value)}
+            onBlur={commitEdit}
+            onKeyDown={e => {
+              if (e.key === 'Enter') commitEdit()
+              if (e.key === 'Escape') { setEditVal(item.text); setEditing(false) }
+            }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              flex: 1, fontSize: 14, color: 'var(--text-1)', background: 'none',
+              border: 'none', borderBottom: '1px solid var(--accent)',
+              outline: 'none', fontFamily: 'inherit', padding: '1px 0', lineHeight: 1.35,
+            }}
+            maxLength={200}
+          />
+        ) : (
+          <span
+            onClick={e => { e.stopPropagation(); setEditing(true) }}
+            style={{
+              flex: 1, fontSize: 14,
+              color: item.done ? '#9CA3AF' : 'var(--text-1)',
+              textDecoration: item.done ? 'line-through' : 'none',
+              lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              cursor: 'text',
+            }}
+          >
+            {item.text}
+          </span>
+        )}
+        {hovered && (
+          <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
+            <button
+              onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+              style={{
+                background: 'none', border: 'none', padding: '0 3px',
+                fontSize: 12, color: 'var(--text-2)', cursor: 'pointer',
+                lineHeight: 1, letterSpacing: '1px',
+              }}
+            >
+              •••
+            </button>
+            {menuOpen && (
+              <div style={{
+                position: 'absolute', right: 0, top: '100%', marginTop: 2,
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                zIndex: 300, minWidth: 160, overflow: 'hidden',
+              }}>
+                {onSendToBacklog && (
+                  <button
+                    onClick={e => { e.stopPropagation(); setMenuOpen(false); onSendToBacklog(item) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  >
+                    ☁ Send to Capture
+                  </button>
+                )}
+                {onSendToMilestone && (
+                  <button
+                    onClick={e => { e.stopPropagation(); setMenuOpen(false); onSendToMilestone(item) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  >
+                    ★ Set as Milestone
+                  </button>
+                )}
+                <button
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); onRemove(item.id) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--danger)', cursor: 'pointer', fontFamily: 'inherit' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Expandable list section
+function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, onSendToBacklog, onSendToMilestone, canAdd, listId, onRename, onDelete, isPermanent }) {
+  const [expanded, setExpanded] = useState(true)
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `list-drop-${listId}`,
+    data: { type: 'list_section', listId },
+  })
+  const [addVal, setAddVal] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [renaming, setRenaming] = useState(false)
+  const [renameVal, setRenameVal] = useState(title)
+  const [renameEmoji, setRenameEmoji] = useState(emoji)
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
+  const handleAdd = () => {
+    const trimmed = addVal.trim()
+    if (!trimmed) return
+    onAddItem(listId, trimmed)
+    setAddVal('')
+  }
+
+  const handleRename = () => {
+    const trimmed = renameVal.trim()
+    if (trimmed) onRename?.(listId, { emoji: renameEmoji, name: trimmed })
+    setRenaming(false)
+  }
+
+  const sortedItems = [...items].sort((a, b) => a.done === b.done ? 0 : a.done ? 1 : -1)
+
+  return (
+    <div ref={setDropRef} style={{ marginBottom: 2, borderRadius: 8, outline: isOver ? '2px solid var(--accent)' : 'none', transition: 'outline 0.1s' }}>
+      {/* List header */}
+      <div
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '6px 8px', borderRadius: 6,
+          cursor: 'pointer',
+        }}
+        onClick={() => setExpanded(v => !v)}
+      >
+        <span style={{ fontSize: 14, flexShrink: 0 }}>{emoji}</span>
+        {renaming ? (
+          <input
+            autoFocus
+            value={renameVal}
+            onChange={e => setRenameVal(e.target.value)}
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleRename()
+              if (e.key === 'Escape') setRenaming(false)
+            }}
+            onBlur={handleRename}
+            style={{
+              flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-1)',
+              background: 'var(--surface)', border: '1px solid var(--accent)',
+              borderRadius: 4, padding: '1px 5px', outline: 'none', fontFamily: 'inherit',
+            }}
+          />
+        ) : (
+          <span style={{
+            flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--text-1)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {title}
+          </span>
+        )}
+        <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>
+          {items.length > 0 ? items.length : ''}
+        </span>
+        <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0, width: 12, textAlign: 'center' }}>
+          {expanded ? '▾' : '›'}
+        </span>
+        <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
+          <button
+            onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+            style={{
+              background: 'none', border: 'none', padding: '0 2px',
+              fontSize: 12, color: 'var(--text-2)', cursor: 'pointer', lineHeight: 1,
+              letterSpacing: '1px',
+            }}
+          >
+            •••
+          </button>
+          {menuOpen && (
+            <div style={{
+              position: 'absolute', right: 0, top: '100%', marginTop: 2,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+              zIndex: 100, minWidth: 130, overflow: 'hidden',
+            }}>
+              <button
+                onClick={e => { e.stopPropagation(); setMenuOpen(false); setRenaming(true) }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                Rename
+              </button>
+              {!isPermanent && (
+                <button
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); onDelete?.(listId) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--danger)', cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  Delete list
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Items */}
+      {expanded && (
+        <div style={{ paddingLeft: 4, minHeight: sortedItems.length === 0 ? 36 : 0 }}>
+          <SortableContext items={sortedItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+            {sortedItems.map(item => (
+              <ListItemRow
+                key={item.id}
+                item={item}
+                dragType={dragType}
+                onToggle={onToggle}
+                onRemove={onRemove}
+                onUpdate={onUpdate}
+                onSendToBacklog={onSendToBacklog}
+                onSendToMilestone={onSendToMilestone}
+              />
+            ))}
+          </SortableContext>
+          {canAdd && (
+            <div style={{ padding: '0 8px', minHeight: 32, display: 'flex', alignItems: 'center' }}>
+              <input
+                style={{
+                  width: '100%', background: 'none', border: 'none', outline: 'none',
+                  fontSize: 13, color: '#9CA3AF', fontFamily: 'inherit',
+                  padding: '4px 0',
+                }}
+                placeholder="+ Add task…"
+                value={addVal}
+                onChange={e => setAddVal(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleAdd() }}
+                maxLength={200}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// New list modal
+function NewListModal({ onClose, onAdd }) {
+  const [name, setName] = useState('')
+  const [emoji, setEmoji] = useState('📋')
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, background: 'var(--overlay)',
+        zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'var(--surface)', borderRadius: 14,
+          padding: '20px 22px', width: 300, maxWidth: '90vw',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
+          display: 'flex', flexDirection: 'column', gap: 12,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-1)' }}>New List</div>
+
+        {/* Emoji picker */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {PRESET_EMOJIS.map(e => (
+            <button
+              key={e}
+              onClick={() => setEmoji(e)}
+              style={{
+                width: 30, height: 30, borderRadius: 7, fontSize: 16,
+                background: emoji === e ? 'var(--accent)' : 'var(--surface-2)',
+                border: `1.5px solid ${emoji === e ? 'var(--accent)' : 'var(--border)'}`,
+                cursor: 'pointer',
+              }}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+
+        <input
+          autoFocus
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && name.trim()) { onAdd({ emoji, name }); onClose() }
+            if (e.key === 'Escape') onClose()
+          }}
+          placeholder="List name…"
+          maxLength={60}
+          style={{
+            padding: '8px 10px', borderRadius: 8,
+            border: '1.5px solid var(--accent)', background: 'var(--surface)',
+            fontSize: 13, color: 'var(--text-1)', outline: 'none', fontFamily: 'inherit',
+          }}
+        />
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1, padding: '8px', borderRadius: 8,
+              border: '1px solid var(--border)', background: 'transparent',
+              fontSize: 13, color: 'var(--text-2)', cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => { if (name.trim()) { onAdd({ emoji, name }); onClose() } }}
+            disabled={!name.trim()}
+            style={{
+              flex: 2, padding: '8px', borderRadius: 8, border: 'none',
+              background: name.trim() ? 'var(--accent)' : 'var(--border)',
+              color: '#fff', fontSize: 13, fontWeight: 600,
+              cursor: name.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit',
+            }}
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function LeftPanel({ dump, listsHook: lists, onSendToBacklog, onSendToMilestone }) {
+  const [collapsed, setCollapsed] = useState(false)
+  const [newListOpen, setNewListOpen] = useState(false)
+
+  return (
+    <>
+      <aside
+        data-tour="leftpanel"
+        style={{
+          width: collapsed ? 36 : 260,
+          flexShrink: 0,
+          background: 'var(--surface)',
+          borderRight: '1px solid #F0F0F0',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          transition: 'width 0.2s ease',
+        }}
+      >
+        {/* Collapsed state */}
+        {collapsed && (
+          <button
+            onClick={() => setCollapsed(false)}
+            title="Expand"
+            style={{
+              margin: '10px auto 0',
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 6, width: 24, height: 24,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--accent)', fontSize: 14, cursor: 'pointer', flexShrink: 0,
+            }}
+          >
+            ›
+          </button>
+        )}
+
+        {!collapsed && (
+          <>
+            {/* Panel header */}
+            <div style={{
+              padding: '0 12px',
+              height: 80,
+              borderBottom: '1px solid var(--border)',
+              flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>This Week</span>
+                <span style={{ fontSize: 11, color: lists.totalItemCount >= lists.totalItemMax ? 'var(--danger)' : '#9CA3AF' }}>
+                  {lists.totalItemCount}/{lists.totalItemMax}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button
+                  onClick={() => !lists.isFull && setNewListOpen(true)}
+                  title={lists.isFull ? 'Max 4 lists reached' : 'New list'}
+                  style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 5, width: 22, height: 22,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: lists.isFull ? 'var(--text-2)' : 'var(--accent)',
+                    fontSize: 14, cursor: lists.isFull ? 'not-allowed' : 'pointer', flexShrink: 0,
+                    opacity: lists.isFull ? 0.5 : 1,
+                  }}
+                >
+                  +
+                </button>
+                <button
+                  onClick={() => setCollapsed(true)}
+                  title="Collapse"
+                  style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 5, width: 22, height: 22,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-2)', cursor: 'pointer', flexShrink: 0,
+                  }}
+                >
+                  <SidebarIcon />
+                </button>
+              </div>
+            </div>
+
+            {/* Lists */}
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '6px 8px' }}>
+              {lists.lists.map(list => (
+                <ListSection
+                  key={list.id}
+                  title={list.name}
+                  emoji={list.emoji}
+                  listId={list.id}
+                  items={lists.getListItems(list.id)}
+                  dragType="list_item"
+                  onToggle={lists.toggleDone}
+                  onRemove={lists.removeItem}
+                  onUpdate={lists.updateItem}
+                  onAddItem={lists.addItem}
+                  onSendToBacklog={onSendToBacklog}
+                  onSendToMilestone={onSendToMilestone}
+                  canAdd={!lists.isListFull(list.id)}
+                  isPermanent={list.isPermanent ?? false}
+                  onRename={lists.renameList}
+                  onDelete={lists.deleteList}
+                />
+              ))}
+
+            </div>
+          </>
+        )}
+      </aside>
+
+      {newListOpen && (
+        <NewListModal
+          onClose={() => setNewListOpen(false)}
+          onAdd={(opts) => lists.addList(opts)}
+        />
+      )}
+    </>
+  )
+}

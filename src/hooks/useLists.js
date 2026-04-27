@@ -1,0 +1,146 @@
+import { useState, useCallback, useEffect } from 'react'
+
+const LISTS_KEY = 'pyw_custom_lists'
+const ITEMS_KEY = 'pyw_list_items'
+
+const DEFAULT_LISTS = [
+  { id: 'default-work',     emoji: '💼', name: 'Work',     isPermanent: true, created_at: '2026-01-01T00:00:00.000Z' },
+  { id: 'default-personal', emoji: '🏠', name: 'Personal', isPermanent: true, created_at: '2026-01-01T00:00:01.000Z' },
+]
+
+// Ensure permanent lists are always present (in case user deleted them via old code)
+function ensureDefaults(stored) {
+  const ids = stored.map(l => l.id)
+  const missing = DEFAULT_LISTS.filter(d => !ids.includes(d.id))
+  return missing.length ? [...missing, ...stored] : stored
+}
+
+function loadLists() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LISTS_KEY))
+    if (stored !== null) return ensureDefaults(stored)
+    localStorage.setItem(LISTS_KEY, JSON.stringify(DEFAULT_LISTS))
+    return DEFAULT_LISTS
+  } catch { return DEFAULT_LISTS }
+}
+function loadItems() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(ITEMS_KEY)) ?? []
+    // Purge any stale done items left from before auto-remove was added
+    const clean = raw.filter(i => !i.done)
+    if (clean.length !== raw.length) saveItems(clean)
+    return clean
+  } catch { return [] }
+}
+function saveLists(lists) { localStorage.setItem(LISTS_KEY, JSON.stringify(lists)) }
+function saveItems(items) { localStorage.setItem(ITEMS_KEY, JSON.stringify(items)) }
+
+const MAX_CUSTOM_LISTS = 4
+const MAX_TOTAL_ITEMS = 20
+
+export function useLists() {
+  const [lists, setListsState] = useState(loadLists)
+  const [items, setItemsState] = useState(loadItems)
+
+  // On mount: purge items whose listId no longer exists
+  useEffect(() => {
+    const validIds = new Set(lists.map(l => l.id))
+    const clean = items.filter(i => validIds.has(i.listId))
+    if (clean.length !== items.length) {
+      setItemsState(clean)
+      saveItems(clean)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const setLists = useCallback((next) => {
+    const val = typeof next === 'function' ? next(lists) : next
+    setListsState(val)
+    saveLists(val)
+  }, [lists])
+
+  const setItems = useCallback((next) => {
+    const val = typeof next === 'function' ? next(items) : next
+    setItemsState(val)
+    saveItems(val)
+  }, [items])
+
+  const addList = useCallback(({ emoji = '📋', name }) => {
+    const trimmed = name?.trim()
+    if (!trimmed || lists.length >= MAX_CUSTOM_LISTS) return
+    const list = { id: crypto.randomUUID(), emoji, name: trimmed, created_at: new Date().toISOString() }
+    setLists(prev => [...prev, list])
+    return list
+  }, [lists, setLists])
+
+  const renameList = useCallback((id, { emoji, name }) => {
+    setLists(prev => prev.map(l => l.id === id ? { ...l, emoji: emoji ?? l.emoji, name: name ?? l.name } : l))
+  }, [setLists])
+
+  const deleteList = useCallback((id) => {
+    const list = lists.find(l => l.id === id)
+    if (list?.isPermanent) return // cannot delete permanent lists
+    setLists(prev => prev.filter(l => l.id !== id))
+    setItems(prev => prev.map(i => i.listId === id ? { ...i, listId: null } : i))
+  }, [lists, setLists, setItems])
+
+  const addItem = useCallback((listId, text, duration = 30) => {
+    const trimmed = text?.trim()
+    if (!trimmed) return
+    const activeCount = items.filter(i => !i.done).length
+    if (activeCount >= MAX_TOTAL_ITEMS) return { error: `Project list full (${MAX_TOTAL_ITEMS} tasks max across all lists)` }
+    const item = { id: crypto.randomUUID(), listId, text: trimmed, done: false, duration, created_at: new Date().toISOString() }
+    setItems(prev => [...prev, item])
+    return item
+  }, [items, setItems])
+
+  const removeItem = useCallback((id) => {
+    setItems(prev => prev.filter(i => i.id !== id))
+  }, [setItems])
+
+  const toggleDone = useCallback((id) => {
+    const item = items.find(i => i.id === id)
+    if (!item) return
+    if (!item.done) {
+      // Marking done — remove after a brief visual delay so user sees the checkmark
+      setItems(prev => prev.map(i => i.id === id ? { ...i, done: true } : i))
+      setTimeout(() => {
+        setItems(prev => {
+          const next = prev.filter(i => i.id !== id)
+          saveItems(next)
+          return next
+        })
+      }, 600)
+    } else {
+      setItems(prev => prev.map(i => i.id === id ? { ...i, done: false } : i))
+    }
+  }, [items, setItems])
+
+  const getListItems = useCallback((listId) => {
+    return items.filter(i => i.listId === listId)
+  }, [items])
+
+  const updateItem = useCallback((id, text) => {
+    const trimmed = text?.trim()
+    if (!trimmed) return
+    setItems(prev => prev.map(i => i.id === id ? { ...i, text: trimmed } : i))
+  }, [setItems])
+
+  const moveItemToList = useCallback((itemId, toListId) => {
+    setItems(prev => prev.map(i => i.id === itemId ? { ...i, listId: toListId } : i))
+  }, [setItems])
+
+  const isListFull = useCallback((_listId) => {
+    return items.filter(i => !i.done).length >= MAX_TOTAL_ITEMS
+  }, [items])
+
+  return {
+    lists,
+    items,
+    totalItemCount: items.filter(i => !i.done).length,
+    totalItemMax: MAX_TOTAL_ITEMS,
+    isFull: lists.length >= MAX_CUSTOM_LISTS,
+    addList, renameList, deleteList,
+    addItem, removeItem, toggleDone, updateItem, getListItems, moveItemToList, isListFull,
+  }
+}

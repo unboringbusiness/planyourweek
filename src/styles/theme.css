@@ -1,0 +1,62 @@
+:root {
+  --bg: #F9F8F6;
+  --surface: #FFFFFF;
+  --surface-2: #EDEAE6;
+  --text-1: #1A1A2E;
+  --text-2: #6B7280;
+  --accent: #3B82F6;
+  --border: #E5E7EB;
+  --mit: #FFD156;
+  --deep: #3B82F6;
+  --sched: #F08F48;
+  --danger: #EF4444;
+  --success: #10B981;
+  --overlay: rgba(0, 0, 0, 0.18);
+  --chip-bg: #F3F4F6;
+  --chip-text: #6B7280;
+  --col-today-bg: #EEF2FF;
+  --col-sep: #F0F0F0;
+  --sched-bg: #FFF7ED;
+}
+
+[data-theme="dark"] {
+  --bg: #161616;
+  --surface: #1E1E1E;
+  --surface-2: #222222;
+  --text-1: #E8E6E2;
+  --text-2: #666666;
+  --accent: #3B82F6;
+  --border: #252525;
+  --mit: #FFD156;
+  --deep: #3B82F6;
+  --sched: #F08F48;
+  --danger: #EF4444;
+  --success: #7BC67E;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --chip-bg: #2A2A2A;
+  --chip-text: #666666;
+  --col-today-bg: #1A1F2E;
+  --col-sep: #252525;
+  --sched-bg: #2A1F0F;
+}
+
+/* Duration slider thumb */
+.duration-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #3B82F6;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(59,130,246,0.3);
+}
+.duration-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #3B82F6;
+  cursor: pointer;
+}

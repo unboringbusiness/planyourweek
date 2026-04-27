@@ -1,0 +1,183 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - button "◀ Dump" [ref=e6] [cursor=pointer]:
+        - generic [ref=e7]: ◀
+        - generic [ref=e8]: Dump
+      - generic [ref=e9]: planyourweek.co
+    - navigation [ref=e10]:
+      - button "Week" [ref=e11] [cursor=pointer]
+      - button "Dump" [ref=e12] [cursor=pointer]
+      - button "Projects" [ref=e13] [cursor=pointer]
+      - button "Reset" [ref=e14] [cursor=pointer]
+    - button "⚙" [ref=e15] [cursor=pointer]
+  - generic [ref=e16]:
+    - generic [ref=e17]: MITs
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: MIT 1
+        - textbox "Most important thing 1…" [ref=e21]
+      - generic [ref=e22]:
+        - generic [ref=e23]: MIT 2
+        - textbox "Most important thing 2…" [ref=e24]
+      - generic [ref=e25]:
+        - generic [ref=e26]: MIT 3
+        - textbox "Most important thing 3…" [ref=e27]
+    - generic [ref=e28]: Apr 20 – Apr 26
+  - generic [ref=e29]:
+    - complementary [ref=e30]:
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: Brain Dump
+          - generic [ref=e34]: 0/40
+        - generic [ref=e35]:
+          - textbox "Capture a thought..." [ref=e36]
+          - button "+" [ref=e37] [cursor=pointer]
+      - generic [ref=e39]:
+        - text: Capture anything on your mind.
+        - text: You'll process it into your week.
+    - main [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - button "Week" [ref=e44] [cursor=pointer]
+          - button "Day" [ref=e45] [cursor=pointer]
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic "Switch to day view" [ref=e48] [cursor=pointer]:
+              - generic [ref=e49]: Mon
+              - generic [ref=e50]: "20"
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e53]: Deep Work
+                - generic [ref=e54]: 0/1
+              - button "+ add" [ref=e55] [cursor=pointer]
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: Scheduled
+                - generic [ref=e59]: 0/2
+              - button "+ add" [ref=e60] [cursor=pointer]
+            - generic [ref=e61]:
+              - generic [ref=e62]:
+                - generic [ref=e63]: Admin
+                - generic [ref=e64]: 0/7
+              - button "+ add" [ref=e65] [cursor=pointer]
+          - generic [ref=e66]:
+            - generic "Switch to day view" [ref=e67] [cursor=pointer]:
+              - generic [ref=e68]: Tue
+              - generic [ref=e69]: "21"
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e72]: Deep Work
+                - generic [ref=e73]: 0/1
+              - button "+ add" [ref=e74] [cursor=pointer]
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: Scheduled
+                - generic [ref=e78]: 0/2
+              - button "+ add" [ref=e79] [cursor=pointer]
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - generic [ref=e82]: Admin
+                - generic [ref=e83]: 0/7
+              - button "+ add" [ref=e84] [cursor=pointer]
+          - generic [ref=e85]:
+            - generic "Switch to day view" [ref=e86] [cursor=pointer]:
+              - generic [ref=e87]: Wed
+              - generic [ref=e88]: "22"
+            - generic [ref=e89]:
+              - generic [ref=e90]:
+                - generic [ref=e91]: Deep Work
+                - generic [ref=e92]: 0/1
+              - button "+ add" [ref=e93] [cursor=pointer]
+            - generic [ref=e94]:
+              - generic [ref=e95]:
+                - generic [ref=e96]: Scheduled
+                - generic [ref=e97]: 0/2
+              - button "+ add" [ref=e98] [cursor=pointer]
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - generic [ref=e101]: Admin
+                - generic [ref=e102]: 0/7
+              - button "+ add" [ref=e103] [cursor=pointer]
+          - generic [ref=e104]:
+            - generic "Switch to day view" [ref=e105] [cursor=pointer]:
+              - generic [ref=e106]: Thu
+              - generic [ref=e107]: "23"
+            - generic [ref=e108]:
+              - generic [ref=e109]:
+                - generic [ref=e110]: Deep Work
+                - generic [ref=e111]: 0/1
+              - button "+ add" [ref=e112] [cursor=pointer]
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]: Scheduled
+                - generic [ref=e116]: 0/2
+              - button "+ add" [ref=e117] [cursor=pointer]
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - generic [ref=e120]: Admin
+                - generic [ref=e121]: 0/7
+              - button "+ add" [ref=e122] [cursor=pointer]
+          - generic [ref=e123]:
+            - generic "Switch to day view" [ref=e124] [cursor=pointer]:
+              - generic [ref=e125]: Fri
+              - generic [ref=e126]: "24"
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - generic [ref=e129]: Deep Work
+                - generic [ref=e130]: 0/1
+              - button "+ add" [ref=e131] [cursor=pointer]
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - generic [ref=e134]: Scheduled
+                - generic [ref=e135]: 0/2
+              - button "+ add" [ref=e136] [cursor=pointer]
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - generic [ref=e139]: Admin
+                - generic [ref=e140]: 0/7
+              - button "+ add" [ref=e141] [cursor=pointer]
+          - generic [ref=e142]:
+            - generic "Switch to day view" [ref=e143] [cursor=pointer]:
+              - generic [ref=e144]: Sat
+              - generic [ref=e145]: "25"
+            - generic [ref=e146]:
+              - generic [ref=e147]:
+                - generic [ref=e148]: Deep Work
+                - generic [ref=e149]: 0/1
+              - button "+ add" [ref=e150] [cursor=pointer]
+            - generic [ref=e151]:
+              - generic [ref=e152]:
+                - generic [ref=e153]: Scheduled
+                - generic [ref=e154]: 0/2
+              - button "+ add" [ref=e155] [cursor=pointer]
+            - generic [ref=e156]:
+              - generic [ref=e157]:
+                - generic [ref=e158]: Admin
+                - generic [ref=e159]: 0/7
+              - button "+ add" [ref=e160] [cursor=pointer]
+          - generic [ref=e161]:
+            - generic "Switch to day view" [ref=e162] [cursor=pointer]:
+              - generic [ref=e163]: Sun
+              - generic [ref=e164]: "26"
+            - generic [ref=e165]:
+              - generic [ref=e166]:
+                - generic [ref=e167]: Deep Work
+                - generic [ref=e168]: 0/1
+              - button "+ add" [ref=e169] [cursor=pointer]
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - generic [ref=e172]: Scheduled
+                - generic [ref=e173]: 0/2
+              - button "+ add" [ref=e174] [cursor=pointer]
+            - generic [ref=e175]:
+              - generic [ref=e176]:
+                - generic [ref=e177]: Admin
+                - generic [ref=e178]: 0/7
+              - button "+ add" [ref=e179] [cursor=pointer]
+  - generic [ref=e180]:
+    - generic [ref=e182]: Save your data
+    - paragraph [ref=e183]: You're currently in guest mode. Sign in with a magic link to sync your plan across devices.
+    - textbox "your@email.com" [ref=e184]
+    - button "Send magic link" [ref=e185] [cursor=pointer]
+    - button "Close" [ref=e187] [cursor=pointer]

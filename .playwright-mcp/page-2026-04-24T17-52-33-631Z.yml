@@ -1,0 +1,19 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]: planyourweek.co
+    - navigation [ref=e6]:
+      - button "Week" [ref=e7] [cursor=pointer]
+      - button "Dump" [ref=e8] [cursor=pointer]
+      - button "Reset" [ref=e9] [cursor=pointer]
+    - button "☾" [ref=e11] [cursor=pointer]
+  - generic [ref=e13]:
+    - generic [ref=e14]: What's on your mind?
+    - paragraph [ref=e15]: Type anything. One thought per line. No filter. This is your brain dump — everything lives here until you decide what to do with it.
+    - textbox "Fix the landing page copy Research competitor pricing Call accountant about Q1 Learn about YNAB …" [active] [ref=e16]:
+      - /placeholder: "Fix the landing page copy\nResearch competitor pricing\nCall accountant about Q1\nLearn about YNAB\n…"
+    - button "Done dumping. Plan my week. →" [ref=e17] [cursor=pointer]
+    - paragraph [ref=e18]:
+      - text: Based on
+      - emphasis [ref=e19]: Four Thousand Weeks
+      - text: by Oliver Burkeman. You can't do everything.
+      - text: The dump is your someday list — plan your week from there.
