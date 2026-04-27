@@ -460,7 +460,7 @@ export default function LeftPanel({ dump, listsHook: lists, onSendToBacklog, onS
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>Projects</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>This Week</span>
                 <span style={{ fontSize: 11, color: lists.totalItemCount >= lists.totalItemMax ? 'var(--danger)' : '#9CA3AF' }}>
                   {lists.totalItemCount}/{lists.totalItemMax}
                 </span>

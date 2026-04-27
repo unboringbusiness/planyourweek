@@ -1,18 +1,6 @@
 [
   {
     "filePath": "/Users/anicca/planyourweek/src/hooks/useLists.js",
-    "timestamp": 1777317418425,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useLists.js",
-    "timestamp": 1777317421479,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useLists.js",
     "timestamp": 1777317425148,
     "focus": false,
     "openLocation": 0
@@ -56,6 +44,18 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/App.jsx",
     "timestamp": 1777317683185,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
+    "timestamp": 1777317736069,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
+    "timestamp": 1777317739339,
     "focus": false,
     "openLocation": 0
   }

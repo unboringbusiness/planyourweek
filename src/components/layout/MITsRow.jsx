@@ -60,7 +60,7 @@ export default function MITsRow({ week, weekStart, setMITs }) {
                     color: 'var(--text-1)', width: '100%', padding: 0,
                     fontFamily: 'inherit',
                   }}
-                  placeholder="Set a weekly goal…"
+                  placeholder="What will move the needle this week?"
                   value={localMITs[i] ?? ''}
                   onChange={e => handleChange(i, e.target.value)}
                   onBlur={handleBlur}
