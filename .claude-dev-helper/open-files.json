@@ -1,12 +1,6 @@
 [
   {
     "filePath": "/Users/anicca/planyourweek/src/components/rituals/ShutdownRitual.jsx",
-    "timestamp": 1777244026879,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/rituals/ShutdownRitual.jsx",
     "timestamp": 1777244046456,
     "focus": false,
     "openLocation": 0
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/hooks/useDump.js",
     "timestamp": 1777252808813,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/vercel.json",
+    "timestamp": 1777253132446,
     "focus": false,
     "openLocation": 0
   }
