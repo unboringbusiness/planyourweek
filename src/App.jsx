@@ -419,6 +419,14 @@ export default function App() {
                   await dump.addItem(item.text)
                   listsHook.removeItem(item.id)
                 }}
+                onSendToMilestone={(item) => {
+                  const mits = weekData.week?.mits ?? ['', '', '']
+                  const emptyIdx = mits.findIndex(m => !m)
+                  if (emptyIdx === -1) return // all 3 slots filled
+                  const next = [...mits]
+                  next[emptyIdx] = item.text
+                  weekData.setMITs(next)
+                }}
               />
 
               {/* Right column: milestone row + week columns */}

@@ -36,14 +36,23 @@ function CircleCheck({ checked, onChange }) {
 }
 
 // Single item row — sortable + draggable to day columns
-function ListItemRow({ item, onToggle, onRemove, onUpdate, onSendToBacklog, dragType }) {
+function ListItemRow({ item, onToggle, onRemove, onUpdate, onSendToBacklog, onSendToMilestone, dragType }) {
   const [hovered, setHovered] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [editVal, setEditVal] = useState(item.text)
+  const menuRef = useRef(null)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
     data: { type: dragType, item },
   })
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
 
   const commitEdit = () => {
     const trimmed = editVal.trim()
@@ -102,40 +111,64 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, onSendToBacklog, drag
             {item.text}
           </span>
         )}
-        {hovered && onSendToBacklog && (
-          <button
-            onClick={e => { e.stopPropagation(); onSendToBacklog(item) }}
-            title="Send to Backlog"
-            style={{
-              background: 'none', border: 'none', padding: '0 2px',
-              fontSize: 11, color: '#9CA3AF', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
-              fontFamily: 'inherit', whiteSpace: 'nowrap',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#9CA3AF' }}
-          >
-            ☁
-          </button>
+        {hovered && (
+          <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
+            <button
+              onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+              style={{
+                background: 'none', border: 'none', padding: '0 3px',
+                fontSize: 12, color: 'var(--text-2)', cursor: 'pointer',
+                lineHeight: 1, letterSpacing: '1px',
+              }}
+            >
+              •••
+            </button>
+            {menuOpen && (
+              <div style={{
+                position: 'absolute', right: 0, top: '100%', marginTop: 2,
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                zIndex: 300, minWidth: 160, overflow: 'hidden',
+              }}>
+                {onSendToBacklog && (
+                  <button
+                    onClick={e => { e.stopPropagation(); setMenuOpen(false); onSendToBacklog(item) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  >
+                    ☁ Send to Backlog
+                  </button>
+                )}
+                {onSendToMilestone && (
+                  <button
+                    onClick={e => { e.stopPropagation(); setMenuOpen(false); onSendToMilestone(item) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  >
+                    ★ Set as Milestone
+                  </button>
+                )}
+                <button
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); onRemove(item.id) }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--danger)', cursor: 'pointer', fontFamily: 'inherit' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            )}
+          </div>
         )}
-        <button
-          onClick={e => { e.stopPropagation(); onRemove(item.id) }}
-          style={{
-            background: 'none', border: 'none', padding: '0 2px',
-            fontSize: 14, color: '#D1D5DB', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
-            opacity: hovered ? 1 : 0, transition: 'opacity 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'var(--danger)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#D1D5DB' }}
-        >
-          ×
-        </button>
       </div>
     </div>
   )
 }
 
 // Expandable list section
-function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, onSendToBacklog, canAdd, listId, onRename, onDelete, isPermanent }) {
+function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, onSendToBacklog, onSendToMilestone, canAdd, listId, onRename, onDelete, isPermanent }) {
   const [expanded, setExpanded] = useState(true)
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: `list-drop-${listId}`,
@@ -266,6 +299,7 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpda
                 onRemove={onRemove}
                 onUpdate={onUpdate}
                 onSendToBacklog={onSendToBacklog}
+                onSendToMilestone={onSendToMilestone}
               />
             ))}
           </SortableContext>
@@ -379,7 +413,7 @@ function NewListModal({ onClose, onAdd }) {
   )
 }
 
-export default function LeftPanel({ dump, listsHook: lists, onSendToBacklog }) {
+export default function LeftPanel({ dump, listsHook: lists, onSendToBacklog, onSendToMilestone }) {
   const [collapsed, setCollapsed] = useState(false)
   const [newListOpen, setNewListOpen] = useState(false)
 
@@ -476,6 +510,7 @@ export default function LeftPanel({ dump, listsHook: lists, onSendToBacklog }) {
                   onUpdate={lists.updateItem}
                   onAddItem={lists.addItem}
                   onSendToBacklog={onSendToBacklog}
+                  onSendToMilestone={onSendToMilestone}
                   canAdd={!lists.isListFull(list.id)}
                   isPermanent={list.isPermanent ?? false}
                   onRename={lists.renameList}
