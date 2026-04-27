@@ -47,10 +47,10 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
         }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)' }}>
-              Dump
+              Backlog
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-2)', marginTop: 1 }}>
-              Everything that's not this week · {dump.count} items
+              Capture everything, schedule later · {dump.count} items
             </div>
           </div>
           <button
@@ -105,11 +105,6 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
             </button>
           </div>
           {error && <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>{error}</div>}
-          {dump.isFull && (
-            <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>
-              Dump is full ({LIMITS.DUMP_MAX} items max). Move or delete some to add more.
-            </div>
-          )}
         </div>
 
         {/* Items */}

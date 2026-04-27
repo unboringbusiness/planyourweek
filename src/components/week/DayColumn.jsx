@@ -183,22 +183,29 @@ export default function DayColumn({
     >
       {/* Column header */}
       <div style={{ paddingBottom: 10, borderBottom: '1px solid #F0F0F0' }}>
-        {/* Single-line: SUN Apr 26 Today */}
+        {/* Row 1: day name + date number (both prominent) */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
           <span style={{
-            fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
-            letterSpacing: '0.06em', color: today ? '#3B82F6' : '#9A9A9A',
+            fontSize: 14, fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.06em', color: today ? 'var(--accent)' : 'var(--text-2)',
           }}>
             {dayName}
           </span>
-          <span style={{ fontSize: 11, fontWeight: 500, color: today ? '#3B82F6' : '#9A9A9A' }}>
-            {monthName}
-          </span>
-          <span style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, color: today ? '#3B82F6' : 'var(--text-1)' }}>
+          <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, color: today ? 'var(--accent)' : 'var(--text-1)' }}>
             {dayNum}
           </span>
+        </div>
+        {/* Row 2: month + Today badge (smaller) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
+          <span style={{ fontSize: 11, fontWeight: 400, color: today ? 'var(--accent)' : 'var(--text-2)' }}>
+            {monthName}
+          </span>
           {today && (
-            <span style={{ fontSize: 11, fontWeight: 500, color: '#3B82F6' }}>Today</span>
+            <span style={{
+              fontSize: 10, fontWeight: 600, color: 'var(--accent)',
+              background: 'color-mix(in srgb, var(--accent) 12%, var(--surface))',
+              padding: '1px 6px', borderRadius: 4,
+            }}>Today</span>
           )}
         </div>
 

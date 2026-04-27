@@ -1,6 +1,6 @@
 export const LIMITS = {
-  DUMP_MAX: 15,
-  DUMP_WARN: 13,
+  DUMP_MAX: 500,
+  DUMP_WARN: 450,
   PROJECTS_MAX: 10,
   WEEKLY_MITS: 3,
   DAILY_DEEP_WORK: 1,

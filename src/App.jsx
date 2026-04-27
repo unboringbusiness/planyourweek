@@ -400,6 +400,7 @@ export default function App() {
                   onStartTimer={handleStartTimer}
                   onStartupRitual={(dayKey) => setStartupRitualDay(dayKey)}
                   onShutdownRitual={(dayKey) => setShutdownRitualDay(dayKey)}
+                  timerHook={timerHook}
                 />
               </div>
             </div>

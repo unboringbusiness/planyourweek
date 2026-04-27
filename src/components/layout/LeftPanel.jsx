@@ -476,9 +476,9 @@ export default function LeftPanel({ dump, listsHook: lists }) {
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
               {/* ── CLOSED LIST (max 15) ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>THIS WEEK (MAX 15)</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>BACKLOG</div>
               <ListSection
-                title="Closed List"
+                title="Backlog"
                 emoji="📋"
                 listId="brain-dump"
                 items={dump.items.map(i => ({ ...i, done: dumpDone[i.id] ?? false }))}

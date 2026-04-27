@@ -31,7 +31,7 @@ export function useDump(user) {
     const trimmed = text.trim()
     if (!trimmed) return { error: 'Empty item' }
     if (items.length >= LIMITS.DUMP_MAX) {
-      return { error: `Brain dump is full (${LIMITS.DUMP_MAX} items max). Process some before adding more.` }
+      return { error: `Backlog is full. Process some items before adding more.` }
     }
     const newItem = { text: trimmed, position: items.length, created_at: new Date().toISOString() }
     if (user) {
