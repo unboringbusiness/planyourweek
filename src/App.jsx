@@ -437,6 +437,7 @@ export default function App() {
                   mitCount={mitCount}
                   onAddSlot={weekData.addSlot}
                   onRemoveSlot={weekData.removeSlot}
+                  onReorderSlots={weekData.reorderSlots}
                   onMoveToSomeday={moveSlotToOpen}
                   onMoveToTomorrow={handleMoveToTomorrow}
                   onOpenDetail={handleOpenDetail}

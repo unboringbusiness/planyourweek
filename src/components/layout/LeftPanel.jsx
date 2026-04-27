@@ -439,8 +439,6 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
 
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
-              {/* ── PROJECT LISTS ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>LISTS</div>
               {lists.lists.map(list => (
                 <ListSection
                   key={list.id}
@@ -460,21 +458,6 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
                 />
               ))}
 
-              {/* ── OPEN LIST (Save for Later / Someday) ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '12px 8px 2px', borderTop: '1px solid var(--border)', marginTop: 8 }}>SAVE FOR LATER</div>
-              <ListSection
-                title="Open List"
-                emoji="📂"
-                listId="open-list"
-                items={openItems ?? []}
-                dragType="list_item"
-                onToggle={onToggleOpenDone}
-                onRemove={onRemoveFromOpen}
-                onUpdate={onUpdateOpen}
-                onAddItem={(_, text) => onAddToOpen(text)}
-                canAdd={true}
-                isPermanent={true}
-              />
             </div>
           </>
         )}

@@ -22,7 +22,7 @@ function getTomorrow(dayKey) {
 
 const DEFAULT_DURATION = { deep_work: 90, scheduled: 25, admin: 25 }
 
-function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer }) {
+function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer }) {
   const cfg = SLOT_CONFIG[slotType]
   const isFull = tasks.length >= cfg.max
   const [adding, setAdding] = useState(false)
@@ -88,7 +88,15 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
                 containerData={{ type: 'slot', task, day, slotType }}
                 onDurationChange={dur => setTaskMeta(task.id, { duration: dur })}
                 onMITToggle={() => setTaskMeta(task.id, { is_mit: !meta.is_mit })}
-                onDoneToggle={() => setTaskMeta(task.id, { done: !meta.done })}
+                onDoneToggle={() => {
+                  const nowDone = !meta.done
+                  setTaskMeta(task.id, { done: nowDone })
+                  // Non-MIT tasks move to bottom of section when marked done; MIT stays in place
+                  if (nowDone && !meta.is_mit && onReorderSlots) {
+                    const others = tasks.filter(t => t.id !== task.id)
+                    onReorderSlots(day, slotType, [...others, task])
+                  }
+                }}
                 onRemove={() => onRemoveSlot(day, task.id)}
                 onMoveToSomeday={() => onMoveToSomeday?.(task, day)}
                 onMoveToTomorrow={tomorrow ? () => onMoveToTomorrow?.(task, day, slotType, tomorrow, slotType) : null}
@@ -146,7 +154,7 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
 
 export default function DayColumn({
   dayKey, dayDate, slots, getMeta, setTaskMeta, mitCount,
-  onAddSlot, onRemoveSlot, onMoveToSomeday, onMoveToTomorrow,
+  onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow,
   onOpenDetail, onStartTimer,
   onFocusMode, onStartupRitual, onShutdownRitual,
   focusModeActive, isLast,
@@ -253,9 +261,9 @@ export default function DayColumn({
       </div>
 
       {/* Sections — no extra spacer, sections start right after header */}
-      <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-      <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-      <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+      <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+      <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+      <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
 
       {/* Time footer */}
       <div style={{ marginTop: 'auto', paddingTop: 12, textAlign: 'right', position: 'relative' }}>

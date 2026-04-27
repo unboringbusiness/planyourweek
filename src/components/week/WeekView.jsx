@@ -191,7 +191,7 @@ function FocusPanel({ timer, onPause, onResume, onStop, onComplete, onExit }) {
 
 export default function WeekView({
   week, weekStart, getMeta, setTaskMeta, mitCount,
-  onAddSlot, onRemoveSlot, onMoveToSomeday, onMoveToTomorrow,
+  onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow,
   onOpenDetail, onStartTimer,
   onStartupRitual, onShutdownRitual,
   timerHook,
@@ -241,6 +241,7 @@ export default function WeekView({
             mitCount={mitCount}
             onAddSlot={onAddSlot}
             onRemoveSlot={onRemoveSlot}
+            onReorderSlots={onReorderSlots}
             onMoveToSomeday={onMoveToSomeday}
             onMoveToTomorrow={onMoveToTomorrow}
             onOpenDetail={onOpenDetail}
@@ -306,6 +307,7 @@ export default function WeekView({
                   mitCount={mitCount}
                   onAddSlot={onAddSlot}
                   onRemoveSlot={onRemoveSlot}
+                  onReorderSlots={onReorderSlots}
                   onMoveToSomeday={onMoveToSomeday}
                   onMoveToTomorrow={onMoveToTomorrow}
                   onOpenDetail={onOpenDetail}

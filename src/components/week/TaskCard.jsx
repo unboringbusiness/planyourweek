@@ -182,87 +182,64 @@ export function DayTaskCard({
         )}
       </div>
 
-      {/* Row 2: action bar — only visible on hover */}
+      {/* Row 2: action bar — fades in on hover, no overflow:hidden so dropdown is never clipped */}
       {!isDragOverlay && (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 4,
-          marginTop: hovered ? 6 : 0,
-          paddingLeft: 28, // align under text (checkbox width + gap)
-          height: hovered ? 20 : 0,
-          overflow: 'hidden',
-          transition: 'height 0.15s ease, margin-top 0.15s ease',
+          paddingLeft: 28,
+          marginTop: 5,
+          opacity: hovered ? 1 : 0,
+          pointerEvents: hovered ? 'auto' : 'none',
+          transition: 'opacity 0.15s ease',
+          position: 'relative',
         }}>
-          {/* Star / MIT */}
-          <button
-            onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
-            title={is_mit ? 'Remove most important' : canToggleMIT ? 'Mark as most important' : '3 MITs already set'}
-            style={{
-              background: 'none', border: 'none', padding: '1px 4px',
-              fontSize: 12, color: is_mit ? '#FFD156' : '#C0BDB8',
-              cursor: canToggleMIT ? 'pointer' : 'default', lineHeight: 1,
-            }}
-          >
-            ★
-          </button>
-
-          {/* Move to Tomorrow */}
-          {onMoveToTomorrow && (
-            <button
-              onClick={e => { e.stopPropagation(); onMoveToTomorrow?.() }}
-              title="Move to Tomorrow"
-              style={{
-                background: 'none', border: 'none', padding: '1px 4px',
-                fontSize: 11, color: '#C0BDB8', cursor: 'pointer', lineHeight: 1,
-              }}
-            >
-              →
-            </button>
-          )}
-
-          {/* Save for Later */}
-          {onMoveToSomeday && (
-            <button
-              onClick={e => { e.stopPropagation(); onMoveToSomeday?.() }}
-              title="Save for Later"
-              style={{
-                background: 'none', border: 'none', padding: '1px 4px',
-                fontSize: 10, color: '#C0BDB8', cursor: 'pointer', lineHeight: 1, fontFamily: 'inherit',
-              }}
-            >
-              ☁
-            </button>
-          )}
-
-          {/* Delete */}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', display: 'inline-block' }}>
             <button
               onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
               style={{
-                background: 'none', border: 'none', padding: '1px 4px',
-                fontSize: 11, color: '#C0BDB8', cursor: 'pointer', lineHeight: 1,
-                letterSpacing: '1px',
+                background: 'none', border: '1px solid var(--border)',
+                borderRadius: 6, padding: '2px 8px',
+                fontSize: 11, color: 'var(--text-2)', cursor: 'pointer',
+                fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3,
               }}
             >
-              •••
+              Actions <span style={{ fontSize: 8, opacity: 0.6 }}>▾</span>
             </button>
+
             {menuOpen && (
-              <div style={{
-                position: 'absolute', left: 0, bottom: '100%', marginBottom: 4,
-                background: 'var(--surface)', border: '1px solid var(--border)',
-                borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                zIndex: 60, minWidth: 150, overflow: 'hidden',
-              }}>
-                <button
-                  onClick={() => { setMenuOpen(false); onRemove?.() }}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    padding: '8px 14px', background: 'none', border: 'none',
-                    fontSize: 13, color: 'var(--danger)',
-                    cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
-                  }}
-                >
-                  Delete task
-                </button>
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  position: 'absolute', left: 0, bottom: 'calc(100% + 4px)',
+                  background: 'var(--surface)', border: '1px solid var(--border)',
+                  borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.13)',
+                  zIndex: 200, minWidth: 190, overflow: 'hidden',
+                }}
+              >
+                {[
+                  { label: is_mit ? '★ Remove Most Important' : '★ Mark as Most Important', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#FFD156' : undefined },
+                  onMoveToTomorrow && { label: '→ Move to Tomorrow', fn: onMoveToTomorrow },
+                  onMoveToSomeday && { label: '☁ Save for Later', fn: onMoveToSomeday },
+                  { label: '🗑 Delete task', fn: onRemove, danger: true },
+                ].filter(Boolean).map(item => (
+                  <button
+                    key={item.label}
+                    onClick={() => { setMenuOpen(false); item.fn?.() }}
+                    disabled={item.disabled}
+                    style={{
+                      display: 'block', width: '100%', textAlign: 'left',
+                      padding: '9px 14px', background: 'none', border: 'none',
+                      fontSize: 13,
+                      color: item.danger ? 'var(--danger)' : item.accent ?? 'var(--text-1)',
+                      cursor: item.disabled ? 'not-allowed' : 'pointer',
+                      opacity: item.disabled ? 0.4 : 1,
+                      whiteSpace: 'nowrap', fontFamily: 'inherit',
+                    }}
+                    onMouseEnter={e => { if (!item.disabled) e.currentTarget.style.background = 'var(--surface-2)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
