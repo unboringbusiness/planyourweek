@@ -379,6 +379,7 @@ export default function App() {
         activeView={view}
         onViewChange={setView}
         onDumpOpen={() => setDumpOpen(true)}
+        onSettingsOpen={() => setSettingsOpen(true)}
         theme={theme}
         onThemeToggle={toggleTheme}
         onHelpOpen={() => setShowOnboarding(true)}
