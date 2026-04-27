@@ -187,7 +187,9 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
         )}
 
         <a
-          href="mailto:hello@ultrafocus.co?subject=planyourweek feedback"
+          href="https://planyourweek.featurebase.app"
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
             display: 'block',
             width: '100%',

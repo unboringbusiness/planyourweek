@@ -1,12 +1,6 @@
 [
   {
     "filePath": "/Users/anicca/planyourweek/src/components/reset/ResetScreen.jsx",
-    "timestamp": 1777326249797,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/reset/ResetScreen.jsx",
     "timestamp": 1777326257695,
     "focus": false,
     "openLocation": 0
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
     "timestamp": 1777333141471,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
+    "timestamp": 1777333474230,
     "focus": false,
     "openLocation": 0
   }
