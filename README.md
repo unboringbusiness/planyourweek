@@ -1,16 +1,48 @@
-# React + Vite
+# planyourweek.co
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A focused weekly planner. Plan your week in minutes, not hours.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **This Week** — Up to 20 tasks across Work, Personal, or custom project lists
+- **Milestones** — 3 weekly goals at the top ("What will move the needle this week?")
+- **Day columns** — Drag tasks from lists into daily slots (Deep Work, Focus, Other)
+- **Capture** — Unlimited inbox for ideas and tasks to schedule later
+- **Week navigation** — Rolling 7-day view anchored to today, navigate forward/back
+- **Timer** — Per-task focus timer with custom h/min input
+- **Rituals** — Daily startup (review yesterday, plan today) and shutdown (triage unfinished)
+- **End of Week** — Review and reset flow
+- **Dark/light mode**
+- **Sign in with magic link** — Sync across devices via Supabase
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + Vite 8
+- @dnd-kit (drag and drop)
+- Supabase (auth + data, optional — works offline with localStorage)
+- DM Sans font
+- CSS custom properties for theming
 
-## Expanding the ESLint configuration
+## Local development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+Create a `.env.local` with your Supabase credentials:
+
+```
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+Without these, the app runs fully in guest mode using localStorage.
+
+## Deploy
+
+```bash
+npm run build
+```
+
+Deploy the `dist/` folder to Vercel, Netlify, or any static host. A `vercel.json` is included for SPA routing.
