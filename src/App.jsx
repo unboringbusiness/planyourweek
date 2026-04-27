@@ -415,6 +415,10 @@ export default function App() {
               <LeftPanel
                 dump={dump}
                 listsHook={listsHook}
+                onSendToBacklog={async (item) => {
+                  await dump.addItem(item.text)
+                  listsHook.removeItem(item.id)
+                }}
               />
 
               {/* Right column: milestone row + week columns */}

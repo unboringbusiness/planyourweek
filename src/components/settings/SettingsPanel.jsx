@@ -174,31 +174,6 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
         </button>
       </div>
 
-      {/* Settings trigger button */}
-      <button
-        onClick={() => !open && onClose()}
-        style={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-          width: 38,
-          height: 38,
-          borderRadius: '50%',
-          background: 'var(--text-1)',
-          border: 'none',
-          color: 'var(--bg)',
-          fontSize: 15,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 200,
-          boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-          cursor: 'pointer',
-        }}
-        title="Account / Settings"
-      >
-        ⚙
-      </button>
     </>
   )
 }

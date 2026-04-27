@@ -36,7 +36,7 @@ function CircleCheck({ checked, onChange }) {
 }
 
 // Single item row — sortable + draggable to day columns
-function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
+function ListItemRow({ item, onToggle, onRemove, onUpdate, onSendToBacklog, dragType }) {
   const [hovered, setHovered] = useState(false)
   const [editing, setEditing] = useState(false)
   const [editVal, setEditVal] = useState(item.text)
@@ -102,6 +102,21 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
             {item.text}
           </span>
         )}
+        {hovered && onSendToBacklog && (
+          <button
+            onClick={e => { e.stopPropagation(); onSendToBacklog(item) }}
+            title="Send to Backlog"
+            style={{
+              background: 'none', border: 'none', padding: '0 2px',
+              fontSize: 11, color: '#9CA3AF', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
+              fontFamily: 'inherit', whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#9CA3AF' }}
+          >
+            ☁
+          </button>
+        )}
         <button
           onClick={e => { e.stopPropagation(); onRemove(item.id) }}
           style={{
@@ -120,7 +135,7 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
 }
 
 // Expandable list section
-function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, canAdd, listId, onRename, onDelete, isPermanent }) {
+function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, onSendToBacklog, canAdd, listId, onRename, onDelete, isPermanent }) {
   const [expanded, setExpanded] = useState(true)
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: `list-drop-${listId}`,
@@ -250,6 +265,7 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpda
                 onToggle={onToggle}
                 onRemove={onRemove}
                 onUpdate={onUpdate}
+                onSendToBacklog={onSendToBacklog}
               />
             ))}
           </SortableContext>
@@ -363,7 +379,7 @@ function NewListModal({ onClose, onAdd }) {
   )
 }
 
-export default function LeftPanel({ dump, listsHook: lists }) {
+export default function LeftPanel({ dump, listsHook: lists, onSendToBacklog }) {
   const [collapsed, setCollapsed] = useState(false)
   const [newListOpen, setNewListOpen] = useState(false)
 
@@ -459,6 +475,7 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                   onRemove={lists.removeItem}
                   onUpdate={lists.updateItem}
                   onAddItem={lists.addItem}
+                  onSendToBacklog={onSendToBacklog}
                   canAdd={!lists.isListFull(list.id)}
                   isPermanent={list.isPermanent ?? false}
                   onRename={lists.renameList}

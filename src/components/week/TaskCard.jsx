@@ -15,18 +15,20 @@ const MIT_BORDER = '#FFD156'
 // Timer chip + duration popover
 function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
   const [open, setOpen] = useState(false)
-  const [customVal, setCustomVal] = useState(String(duration))
+  const [hrs, setHrs] = useState(Math.floor(duration / 60))
+  const [mins, setMins] = useState(duration % 60)
 
-  const handleCustomChange = (val) => {
-    setCustomVal(val)
-    const n = parseInt(val, 10)
-    if (!isNaN(n) && n > 0 && n <= 600) onDurationChange?.(n)
+  const syncOpen = (d) => { setHrs(Math.floor(d / 60)); setMins(d % 60) }
+
+  const applyChange = (h, m) => {
+    const total = (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0)
+    if (total > 0 && total <= 600) onDurationChange?.(total)
   }
 
   return (
     <div style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
       <button
-        onClick={e => { e.stopPropagation(); setCustomVal(String(duration)); setOpen(v => !v) }}
+        onClick={e => { e.stopPropagation(); syncOpen(duration); setOpen(v => !v) }}
         style={{
           fontSize: 12, color: done ? '#D1D5DB' : 'var(--chip-text)',
           background: done ? 'transparent' : 'var(--chip-bg)',
@@ -50,33 +52,60 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
           }}
           onClick={e => e.stopPropagation()}
         >
-          <div style={{ fontSize: 11, color: 'var(--text-2)', marginBottom: 6 }}>Duration (minutes)</div>
-          <input
-            type="number"
-            min={1}
-            max={600}
-            value={customVal}
-            onChange={e => handleCustomChange(e.target.value)}
-            style={{
-              width: '100%', padding: '6px 8px', borderRadius: 8,
-              border: '1.5px solid var(--accent)', background: 'var(--surface-2)',
-              fontSize: 18, fontWeight: 600, color: 'var(--text-1)',
-              outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box',
-              marginBottom: 10, textAlign: 'center',
-            }}
-          />
-          <button
-            onClick={() => { onStartTimer?.(); setOpen(false) }}
-            style={{
-              width: '100%', padding: '8px', borderRadius: 8, border: 'none',
-              background: 'var(--success)', color: '#fff',
-              fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-              fontFamily: 'inherit',
-            }}
-          >
-            ▶ Start timer
-          </button>
+          <div style={{ fontSize: 11, color: 'var(--text-2)', marginBottom: 8 }}>Duration</div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ flex: 1 }}>
+              <input
+                type="number" min={0} max={9} value={hrs}
+                onChange={e => { setHrs(e.target.value); applyChange(e.target.value, mins) }}
+                style={{
+                  width: '100%', padding: '6px 4px', borderRadius: 7,
+                  border: '1.5px solid var(--accent)', background: 'var(--surface-2)',
+                  fontSize: 18, fontWeight: 600, color: 'var(--text-1)',
+                  outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', textAlign: 'center',
+                }}
+              />
+              <div style={{ fontSize: 10, color: 'var(--text-2)', textAlign: 'center', marginTop: 2 }}>hrs</div>
+            </div>
+            <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-2)', flexShrink: 0 }}>:</span>
+            <div style={{ flex: 1 }}>
+              <input
+                type="number" min={0} max={59} value={mins}
+                onChange={e => { setMins(e.target.value); applyChange(hrs, e.target.value) }}
+                style={{
+                  width: '100%', padding: '6px 4px', borderRadius: 7,
+                  border: '1.5px solid var(--border)', background: 'var(--surface-2)',
+                  fontSize: 18, fontWeight: 600, color: 'var(--text-1)',
+                  outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', textAlign: 'center',
+                }}
+              />
+              <div style={{ fontSize: 10, color: 'var(--text-2)', textAlign: 'center', marginTop: 2 }}>min</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              onClick={() => setOpen(false)}
+              style={{
+                flex: 1, padding: '7px', borderRadius: 8,
+                border: '1px solid var(--border)', background: 'transparent',
+                fontSize: 12, color: 'var(--text-2)', cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              Close
+            </button>
+            <button
+              onClick={() => { onStartTimer?.(); setOpen(false) }}
+              style={{
+                flex: 2, padding: '7px', borderRadius: 8, border: 'none',
+                background: 'var(--success)', color: '#fff',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                fontFamily: 'inherit',
+              }}
+            >
+              ▶ Start
+            </button>
+          </div>
         </div>
       )}
     </div>
