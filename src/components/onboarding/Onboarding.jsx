@@ -4,7 +4,7 @@ const STEPS = [
   {
     id: 'projects',
     title: 'Projects — your task lists',
-    body: 'Work and Personal lists are always here. Add up to 2 more. 15 tasks total across all lists — keeps your week focused. Drag any task to a day column to schedule it.',
+    body: 'Work and Personal lists are always here. Add up to 2 more. 20 tasks total across all lists — keeps your week focused. Drag any task to a day column to schedule it.',
     target: '[data-tour="leftpanel"]',
     placement: 'right',
   },
@@ -94,7 +94,9 @@ function TooltipCard({ step, rect, onNext, onSkip, isLast }) {
       style.left = rect.right + PAD
       style.top = rect.top
     } else if (step.placement === 'bottom') {
-      style.top = rect.bottom + PAD
+      // Position below the top portion of the target (header area ~80px), not the entire element
+      const visibleBottom = Math.min(rect.top + 80, rect.bottom)
+      style.top = visibleBottom + PAD
       style.left = Math.max(PAD, Math.min(rect.left, window.innerWidth - 300 - PAD))
     } else {
       style.top = rect.bottom + PAD
@@ -102,7 +104,10 @@ function TooltipCard({ step, rect, onNext, onSkip, isLast }) {
     }
     // Clamp to viewport
     if (style.left + 300 > window.innerWidth - PAD) style.left = window.innerWidth - 300 - PAD
-    if (style.top + 200 > window.innerHeight - PAD) style.top = rect.top - 200 - PAD
+    if (style.top + 200 > window.innerHeight - PAD) {
+      // Place above the target instead
+      style.top = Math.max(PAD, rect.top - 200 - PAD)
+    }
   } else {
     // Centered fallback
     style.top = '50%'
