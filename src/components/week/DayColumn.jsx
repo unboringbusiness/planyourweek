@@ -186,102 +186,88 @@ export default function DayColumn({
         display: 'flex',
         flexDirection: 'column',
         background: today ? 'var(--col-today-bg)' : 'transparent',
-        padding: '12px 14px 16px',
+        overflow: 'hidden',
       }}
     >
-      {/* Column header */}
-      <div style={{ paddingBottom: 10, borderBottom: '1px solid #F0F0F0' }}>
-        {/* Row 1: day name + date number — same visual weight */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+      {/* Column header — never scrolls away */}
+      <div style={{ flexShrink: 0, padding: '12px 14px 10px', borderBottom: '1px solid var(--col-sep)', background: today ? 'var(--col-today-bg)' : 'var(--bg)' }}>
+        {/* Row 1: day + date + time pill */}
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <span style={{
+              fontSize: 18, fontWeight: 800, textTransform: 'uppercase',
+              letterSpacing: '0.01em', color: today ? 'var(--accent)' : 'var(--text-2)',
+              lineHeight: 1,
+            }}>
+              {dayName}
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 400, color: today ? 'var(--accent)' : 'var(--text-2)', marginLeft: 2 }}>
+              {monthName}
+            </span>
+            <span style={{ fontSize: 28, fontWeight: 800, lineHeight: 1, color: today ? 'var(--accent)' : 'var(--text-1)', marginLeft: 1 }}>
+              {dayNum}
+            </span>
+          </div>
+
+          {/* Time chip — always visible in header */}
           <span style={{
-            fontSize: 28, fontWeight: 800, textTransform: 'uppercase',
-            letterSpacing: '-0.01em', color: today ? 'var(--accent)' : 'var(--text-2)',
-            lineHeight: 1,
+            fontSize: 11, fontWeight: 600,
+            color: isOverLimit ? '#fff' : totalColor,
+            background: isOverLimit ? 'var(--danger)' : isNearLimit ? 'color-mix(in srgb, var(--sched) 12%, var(--surface))' : 'var(--surface-2)',
+            border: `1px solid ${isOverLimit ? 'var(--danger)' : isNearLimit ? 'var(--sched)' : 'var(--border)'}`,
+            borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap',
           }}>
-            {dayName}
-          </span>
-          <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, color: today ? 'var(--accent)' : 'var(--text-1)' }}>
-            {dayNum}
+            {formatDuration(totalMinutes)} / 8:00
           </span>
         </div>
-        {/* Row 2: month + Today badge (smaller) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
-          <span style={{ fontSize: 11, fontWeight: 400, color: today ? 'var(--accent)' : 'var(--text-2)' }}>
-            {monthName}
-          </span>
-          {today && (
+
+        {/* Row 2: Today badge + action buttons */}
+        {today && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
             <span style={{
               fontSize: 10, fontWeight: 600, color: 'var(--accent)',
               background: 'color-mix(in srgb, var(--accent) 12%, var(--surface))',
-              padding: '1px 6px', borderRadius: 4,
+              padding: '1px 6px', borderRadius: 4, flexShrink: 0,
             }}>Today</span>
-          )}
-        </div>
-
-        {today && (
-          <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+            <div style={{ flex: 1 }} />
             <button
               data-tour="startup-btn"
               onClick={onStartupRitual}
               style={{
-                flex: 1, height: 24, fontSize: 11, fontWeight: 600,
+                height: 22, fontSize: 10, fontWeight: 600, padding: '0 8px',
                 background: 'color-mix(in srgb, var(--success) 12%, var(--surface))',
                 color: 'var(--success)', border: '1px solid var(--success)',
-                borderRadius: 6, cursor: 'pointer',
+                borderRadius: 5, cursor: 'pointer',
               }}
-            >
-              ☀️ Plan Today
-            </button>
+            >☀️ Plan</button>
             <button
               data-tour="shutdown-btn"
               onClick={onShutdownRitual}
               style={{
-                flex: 1, height: 24, fontSize: 11, fontWeight: 600,
+                height: 22, fontSize: 10, fontWeight: 600, padding: '0 8px',
                 background: 'var(--surface-2)', color: 'var(--text-2)',
-                border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer',
+                border: '1px solid var(--border)', borderRadius: 5, cursor: 'pointer',
               }}
-            >
-              🌙 Close
-            </button>
+            >🌙 Close</button>
             <button
               onClick={onFocusMode}
               style={{
-                flex: 1, height: 24, fontSize: 11, fontWeight: 600,
-                background: focusModeActive
-                  ? 'color-mix(in srgb, var(--accent) 12%, var(--surface))'
-                  : 'var(--surface-2)',
+                height: 22, fontSize: 10, fontWeight: 600, padding: '0 8px',
+                background: focusModeActive ? 'color-mix(in srgb, var(--accent) 12%, var(--surface))' : 'var(--surface-2)',
                 color: focusModeActive ? 'var(--accent)' : 'var(--text-2)',
                 border: `1px solid ${focusModeActive ? 'var(--accent)' : 'var(--border)'}`,
-                borderRadius: 6, cursor: 'pointer',
+                borderRadius: 5, cursor: 'pointer',
               }}
-            >
-              🎯 Focus
-            </button>
+            >🎯 Focus</button>
           </div>
         )}
       </div>
 
-      {/* Sections — no extra spacer, sections start right after header */}
-      <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-      <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-      <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-
-      {/* Time footer */}
-      <div style={{ marginTop: 'auto', paddingTop: 12, textAlign: 'right', position: 'relative' }}>
-        <span style={{ fontSize: 11, color: totalColor, fontWeight: 500 }}>
-          {formatDuration(totalMinutes)} / 8:00
-        </span>
-        {isOverLimit && (
-          <div style={{
-            position: 'absolute', bottom: '100%', right: 0, marginBottom: 6,
-            background: '#1F2937', color: '#fff', fontSize: 11, fontWeight: 500,
-            borderRadius: 8, padding: '6px 10px', whiteSpace: 'nowrap',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 10,
-            pointerEvents: 'none',
-          }}>
-            😓 Exceeded 8h by {formatDuration(overBy)}
-          </div>
-        )}
+      {/* Scrollable task area */}
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '0 14px 16px' }}>
+        <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+        <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+        <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
       </div>
     </div>
   )

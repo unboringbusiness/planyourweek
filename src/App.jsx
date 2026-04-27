@@ -108,7 +108,10 @@ export default function App() {
     const allSlotTasks = weekData.days.flatMap(day =>
       Object.values(weekData.week?.slots?.[day] ?? {}).flat()
     )
-    const slotMITs = allSlotTasks.filter(t => taskMeta.getMeta(t.id).is_mit)
+    // Enrich with done state from taskMeta so MITsRow can sync milestone checkboxes
+    const slotMITs = allSlotTasks
+      .filter(t => taskMeta.getMeta(t.id).is_mit)
+      .map(t => ({ ...t, done: taskMeta.getMeta(t.id).done ?? false }))
     const allMITs = [...backlogMITs, ...slotMITs]
     return { allMITs, mitCount: allMITs.length }
   }, [backlog.items, weekData.week, weekData.days, taskMeta.getMeta])

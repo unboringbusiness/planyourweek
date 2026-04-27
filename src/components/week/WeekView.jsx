@@ -296,7 +296,7 @@ export default function WeekView({
                 key={dayKey}
                 ref={el => { colRefs.current[dayKey] = el }}
                 data-today={weekDays[actualIdx] && isToday(weekDays[actualIdx]) ? 'true' : undefined}
-                style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden' }}
+                style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
               >
                 <DayColumn
                   dayKey={dayKey}
