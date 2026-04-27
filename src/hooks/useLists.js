@@ -24,13 +24,19 @@ function loadLists() {
   } catch { return DEFAULT_LISTS }
 }
 function loadItems() {
-  try { return JSON.parse(localStorage.getItem(ITEMS_KEY)) ?? [] } catch { return [] }
+  try {
+    const raw = JSON.parse(localStorage.getItem(ITEMS_KEY)) ?? []
+    // Purge any stale done items left from before auto-remove was added
+    const clean = raw.filter(i => !i.done)
+    if (clean.length !== raw.length) saveItems(clean)
+    return clean
+  } catch { return [] }
 }
 function saveLists(lists) { localStorage.setItem(LISTS_KEY, JSON.stringify(lists)) }
 function saveItems(items) { localStorage.setItem(ITEMS_KEY, JSON.stringify(items)) }
 
 const MAX_CUSTOM_LISTS = 4
-const MAX_TOTAL_ITEMS = 15
+const MAX_TOTAL_ITEMS = 20
 
 export function useLists() {
   const [lists, setListsState] = useState(loadLists)
@@ -70,7 +76,8 @@ export function useLists() {
   const addItem = useCallback((listId, text, duration = 30) => {
     const trimmed = text?.trim()
     if (!trimmed) return
-    if (items.length >= MAX_TOTAL_ITEMS) return { error: `Project list full (${MAX_TOTAL_ITEMS} tasks max across all lists)` }
+    const activeCount = items.filter(i => !i.done).length
+    if (activeCount >= MAX_TOTAL_ITEMS) return { error: `Project list full (${MAX_TOTAL_ITEMS} tasks max across all lists)` }
     const item = { id: crypto.randomUUID(), listId, text: trimmed, done: false, duration, created_at: new Date().toISOString() }
     setItems(prev => [...prev, item])
     return item
@@ -113,13 +120,13 @@ export function useLists() {
   }, [setItems])
 
   const isListFull = useCallback((_listId) => {
-    return items.length >= MAX_TOTAL_ITEMS
+    return items.filter(i => !i.done).length >= MAX_TOTAL_ITEMS
   }, [items])
 
   return {
     lists,
     items,
-    totalItemCount: items.length,
+    totalItemCount: items.filter(i => !i.done).length,
     totalItemMax: MAX_TOTAL_ITEMS,
     isFull: lists.length >= MAX_CUSTOM_LISTS,
     addList, renameList, deleteList,
