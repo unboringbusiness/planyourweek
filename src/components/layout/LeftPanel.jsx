@@ -1,14 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
-const OPEN_LIST_KEY = 'pyw_open_list'
-const DUMP_DONE_KEY = 'pyw_dump_done'
-function loadOpenList() {
-  try { return JSON.parse(localStorage.getItem(OPEN_LIST_KEY)) ?? [] } catch { return [] }
-}
-function loadDumpDone() {
-  try { return JSON.parse(localStorage.getItem(DUMP_DONE_KEY)) ?? {} } catch { return {} }
-}
-
 function SidebarIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -367,36 +358,9 @@ function NewListModal({ onClose, onAdd }) {
   )
 }
 
-export default function LeftPanel({ dump, listsHook: lists }) {
+export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOpen, onRemoveFromOpen, onUpdateOpen, onToggleOpenDone }) {
   const [collapsed, setCollapsed] = useState(false)
   const [newListOpen, setNewListOpen] = useState(false)
-  const [dumpDone, setDumpDone] = useState(loadDumpDone)
-  const toggleDumpDone = useCallback((id) => {
-    setDumpDone(prev => {
-      const next = { ...prev, [id]: !prev[id] }
-      localStorage.setItem(DUMP_DONE_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [])
-
-  // Open List — localStorage only, unlimited
-  const [openItems, setOpenItemsState] = useState(loadOpenList)
-  const saveOpen = useCallback((items) => {
-    setOpenItemsState(items)
-    localStorage.setItem(OPEN_LIST_KEY, JSON.stringify(items))
-  }, [])
-  const addOpenItem = useCallback((_, text) => {
-    const trimmed = text?.trim(); if (!trimmed) return
-    saveOpen([...openItems, { id: crypto.randomUUID(), text: trimmed, done: false, created_at: new Date().toISOString() }])
-  }, [openItems, saveOpen])
-  const removeOpenItem = useCallback((id) => saveOpen(openItems.filter(i => i.id !== id)), [openItems, saveOpen])
-  const updateOpenItem = useCallback((id, text) => {
-    const trimmed = text?.trim(); if (!trimmed) return
-    saveOpen(openItems.map(i => i.id === id ? { ...i, text: trimmed } : i))
-  }, [openItems, saveOpen])
-  const toggleOpenDone = useCallback((id) => {
-    saveOpen(openItems.map(i => i.id === id ? { ...i, done: !i.done } : i))
-  }, [openItems, saveOpen])
 
   return (
     <>
@@ -475,24 +439,11 @@ export default function LeftPanel({ dump, listsHook: lists }) {
 
             {/* Lists */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
-              {/* ── CLOSED LIST (max 15) ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>BACKLOG</div>
-              <ListSection
-                title="Backlog"
-                emoji="📋"
-                listId="brain-dump"
-                items={dump.items.map(i => ({ ...i, done: dumpDone[i.id] ?? false }))}
-                dragType="dump"
-                onToggle={toggleDumpDone}
-                onRemove={dump.removeItem}
-                onUpdate={dump.updateItem}
-                onAddItem={(_, text) => dump.addItem(text)}
-                canAdd={!dump.isFull}
-                isPermanent={true}
-              />
+              {/* ── PROJECT LISTS ── */}
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '6px 8px 2px' }}>LISTS</div>
               {lists.lists.map(list => (
                 <ListSection
-                  key={`closed-${list.id}`}
+                  key={list.id}
                   title={list.name}
                   emoji={list.emoji}
                   listId={list.id}
@@ -509,39 +460,21 @@ export default function LeftPanel({ dump, listsHook: lists }) {
                 />
               ))}
 
-              {/* ── OPEN LIST (unlimited) ── */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '12px 8px 2px', borderTop: '1px solid var(--border)', marginTop: 8 }}>EVERYTHING ELSE</div>
+              {/* ── OPEN LIST (Save for Later / Someday) ── */}
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#C0BDB8', letterSpacing: '0.06em', padding: '12px 8px 2px', borderTop: '1px solid var(--border)', marginTop: 8 }}>SAVE FOR LATER</div>
               <ListSection
                 title="Open List"
                 emoji="📂"
                 listId="open-list"
-                items={openItems}
+                items={openItems ?? []}
                 dragType="list_item"
-                onToggle={toggleOpenDone}
-                onRemove={removeOpenItem}
-                onUpdate={updateOpenItem}
-                onAddItem={addOpenItem}
+                onToggle={onToggleOpenDone}
+                onRemove={onRemoveFromOpen}
+                onUpdate={onUpdateOpen}
+                onAddItem={(_, text) => onAddToOpen(text)}
                 canAdd={true}
                 isPermanent={true}
               />
-              {lists.lists.map(list => (
-                <ListSection
-                  key={`open-${list.id}`}
-                  title={list.name}
-                  emoji={list.emoji}
-                  listId={list.id}
-                  items={lists.getListItems(list.id)}
-                  dragType="list_item"
-                  onToggle={lists.toggleDone}
-                  onRemove={lists.removeItem}
-                  onUpdate={lists.updateItem}
-                  onAddItem={lists.addItem}
-                  canAdd={true}
-                  isPermanent={false}
-                  onRename={lists.renameList}
-                  onDelete={lists.deleteList}
-                />
-              ))}
             </div>
           </>
         )}

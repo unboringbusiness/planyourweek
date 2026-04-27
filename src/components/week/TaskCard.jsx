@@ -99,7 +99,7 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
   )
 }
 
-// Day column card — Sunsama/Ellie style
+// Day column card — two-row layout: text top, actions bottom on hover
 export function DayTaskCard({
   taskId, text, meta = {},
   onDurationChange, onMITToggle, onDoneToggle, onRemove,
@@ -111,146 +111,162 @@ export function DayTaskCard({
   const { duration = 30, is_mit = false, done = false } = meta
   const canToggleMIT = mitCount < 3 || is_mit
   const leftBorder = is_mit ? MIT_BORDER : 'transparent'
+  const displayText = meta.textOverride || text
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
       style={{
-        background: done ? 'var(--surface)' : 'var(--surface)',
-        border: 'none',
+        background: 'var(--surface)',
         borderLeft: `3px solid ${done ? leftBorder + '4D' : leftBorder}`,
         borderRadius: 8,
-        padding: '11px 14px',
-        minHeight: 42,
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 10,
-        boxShadow: isDragOverlay
-          ? '0 8px 32px rgba(0,0,0,0.18)'
-          : done ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
+        padding: '10px 12px 8px',
+        boxShadow: isDragOverlay ? '0 8px 32px rgba(0,0,0,0.18)' : done ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
         position: 'relative',
         userSelect: 'none',
         cursor: 'default',
-        transition: 'background 0.1s',
       }}
     >
-      {/* Checkbox — 20px, top-aligned */}
-      <div
-        onClick={e => { e.stopPropagation(); onDoneToggle?.() }}
-        style={{
-          width: 20, height: 20,
-          borderRadius: '50%',
-          border: done ? 'none' : '1.5px solid #D1D5DB',
-          background: done ? 'var(--success)' : 'transparent',
-          flexShrink: 0,
-          marginTop: 1,
-          cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'background 0.15s, border 0.15s',
-        }}
-      >
-        {done && (
-          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path d="M1 4l3 3 5-6" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+      {/* Row 1: checkbox + text + duration chip */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        {/* Checkbox */}
+        <div
+          onClick={e => { e.stopPropagation(); onDoneToggle?.() }}
+          style={{
+            width: 18, height: 18, borderRadius: '50%', marginTop: 2,
+            border: done ? 'none' : '1.5px solid #D1D5DB',
+            background: done ? 'var(--success)' : 'transparent',
+            flexShrink: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.15s, border 0.15s',
+          }}
+        >
+          {done && (
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4l3 3 5-6" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+        </div>
+
+        {/* Text — takes all remaining space */}
+        <div
+          onClick={() => !isDragOverlay && onOpenDetail?.()}
+          style={{
+            flex: 1, minWidth: 0, fontSize: 14,
+            color: done ? '#9CA3AF' : 'var(--text-1)',
+            textDecoration: done ? 'line-through' : 'none',
+            cursor: isDragOverlay ? 'grabbing' : 'pointer',
+            lineHeight: 1.45, fontWeight: 400, wordBreak: 'break-word',
+          }}
+          title={displayText}
+        >
+          {displayText}
+        </div>
+
+        {/* Duration chip — always top-right */}
+        {!isDragOverlay ? (
+          <TimerChip
+            duration={duration}
+            onDurationChange={onDurationChange}
+            onStartTimer={() => onStartTimer?.(taskId, displayText)}
+            done={done}
+          />
+        ) : (
+          <span style={{
+            fontSize: 12, color: 'var(--chip-text)',
+            background: 'var(--chip-bg)', borderRadius: 6, padding: '3px 8px', flexShrink: 0,
+          }}>
+            {formatDuration(duration)}
+          </span>
         )}
       </div>
 
-      {/* Task text */}
-      <div
-        onClick={() => !isDragOverlay && onOpenDetail?.()}
-        style={{
-          flex: 1,
-          minWidth: 0,
-          fontSize: 14,
-          color: done ? '#9CA3AF' : 'var(--text-1)',
-          textDecoration: done ? 'line-through' : 'none',
-          cursor: isDragOverlay ? 'grabbing' : 'pointer',
-          lineHeight: 1.4,
-          fontWeight: 400,
-          overflowWrap: 'normal',
-          hyphens: 'none',
-          whiteSpace: 'normal',
-        }}
-        title={meta.textOverride || text}
-      >
-        {meta.textOverride || text}
-      </div>
-
-      {/* MIT star — shown when active (is_mit) or on hover */}
-      {!isDragOverlay && (hovered || is_mit) && (
-        <button
-          onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
-          title={is_mit ? 'Remove most important' : canToggleMIT ? 'Mark as most important' : '3 most important already set'}
-          style={{
-            background: 'none', border: 'none', padding: '1px 2px',
-            fontSize: 13, color: is_mit ? '#FFD156' : '#D0CEC9',
-            cursor: canToggleMIT ? 'pointer' : 'default',
-            flexShrink: 0, lineHeight: 1,
-          }}
-        >
-          ★
-        </button>
-      )}
-
-      {!isDragOverlay && hovered && (
-        <div style={{ position: 'relative', flexShrink: 0 }}>
+      {/* Row 2: action bar — only visible on hover */}
+      {!isDragOverlay && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 4,
+          marginTop: hovered ? 6 : 0,
+          paddingLeft: 28, // align under text (checkbox width + gap)
+          height: hovered ? 20 : 0,
+          overflow: 'hidden',
+          transition: 'height 0.15s ease, margin-top 0.15s ease',
+        }}>
+          {/* Star / MIT */}
           <button
-            onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+            onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
+            title={is_mit ? 'Remove most important' : canToggleMIT ? 'Mark as most important' : '3 MITs already set'}
             style={{
-              background: 'none', border: 'none', padding: '0 3px',
-              fontSize: 12, color: 'var(--text-2)', cursor: 'pointer',
-              lineHeight: 1, letterSpacing: '1px',
+              background: 'none', border: 'none', padding: '1px 4px',
+              fontSize: 12, color: is_mit ? '#FFD156' : '#C0BDB8',
+              cursor: canToggleMIT ? 'pointer' : 'default', lineHeight: 1,
             }}
           >
-            •••
+            ★
           </button>
-          {menuOpen && (
-            <div style={{
-              position: 'absolute', right: 0, top: '100%', marginTop: 2,
-              background: 'var(--surface)', border: '1px solid var(--border)',
-              borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-              zIndex: 60, minWidth: 160, overflow: 'hidden',
-            }}>
-              {[
-                onMoveToTomorrow && { label: 'Move to Tomorrow', fn: onMoveToTomorrow },
-                onMoveToSomeday && { label: 'Move to Dump', fn: onMoveToSomeday },
-                { label: 'Delete', fn: onRemove, danger: true },
-              ].filter(Boolean).map(item => (
+
+          {/* Move to Tomorrow */}
+          {onMoveToTomorrow && (
+            <button
+              onClick={e => { e.stopPropagation(); onMoveToTomorrow?.() }}
+              title="Move to Tomorrow"
+              style={{
+                background: 'none', border: 'none', padding: '1px 4px',
+                fontSize: 11, color: '#C0BDB8', cursor: 'pointer', lineHeight: 1,
+              }}
+            >
+              →
+            </button>
+          )}
+
+          {/* Save for Later */}
+          {onMoveToSomeday && (
+            <button
+              onClick={e => { e.stopPropagation(); onMoveToSomeday?.() }}
+              title="Save for Later"
+              style={{
+                background: 'none', border: 'none', padding: '1px 4px',
+                fontSize: 10, color: '#C0BDB8', cursor: 'pointer', lineHeight: 1, fontFamily: 'inherit',
+              }}
+            >
+              ☁
+            </button>
+          )}
+
+          {/* Delete */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+              style={{
+                background: 'none', border: 'none', padding: '1px 4px',
+                fontSize: 11, color: '#C0BDB8', cursor: 'pointer', lineHeight: 1,
+                letterSpacing: '1px',
+              }}
+            >
+              •••
+            </button>
+            {menuOpen && (
+              <div style={{
+                position: 'absolute', left: 0, bottom: '100%', marginBottom: 4,
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                zIndex: 60, minWidth: 150, overflow: 'hidden',
+              }}>
                 <button
-                  key={item.label}
-                  onClick={() => { setMenuOpen(false); item.fn?.() }}
+                  onClick={() => { setMenuOpen(false); onRemove?.() }}
                   style={{
                     display: 'block', width: '100%', textAlign: 'left',
                     padding: '8px 14px', background: 'none', border: 'none',
-                    fontSize: 13, color: item.danger ? 'var(--danger)' : 'var(--text-1)',
+                    fontSize: 13, color: 'var(--danger)',
                     cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
                   }}
                 >
-                  {item.label}
+                  Delete task
                 </button>
-              ))}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
-      )}
-
-      {/* Duration chip */}
-      {!isDragOverlay ? (
-        <TimerChip
-          duration={duration}
-          onDurationChange={onDurationChange}
-          onStartTimer={() => onStartTimer?.(taskId, meta.textOverride || text)}
-          done={done}
-        />
-      ) : (
-        <span style={{
-          fontSize: 12, color: 'var(--chip-text)',
-          background: 'var(--chip-bg)', borderRadius: 6, padding: '3px 8px', flexShrink: 0,
-        }}>
-          {formatDuration(duration)}
-        </span>
       )}
     </div>
   )

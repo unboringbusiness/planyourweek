@@ -60,6 +60,25 @@ export default function App() {
   const [theme, setTheme] = useState(getStoredTheme)
   const [view, setView] = useState('week')
   const [dumpOpen, setDumpOpen] = useState(false)
+
+  // Open List — "Save for Later" destination, localStorage only
+  const [openItems, setOpenItems] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('pyw_open_list')) ?? [] } catch { return [] }
+  })
+  useEffect(() => {
+    localStorage.setItem('pyw_open_list', JSON.stringify(openItems))
+  }, [openItems])
+  const addToOpenList = (text) => {
+    const trimmed = typeof text === 'string' ? text.trim() : text?.text?.trim()
+    if (!trimmed) return
+    setOpenItems(prev => [...prev, { id: crypto.randomUUID(), text: trimmed, done: false, created_at: new Date().toISOString() }])
+  }
+  const removeFromOpenList = (id) => setOpenItems(prev => prev.filter(i => i.id !== id))
+  const updateOpenItem = (id, text) => {
+    const trimmed = text?.trim(); if (!trimmed) return
+    setOpenItems(prev => prev.map(i => i.id === id ? { ...i, text: trimmed } : i))
+  }
+  const toggleOpenDone = (id) => setOpenItems(prev => prev.map(i => i.id === id ? { ...i, done: !i.done } : i))
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [activeDragItem, setActiveDragItem] = useState(null)
 
@@ -150,6 +169,13 @@ export default function App() {
     taskMeta.removeMeta(task.id)
   }
 
+  // "Save for Later" from week → Open List (left panel EVERYTHING ELSE)
+  const moveSlotToOpen = (task, day) => {
+    addToOpenList(task.text)
+    weekData.removeSlot(day, task.id)
+    taskMeta.removeMeta(task.id)
+  }
+
   const moveSlotToDump = async (task, day) => {
     await dump.addItem(task.text)
     weekData.removeSlot(day, task.id)
@@ -217,7 +243,7 @@ export default function App() {
 
     if (!activeData) return
 
-    // Custom list item dropped onto a day column section
+    // Custom list item dropped somewhere
     if (activeData.type === 'list_item') {
       const item = activeData.item
       if (overData?.type === 'section') {
@@ -226,6 +252,15 @@ export default function App() {
       }
       if (overData?.type === 'slot') {
         await moveListItemToSection(item, overData.day, overData.slotType)
+        return
+      }
+      // Cross-list drag: move item to a different custom list
+      if (overData?.type === 'list_item') {
+        const fromListId = item.listId
+        const toListId = overData.item?.listId
+        if (fromListId && toListId && fromListId !== toListId) {
+          listsHook.moveItemToList(item.id, toListId)
+        }
         return
       }
     }
@@ -376,7 +411,15 @@ export default function App() {
             onDragEnd={handleDragEnd}
           >
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-              <LeftPanel dump={dump} listsHook={listsHook} />
+              <LeftPanel
+                dump={dump}
+                listsHook={listsHook}
+                openItems={openItems}
+                onAddToOpen={addToOpenList}
+                onRemoveFromOpen={removeFromOpenList}
+                onUpdateOpen={updateOpenItem}
+                onToggleOpenDone={toggleOpenDone}
+              />
 
               {/* Right column: milestone row + week columns */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -394,7 +437,7 @@ export default function App() {
                   mitCount={mitCount}
                   onAddSlot={weekData.addSlot}
                   onRemoveSlot={weekData.removeSlot}
-                  onMoveToSomeday={moveSlotToDump}
+                  onMoveToSomeday={moveSlotToOpen}
                   onMoveToTomorrow={handleMoveToTomorrow}
                   onOpenDetail={handleOpenDetail}
                   onStartTimer={handleStartTimer}
@@ -488,7 +531,7 @@ export default function App() {
           setTaskMeta={setTaskMetaFn}
           onAddSlot={weekData.addSlot}
           onRemoveSlot={weekData.removeSlot}
-          onMoveToDump={async (task) => { await dump.addItem(task.text) }}
+          onMoveToDump={(task) => { addToOpenList(task.text) }}
           onClose={() => setShutdownRitualDay(null)}
         />
       )}

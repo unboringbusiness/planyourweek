@@ -86,11 +86,15 @@ export function useLists() {
     setItems(prev => prev.map(i => i.id === id ? { ...i, text: trimmed } : i))
   }, [setItems])
 
+  const moveItemToList = useCallback((itemId, toListId) => {
+    setItems(prev => prev.map(i => i.id === itemId ? { ...i, listId: toListId } : i))
+  }, [setItems])
+
   return {
     lists,
     items,
     isFull: lists.length >= MAX_CUSTOM_LISTS,
     addList, renameList, deleteList,
-    addItem, removeItem, toggleDone, updateItem, getListItems,
+    addItem, removeItem, toggleDone, updateItem, getListItems, moveItemToList,
   }
 }
