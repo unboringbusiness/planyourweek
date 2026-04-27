@@ -292,6 +292,28 @@ export default function App() {
     if (activeData.type === 'slot') {
       const { task, day: fromDay, slotType: fromType } = activeData
 
+      // Drop onto a project list — move task from day column to that list
+      if (overData?.type === 'list_section') {
+        const result = listsHook.addItem(overData.listId, task.text)
+        if (result && !result.error) {
+          weekData.removeSlot(fromDay, task.id)
+          taskMeta.removeMeta(task.id)
+        }
+        return
+      }
+
+      if (overData?.type === 'list_item') {
+        const toListId = overData.item?.listId
+        if (toListId) {
+          const result = listsHook.addItem(toListId, task.text)
+          if (result && !result.error) {
+            weekData.removeSlot(fromDay, task.id)
+            taskMeta.removeMeta(task.id)
+          }
+        }
+        return
+      }
+
       if (overData?.type === 'section') {
         await moveSlotToSection(task, fromDay, fromType, overData.day, overData.slotType)
         return
@@ -357,7 +379,6 @@ export default function App() {
         activeView={view}
         onViewChange={setView}
         onDumpOpen={() => setDumpOpen(true)}
-        onSettingsOpen={() => setSettingsOpen(true)}
         theme={theme}
         onThemeToggle={toggleTheme}
         onHelpOpen={() => setShowOnboarding(true)}
@@ -444,18 +465,10 @@ export default function App() {
         open={dumpOpen}
         onClose={() => setDumpOpen(false)}
         dump={dump}
-        onMoveToWeek={async (item) => {
-          const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
-          const todayKey = days[new Date().getDay()]
-          // Find first slot with space: deep_work → scheduled → admin
-          const slots = weekData.week?.slots?.[todayKey] ?? {}
-          let targetSlot = 'admin'
-          if ((slots.deep_work?.length ?? 0) < SLOT_LIMITS.deep_work) targetSlot = 'deep_work'
-          else if ((slots.scheduled?.length ?? 0) < SLOT_LIMITS.scheduled) targetSlot = 'scheduled'
-          else if ((slots.admin?.length ?? 0) < SLOT_LIMITS.admin) targetSlot = 'admin'
-          const { data: newTask } = await weekData.addSlot(todayKey, targetSlot, item.text)
-          if (newTask) taskMeta.setTaskMeta(newTask.id, { duration: 30 })
-          dump.removeItem(item.id)
+        onMoveToWeek={(item) => {
+          // Add to first project list with remaining capacity
+          const result = listsHook.addItem(listsHook.lists[0]?.id, item.text)
+          if (result && !result.error) dump.removeItem(item.id)
         }}
       />
 
@@ -494,7 +507,7 @@ export default function App() {
       )}
 
       {/* Daily startup ritual */}
-      {startupRitualDay && (
+      {startupRitualDay && !weekData.loading && (
         <StartupRitual
           dayKey={startupRitualDay}
           week={weekData.week}

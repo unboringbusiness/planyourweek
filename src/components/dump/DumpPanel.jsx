@@ -152,7 +152,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
                       fontFamily: 'inherit', whiteSpace: 'nowrap',
                     }}
                   >
-                    → Today
+                    → This Week
                   </button>
                   <button
                     onClick={() => dump.removeItem(item.id)}

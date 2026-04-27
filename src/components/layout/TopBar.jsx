@@ -1,4 +1,4 @@
-export default function TopBar({ activeView, onViewChange, onDumpOpen, onSettingsOpen, theme, onThemeToggle, onHelpOpen, onScrollToToday }) {
+export default function TopBar({ activeView, onViewChange, onDumpOpen, theme, onThemeToggle, onHelpOpen, onScrollToToday }) {
   const isDark = theme === 'dark'
   const bg = isDark ? '#1E1E1E' : '#FFFFFF'
   const borderColor = isDark ? '#2A2A2A' : '#E5E7EB'
@@ -69,17 +69,6 @@ export default function TopBar({ activeView, onViewChange, onDumpOpen, onSetting
           Backlog
         </button>
         <div style={{ width: 1, height: 20, background: borderColor, margin: '0 4px' }} />
-        <button
-          onClick={onSettingsOpen}
-          title="Settings"
-          style={{
-            background: 'none', border: 'none', width: 30, height: 30, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, cursor: 'pointer', color: iconColor,
-          }}
-        >
-          ⚙
-        </button>
         <button
           onClick={onHelpOpen}
           title="Guided walkthrough"

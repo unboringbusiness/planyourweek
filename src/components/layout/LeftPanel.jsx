@@ -9,6 +9,7 @@ function SidebarIcon() {
   )
 }
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
 const PRESET_EMOJIS = ['📋','📌','💡','🎯','🔧','📚','💼','🏃','✍️','🎨','🔬','🌱','⚡','🎵','🏠','💰','🤝','🚀','🔑','📊']
@@ -121,6 +122,10 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, dragType }) {
 // Expandable list section
 function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpdate, onAddItem, canAdd, listId, onRename, onDelete, isPermanent }) {
   const [expanded, setExpanded] = useState(true)
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `list-drop-${listId}`,
+    data: { type: 'list_section', listId },
+  })
   const [addVal, setAddVal] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [renaming, setRenaming] = useState(false)
@@ -154,7 +159,7 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpda
   const sortedItems = [...items].sort((a, b) => a.done === b.done ? 0 : a.done ? 1 : -1)
 
   return (
-    <div style={{ marginBottom: 2 }}>
+    <div ref={setDropRef} style={{ marginBottom: 2, borderRadius: 8, outline: isOver ? '2px solid var(--accent)' : 'none', transition: 'outline 0.1s' }}>
       {/* List header */}
       <div
         style={{
@@ -196,41 +201,41 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpda
         <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0, width: 12, textAlign: 'center' }}>
           {expanded ? '▾' : '›'}
         </span>
-        {!isPermanent && (
-          <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
-            <button
-              onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
-              style={{
-                background: 'none', border: 'none', padding: '0 2px',
-                fontSize: 12, color: 'var(--text-2)', cursor: 'pointer', lineHeight: 1,
-                letterSpacing: '1px',
-              }}
-            >
-              •••
-            </button>
-            {menuOpen && (
-              <div style={{
-                position: 'absolute', right: 0, top: '100%', marginTop: 2,
-                background: 'var(--surface)', border: '1px solid var(--border)',
-                borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                zIndex: 100, minWidth: 130, overflow: 'hidden',
-              }}>
-                <button
-                  onClick={e => { e.stopPropagation(); setMenuOpen(false); setRenaming(true) }}
-                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
-                >
-                  Rename
-                </button>
+        <div style={{ position: 'relative', flexShrink: 0 }} ref={menuRef}>
+          <button
+            onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+            style={{
+              background: 'none', border: 'none', padding: '0 2px',
+              fontSize: 12, color: 'var(--text-2)', cursor: 'pointer', lineHeight: 1,
+              letterSpacing: '1px',
+            }}
+          >
+            •••
+          </button>
+          {menuOpen && (
+            <div style={{
+              position: 'absolute', right: 0, top: '100%', marginTop: 2,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+              zIndex: 100, minWidth: 130, overflow: 'hidden',
+            }}>
+              <button
+                onClick={e => { e.stopPropagation(); setMenuOpen(false); setRenaming(true) }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                Rename
+              </button>
+              {!isPermanent && (
                 <button
                   onClick={e => { e.stopPropagation(); setMenuOpen(false); onDelete?.(listId) }}
                   style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', fontSize: 12, color: 'var(--danger)', cursor: 'pointer', fontFamily: 'inherit' }}
                 >
                   Delete list
                 </button>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Items */}
@@ -404,9 +409,12 @@ export default function LeftPanel({ dump, listsHook: lists }) {
               flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>
-                Projects
-              </span>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>Projects</span>
+                <span style={{ fontSize: 11, color: lists.totalItemCount >= lists.totalItemMax ? 'var(--danger)' : '#9CA3AF' }}>
+                  {lists.totalItemCount}/{lists.totalItemMax}
+                </span>
+              </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button
                   onClick={() => !lists.isFull && setNewListOpen(true)}

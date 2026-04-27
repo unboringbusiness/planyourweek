@@ -4,7 +4,7 @@ const STEPS = [
   {
     id: 'projects',
     title: 'Projects — your task lists',
-    body: 'Work and Personal lists are always here. Add up to 2 more. Each list holds 15 tasks. Drag any task to a day column to schedule it.',
+    body: 'Work and Personal lists are always here. Add up to 2 more. 15 tasks total across all lists — keeps your week focused. Drag any task to a day column to schedule it.',
     target: '[data-tour="leftpanel"]',
     placement: 'right',
   },

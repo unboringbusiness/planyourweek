@@ -8,14 +8,6 @@ export function formatDuration(min) {
   return `${h}:${String(m).padStart(2, '0')}`
 }
 
-const DURATION_PRESETS = [
-  { label: '5m', value: 5 },
-  { label: '15m', value: 15 },
-  { label: '25m', value: 25 },
-  { label: '45m', value: 45 },
-  { label: '1h', value: 60 },
-  { label: '2h', value: 120 },
-]
 
 // Left border — MIT gold only, no slot-type coloring (accent lives on section line)
 const MIT_BORDER = '#FFD156'
@@ -23,11 +15,18 @@ const MIT_BORDER = '#FFD156'
 // Timer chip + duration popover
 function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
   const [open, setOpen] = useState(false)
+  const [customVal, setCustomVal] = useState(String(duration))
+
+  const handleCustomChange = (val) => {
+    setCustomVal(val)
+    const n = parseInt(val, 10)
+    if (!isNaN(n) && n > 0 && n <= 600) onDurationChange?.(n)
+  }
 
   return (
     <div style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
       <button
-        onClick={e => { e.stopPropagation(); setOpen(v => !v) }}
+        onClick={e => { e.stopPropagation(); setCustomVal(String(duration)); setOpen(v => !v) }}
         style={{
           fontSize: 12, color: done ? '#D1D5DB' : 'var(--chip-text)',
           background: done ? 'transparent' : 'var(--chip-bg)',
@@ -51,42 +50,27 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
           }}
           onClick={e => e.stopPropagation()}
         >
-          {/* Estimated time display — Ellie style */}
-          <div style={{
-            textAlign: 'center', marginBottom: 10,
-            paddingBottom: 10, borderBottom: '1px solid var(--border)',
-          }}>
-            <div style={{ fontSize: 11, color: 'var(--text-2)', marginBottom: 2 }}>Estimated</div>
-            <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-1)', lineHeight: 1, letterSpacing: '-0.02em' }}>
-              {formatDuration(duration)}
-            </div>
-          </div>
-
-          {/* Presets */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
-            {DURATION_PRESETS.map(p => (
-              <button
-                key={p.value}
-                onClick={() => { onDurationChange?.(p.value); setOpen(false) }}
-                style={{
-                  padding: '3px 8px', borderRadius: 6,
-                  border: `1px solid ${duration === p.value ? 'var(--accent)' : 'var(--border)'}`,
-                  background: duration === p.value ? 'var(--accent)' : 'var(--surface-2)',
-                  color: duration === p.value ? '#fff' : 'var(--text-1)',
-                  fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
+          <div style={{ fontSize: 11, color: 'var(--text-2)', marginBottom: 6 }}>Duration (minutes)</div>
+          <input
+            type="number"
+            min={1}
+            max={600}
+            value={customVal}
+            onChange={e => handleCustomChange(e.target.value)}
+            style={{
+              width: '100%', padding: '6px 8px', borderRadius: 8,
+              border: '1.5px solid var(--accent)', background: 'var(--surface-2)',
+              fontSize: 18, fontWeight: 600, color: 'var(--text-1)',
+              outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box',
+              marginBottom: 10, textAlign: 'center',
+            }}
+          />
           <button
             onClick={() => { onStartTimer?.(); setOpen(false) }}
             style={{
-              width: '100%', padding: '6px', borderRadius: 8, border: 'none',
+              width: '100%', padding: '8px', borderRadius: 8, border: 'none',
               background: 'var(--success)', color: '#fff',
-              fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
               fontFamily: 'inherit',
             }}
@@ -210,14 +194,14 @@ export function DayTaskCard({
               <div
                 onClick={e => e.stopPropagation()}
                 style={{
-                  position: 'absolute', left: 0, bottom: 'calc(100% + 4px)',
+                  position: 'absolute', left: 0, top: 'calc(100% + 4px)',
                   background: 'var(--surface)', border: '1px solid var(--border)',
                   borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.13)',
                   zIndex: 200, minWidth: 190, overflow: 'hidden',
                 }}
               >
                 {[
-                  canMIT && { label: is_mit ? '★ Remove Most Important' : '★ Mark as Most Important', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#FFD156' : undefined },
+                  canMIT && { label: is_mit ? '★ Remove Milestone' : '★ Mark as Milestone', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#FFD156' : undefined },
                   onMoveToTomorrow && { label: '→ Move to Tomorrow', fn: onMoveToTomorrow },
                   onMoveToSomeday && { label: '☁ Save for Later', fn: onMoveToSomeday },
                   { label: '🗑 Delete task', fn: onRemove, danger: true },
