@@ -137,7 +137,7 @@ function ListItemRow({ item, onToggle, onRemove, onUpdate, onSendToBacklog, onSe
                     onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
                   >
-                    ☁ Send to Backlog
+                    ☁ Send to Capture
                   </button>
                 )}
                 {onSendToMilestone && (

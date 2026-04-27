@@ -10,7 +10,7 @@ const STEPS = [
   },
   {
     id: 'dump',
-    title: 'Backlog — capture everything',
+    title: 'Capture — capture everything',
     body: 'Capture anything here without pressure. No limit. When ready, move items to today with one click.',
     target: '[data-tour="dump-btn"]',
     placement: 'bottom',

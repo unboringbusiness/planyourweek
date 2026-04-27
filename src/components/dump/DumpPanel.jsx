@@ -47,7 +47,7 @@ export default function DumpPanel({ open, onClose, dump, onMoveToWeek }) {
         }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)' }}>
-              Backlog
+              Capture
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-2)', marginTop: 1 }}>
               Capture everything, schedule later · {dump.count} items

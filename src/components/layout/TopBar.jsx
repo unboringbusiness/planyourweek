@@ -126,7 +126,7 @@ export default function TopBar({
             color: inactiveColor, cursor: 'pointer', lineHeight: '44px',
           }}
         >
-          Backlog
+          Capture
         </button>
         <div style={{ width: 1, height: 20, background: borderColor, margin: '0 4px' }} />
         <button

@@ -160,7 +160,7 @@ export default function StartupRitual({ dayKey, week, dump, getMeta, setTaskMeta
             <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
               {/* Dump list */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Backlog</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Capture</div>
                 <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 280 }}>
                   {dump.items.length === 0 ? (
                     <p style={{ color: 'var(--text-2)', fontSize: 12 }}>Dump is empty.</p>

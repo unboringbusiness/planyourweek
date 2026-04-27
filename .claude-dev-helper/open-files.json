@@ -1,48 +1,6 @@
 [
   {
     "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777298746552,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
-    "timestamp": 1777298764969,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useWeek.js",
-    "timestamp": 1777315067759,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useWeek.js",
-    "timestamp": 1777315071819,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777315074967,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777315079490,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777315085267,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
     "timestamp": 1777315093285,
     "focus": false,
     "openLocation": 0
@@ -56,6 +14,48 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/hooks/useLists.js",
     "timestamp": 1777316683256,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/TopBar.jsx",
+    "timestamp": 1777316755254,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/layout/LeftPanel.jsx",
+    "timestamp": 1777316758284,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/dump/DumpPanel.jsx",
+    "timestamp": 1777316764507,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
+    "timestamp": 1777316767270,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/onboarding/Onboarding.jsx",
+    "timestamp": 1777316780332,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/rituals/StartupRitual.jsx",
+    "timestamp": 1777316783731,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/hooks/useDump.js",
+    "timestamp": 1777316786624,
     "focus": false,
     "openLocation": 0
   }

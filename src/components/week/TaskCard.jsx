@@ -366,7 +366,7 @@ export function PanelTaskCard({
                   onClick={() => { setMenuOpen(false); onMoveToSomeday() }}
                   style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', background: 'none', border: 'none', fontSize: 13, color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'inherit' }}
                 >
-                  Save to Backlog
+                  Save to Capture
                 </button>
               )}
               <button
