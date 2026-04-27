@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { getWeekDays, isToday } from '../../lib/dates'
 import DayColumn from './DayColumn'
 
-const DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+const DAY_NAMES = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
 function pad(n) { return String(Math.floor(n)).padStart(2, '0') }
 function formatMs(ms) {
@@ -200,6 +200,9 @@ export default function WeekView({
     ? getWeekDays(new Date(weekStart + 'T00:00:00'))
     : Array(7).fill(null)
 
+  // Derive day keys from actual dates so week can start on any weekday
+  const displayDays = weekDays.map(d => d ? DAY_NAMES[d.getDay()] : null).filter(Boolean)
+
   const [focusDay, setFocusDay] = useState(null)
   const scrollRef = useRef(null)
   const colRefs = useRef({})
@@ -220,10 +223,10 @@ export default function WeekView({
     setFocusDay(prev => prev === dayKey ? null : dayKey)
   }
 
-  const visibleDays = focusDay ? DAYS.filter(d => d === focusDay) : DAYS
+  const visibleDays = focusDay ? displayDays.filter(d => d === focusDay) : displayDays
 
   if (focusDay) {
-    const actualIdx = DAYS.indexOf(focusDay)
+    const focusIdx = displayDays.indexOf(focusDay)
     return (
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Left: single day column, scrollable */}
@@ -234,7 +237,7 @@ export default function WeekView({
         }}>
           <DayColumn
             dayKey={focusDay}
-            dayDate={weekDays[actualIdx]}
+            dayDate={weekDays[focusIdx]}
             slots={week?.slots?.[focusDay]}
             getMeta={getMeta}
             setTaskMeta={setTaskMeta}
@@ -289,18 +292,17 @@ export default function WeekView({
           }}
         >
           {visibleDays.map((dayKey, i) => {
-            const actualIdx = DAYS.indexOf(dayKey)
             const isLastVisible = i === visibleDays.length - 1
             return (
               <div
                 key={dayKey}
                 ref={el => { colRefs.current[dayKey] = el }}
-                data-today={weekDays[actualIdx] && isToday(weekDays[actualIdx]) ? 'true' : undefined}
+                data-today={weekDays[i] && isToday(weekDays[i]) ? 'true' : undefined}
                 style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
               >
                 <DayColumn
                   dayKey={dayKey}
-                  dayDate={weekDays[actualIdx]}
+                  dayDate={weekDays[i]}
                   slots={week?.slots?.[dayKey]}
                   getMeta={getMeta}
                   setTaskMeta={setTaskMeta}

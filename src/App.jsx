@@ -54,10 +54,10 @@ export default function App() {
 
   // Week navigation
   const [weekOffset, setWeekOffset] = useState(0) // in weeks from current
+  // Anchor to today, not Sunday — offset 0 = today through today+6
   const activeWeekStart = useMemo(() => {
-    const base = getCurrentWeekStart()
-    if (weekOffset === 0) return base
-    const d = new Date(base + 'T00:00:00')
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
     d.setDate(d.getDate() + weekOffset * 7)
     const y = d.getFullYear()
     const m = String(d.getMonth() + 1).padStart(2, '0')
