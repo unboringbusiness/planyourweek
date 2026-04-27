@@ -233,11 +233,17 @@ export default function App() {
         await moveListItemToSection(item, overData.day, overData.slotType)
         return
       }
-      // Cross-list drag: move item to a different custom list
+      // Cross-list drag onto a list section (empty list or header drop zone)
+      if (overData?.type === 'list_section') {
+        if (item.listId !== overData.listId) {
+          listsHook.moveItemToList(item.id, overData.listId)
+        }
+        return
+      }
+      // Cross-list drag onto another list's item
       if (overData?.type === 'list_item') {
-        const fromListId = item.listId
         const toListId = overData.item?.listId
-        if (fromListId && toListId && fromListId !== toListId) {
+        if (item.listId && toListId && item.listId !== toListId) {
           listsHook.moveItemToList(item.id, toListId)
         }
         return

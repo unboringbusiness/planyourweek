@@ -288,7 +288,7 @@ function ListSection({ title, emoji, items, dragType, onToggle, onRemove, onUpda
 
       {/* Items */}
       {expanded && (
-        <div style={{ paddingLeft: 4 }}>
+        <div style={{ paddingLeft: 4, minHeight: sortedItems.length === 0 ? 36 : 0 }}>
           <SortableContext items={sortedItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
             {sortedItems.map(item => (
               <ListItemRow
