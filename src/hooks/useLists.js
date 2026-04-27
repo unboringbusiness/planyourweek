@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 const LISTS_KEY = 'pyw_custom_lists'
 const ITEMS_KEY = 'pyw_list_items'
@@ -41,6 +41,17 @@ const MAX_TOTAL_ITEMS = 20
 export function useLists() {
   const [lists, setListsState] = useState(loadLists)
   const [items, setItemsState] = useState(loadItems)
+
+  // On mount: purge items whose listId no longer exists
+  useEffect(() => {
+    const validIds = new Set(lists.map(l => l.id))
+    const clean = items.filter(i => validIds.has(i.listId))
+    if (clean.length !== items.length) {
+      setItemsState(clean)
+      saveItems(clean)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const setLists = useCallback((next) => {
     const val = typeof next === 'function' ? next(lists) : next
