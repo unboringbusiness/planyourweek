@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -45,10 +45,10 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
       {open && (
         <div
           style={{
-            position: 'absolute', bottom: '100%', right: 0, marginBottom: 4,
+            position: 'absolute', top: 'calc(100% + 4px)', right: 0,
             background: 'var(--surface)', border: '1px solid var(--border)',
             borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-            zIndex: 100, width: 160, padding: '12px',
+            zIndex: 200, width: 160, padding: '12px',
           }}
           onClick={e => e.stopPropagation()}
         >
@@ -121,16 +121,28 @@ export function DayTaskCard({
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const menuRef = useRef(null)
   const { duration = 30, is_mit = false, done = false } = meta
   const canMIT = slotType !== 'admin' // only deep_work + scheduled can be milestones
   const canToggleMIT = canMIT && (mitCount < 3 || is_mit)
   const leftBorder = is_mit ? MIT_BORDER : 'transparent'
   const displayText = meta.textOverride || text
 
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false); setHovered(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
   return (
     <div
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
+      onMouseLeave={() => { if (!menuOpen) setHovered(false) }}
       style={{
         background: 'var(--surface)',
         borderLeft: `3px solid ${done ? leftBorder + '4D' : leftBorder}`,
@@ -206,7 +218,7 @@ export function DayTaskCard({
           transition: 'opacity 0.15s ease',
           position: 'relative',
         }}>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
+          <div ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
             <button
               onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
               style={{
@@ -277,7 +289,7 @@ export function PanelTaskCard({
   return (
     <div
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
+      onMouseLeave={() => { if (!menuOpen) setHovered(false) }}
       style={{
         background: 'var(--surface)',
         border: 'none',
