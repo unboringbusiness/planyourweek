@@ -127,7 +127,7 @@ export default function TaskDetailModal({ task, meta = {}, onClose, onUpdate, on
         {/* Footer */}
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => { onStartTimer?.(task?.id, title || task?.text); onClose() }}
+            onClick={() => { onStartTimer?.(task?.id, title || task?.text, duration); onClose() }}
             style={{
               flex: 1, padding: '9px', borderRadius: 9, border: 'none',
               background: 'var(--success)', color: '#fff', fontSize: 13,

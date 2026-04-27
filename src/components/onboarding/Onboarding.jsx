@@ -25,7 +25,7 @@ const STEPS = [
   {
     id: 'startup',
     title: 'Daily startup ritual',
-    body: 'Each morning, click ☀ Day to review yesterday, plan today, and check capacity. Takes 2 minutes.',
+    body: 'Each morning, click ☀️ Plan to review yesterday, plan today, and check capacity. Takes 2 minutes.',
     target: '[data-tour="startup-btn"]',
     placement: 'bottom',
   },
