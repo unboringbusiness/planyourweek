@@ -186,6 +186,28 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
           </>
         )}
 
+        <a
+          href="mailto:hello@ultrafocus.co?subject=planyourweek feedback"
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '10px',
+            borderRadius: 10,
+            border: '1px solid var(--border)',
+            background: 'none',
+            color: 'var(--text-2)',
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: 'pointer',
+            marginTop: 10,
+            textAlign: 'center',
+            textDecoration: 'none',
+            boxSizing: 'border-box',
+          }}
+        >
+          Send feedback
+        </a>
+
         <button
           onClick={onClose}
           style={{
@@ -198,7 +220,7 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
             fontSize: 13,
             fontWeight: 500,
             cursor: 'pointer',
-            marginTop: 10,
+            marginTop: 6,
           }}
         >
           Close
