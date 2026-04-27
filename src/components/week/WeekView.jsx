@@ -283,7 +283,7 @@ export default function WeekView({
             position: 'absolute', inset: 0,
             display: 'flex',
             overflowX: 'auto',
-            overflowY: 'auto',
+            overflowY: 'hidden',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
           }}
@@ -296,7 +296,7 @@ export default function WeekView({
                 key={dayKey}
                 ref={el => { colRefs.current[dayKey] = el }}
                 data-today={weekDays[actualIdx] && isToday(weekDays[actualIdx]) ? 'true' : undefined}
-                style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden' }}
               >
                 <DayColumn
                   dayKey={dayKey}

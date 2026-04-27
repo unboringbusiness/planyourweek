@@ -191,11 +191,12 @@ export default function DayColumn({
     >
       {/* Column header */}
       <div style={{ paddingBottom: 10, borderBottom: '1px solid #F0F0F0' }}>
-        {/* Row 1: day name + date number (both prominent) */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+        {/* Row 1: day name + date number — same visual weight */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
           <span style={{
-            fontSize: 14, fontWeight: 700, textTransform: 'uppercase',
-            letterSpacing: '0.06em', color: today ? 'var(--accent)' : 'var(--text-2)',
+            fontSize: 28, fontWeight: 800, textTransform: 'uppercase',
+            letterSpacing: '-0.01em', color: today ? 'var(--accent)' : 'var(--text-2)',
+            lineHeight: 1,
           }}>
             {dayName}
           </span>

@@ -438,7 +438,7 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
             </div>
 
             {/* Lists */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '6px 8px' }}>
               {lists.lists.map(list => (
                 <ListSection
                   key={list.id}
@@ -452,7 +452,7 @@ export default function LeftPanel({ dump, listsHook: lists, openItems, onAddToOp
                   onUpdate={lists.updateItem}
                   onAddItem={lists.addItem}
                   canAdd={true}
-                  isPermanent={false}
+                  isPermanent={list.isPermanent ?? false}
                   onRename={lists.renameList}
                   onDelete={lists.deleteList}
                 />

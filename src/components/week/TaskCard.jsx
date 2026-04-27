@@ -104,12 +104,13 @@ export function DayTaskCard({
   taskId, text, meta = {},
   onDurationChange, onMITToggle, onDoneToggle, onRemove,
   onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer,
-  mitCount = 0, dragHandleProps = {}, isDragOverlay = false,
+  mitCount = 0, dragHandleProps = {}, isDragOverlay = false, slotType,
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
   const { duration = 30, is_mit = false, done = false } = meta
-  const canToggleMIT = mitCount < 3 || is_mit
+  const canMIT = slotType !== 'admin' // only deep_work + scheduled can be milestones
+  const canToggleMIT = canMIT && (mitCount < 3 || is_mit)
   const leftBorder = is_mit ? MIT_BORDER : 'transparent'
   const displayText = meta.textOverride || text
 
@@ -216,7 +217,7 @@ export function DayTaskCard({
                 }}
               >
                 {[
-                  { label: is_mit ? '★ Remove Most Important' : '★ Mark as Most Important', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#FFD156' : undefined },
+                  canMIT && { label: is_mit ? '★ Remove Most Important' : '★ Mark as Most Important', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#FFD156' : undefined },
                   onMoveToTomorrow && { label: '→ Move to Tomorrow', fn: onMoveToTomorrow },
                   onMoveToSomeday && { label: '☁ Save for Later', fn: onMoveToSomeday },
                   { label: '🗑 Delete task', fn: onRemove, danger: true },

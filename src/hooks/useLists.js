@@ -4,15 +4,21 @@ const LISTS_KEY = 'pyw_custom_lists'
 const ITEMS_KEY = 'pyw_list_items'
 
 const DEFAULT_LISTS = [
-  { id: 'default-work',     emoji: '💼', name: 'Work',     created_at: '2026-01-01T00:00:00.000Z' },
-  { id: 'default-personal', emoji: '🏠', name: 'Personal', created_at: '2026-01-01T00:00:01.000Z' },
+  { id: 'default-work',     emoji: '💼', name: 'Work',     isPermanent: true, created_at: '2026-01-01T00:00:00.000Z' },
+  { id: 'default-personal', emoji: '🏠', name: 'Personal', isPermanent: true, created_at: '2026-01-01T00:00:01.000Z' },
 ]
+
+// Ensure permanent lists are always present (in case user deleted them via old code)
+function ensureDefaults(stored) {
+  const ids = stored.map(l => l.id)
+  const missing = DEFAULT_LISTS.filter(d => !ids.includes(d.id))
+  return missing.length ? [...missing, ...stored] : stored
+}
 
 function loadLists() {
   try {
     const stored = JSON.parse(localStorage.getItem(LISTS_KEY))
-    if (stored !== null) return stored
-    // First load — seed defaults
+    if (stored !== null) return ensureDefaults(stored)
     localStorage.setItem(LISTS_KEY, JSON.stringify(DEFAULT_LISTS))
     return DEFAULT_LISTS
   } catch { return DEFAULT_LISTS }
@@ -54,11 +60,11 @@ export function useLists() {
   }, [setLists])
 
   const deleteList = useCallback((id) => {
-    // Orphan items — they stay in localStorage but listId won't match any list
+    const list = lists.find(l => l.id === id)
+    if (list?.isPermanent) return // cannot delete permanent lists
     setLists(prev => prev.filter(l => l.id !== id))
-    // Move deleted list's items to a special "orphan" state (listId = null = Brain Dump)
     setItems(prev => prev.map(i => i.listId === id ? { ...i, listId: null } : i))
-  }, [setLists, setItems])
+  }, [lists, setLists, setItems])
 
   const addItem = useCallback((listId, text, duration = 30) => {
     const trimmed = text?.trim()

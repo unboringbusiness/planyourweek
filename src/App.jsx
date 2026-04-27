@@ -428,6 +428,7 @@ export default function App() {
                   weekStart={weekData.weekStart}
                   setMITs={weekData.setMITs}
                   allMITs={allMITs}
+                  setTaskMeta={setTaskMetaFn}
                 />
                 <WeekView
                   week={weekData.week}

@@ -10,7 +10,7 @@ function getWeekRange() {
   return `${fmt(sunday)} – ${fmt(saturday)}`
 }
 
-export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
+export default function MITsRow({ week, weekStart, setMITs, allMITs = [], setTaskMeta }) {
   const [localMITs, setLocalMITs] = useState(['', '', ''])
   const [milestoneDone, setMilestoneDone] = useState([false, false, false])
 
@@ -18,9 +18,26 @@ export default function MITsRow({ week, weekStart, setMITs, allMITs = [] }) {
     if (week?.mits) setLocalMITs([...week.mits])
   }, [week?.mits])
 
+  // Sync milestone done state from linked tasks
+  useEffect(() => {
+    setMilestoneDone(prev => prev.map((v, i) => {
+      const mitTask = allMITs[i]
+      if (mitTask?.done !== undefined) return mitTask.done
+      return v
+    }))
+  }, [allMITs])
+
   const toggleDone = useCallback((i) => {
-    setMilestoneDone(prev => prev.map((v, idx) => idx === i ? !v : v))
-  }, [])
+    const mitTask = allMITs[i]
+    setMilestoneDone(prev => {
+      const next = prev.map((v, idx) => idx === i ? !v : v)
+      // Sync to the linked task if present
+      if (mitTask?.id && setTaskMeta) {
+        setTaskMeta(mitTask.id, { done: next[i] })
+      }
+      return next
+    })
+  }, [allMITs, setTaskMeta])
 
   const handleChange = (i, val) => {
     const next = [...localMITs]
