@@ -380,6 +380,40 @@ export default function App() {
 
   // --- Render ---
 
+  // Mobile message
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  if (isMobile) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', background: 'var(--bg)', color: 'var(--text-1)',
+        fontFamily: "'DM Sans', sans-serif", padding: '32px', textAlign: 'center',
+      }}>
+        <span style={{ fontSize: 24, marginBottom: 16 }}>
+          <span style={{ fontWeight: 400 }}>plan</span>
+          <span style={{ fontWeight: 400 }}>your</span>
+          <span style={{ fontWeight: 700, color: '#3B82F6' }}>week</span>
+        </span>
+        <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-1)', marginBottom: 8 }}>
+          Desktop app only — for now.
+        </p>
+        <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, maxWidth: 300 }}>
+          planyourweek is built for bigger screens. Open it on your laptop or desktop for the full experience. Mobile version coming soon.
+        </p>
+        <a
+          href="https://planyourweek.co"
+          style={{
+            marginTop: 24, padding: '12px 28px', borderRadius: 10,
+            background: '#3B82F6', color: '#fff',
+            fontSize: 14, fontWeight: 600, textDecoration: 'none',
+          }}
+        >
+          Visit landing page
+        </a>
+      </div>
+    )
+  }
+
   if (authLoading) {
     return (
       <div style={{
