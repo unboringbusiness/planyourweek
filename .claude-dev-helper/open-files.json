@@ -1,29 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
-    "timestamp": 1777333141471,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
-    "timestamp": 1777333474230,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/.claude/projects/-Users-anicca-planyourweek/memory/project_launched.md",
-    "timestamp": 1777333769958,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/.claude/projects/-Users-anicca-planyourweek/memory/MEMORY.md",
-    "timestamp": 1777333785048,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/App.jsx",
     "timestamp": 1777340243717,
     "focus": false,
@@ -56,6 +32,30 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/week/WeekView.jsx",
     "timestamp": 1777340315144,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/index.html",
+    "timestamp": 1777340731149,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/src/index.css",
+    "timestamp": 1777340735734,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/src/App.jsx",
+    "timestamp": 1777340776509,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/vercel.json",
+    "timestamp": 1777340784796,
     "focus": false,
     "openLocation": 0
   }
