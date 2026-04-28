@@ -1,11 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek-landing/index.html",
-    "timestamp": 1777340731149,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek-landing/src/index.css",
     "timestamp": 1777340735734,
     "focus": false,
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/planyourweek-landing/src/App.jsx",
     "timestamp": 1777343122572,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/src/App.jsx",
+    "timestamp": 1777343553843,
     "focus": false,
     "openLocation": 0
   }
