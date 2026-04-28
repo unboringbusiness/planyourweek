@@ -122,7 +122,7 @@ export default function TopBar({
               }}
             >
               {DAY_OPTIONS.map(d => (
-                <option key={d.value} value={d.value}>{d.label}</option>
+                <option key={d.value} value={d.value}>Starts {d.label}</option>
               ))}
             </select>
             <div style={{ width: 1, height: 20, background: borderColor, margin: '0 2px' }} />
