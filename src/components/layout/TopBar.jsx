@@ -80,6 +80,11 @@ export default function TopBar({
               }}
             >
               {weekLabel}
+              {weekOffset !== 0 && (
+                <span style={{ display: 'block', fontSize: 9, color: '#3B82F6', marginTop: 1 }}>
+                  {weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week' : weekOffset > 0 ? `+${weekOffset} weeks` : `${weekOffset} weeks`}
+                </span>
+              )}
             </span>
             <button
               onClick={onNextWeek}

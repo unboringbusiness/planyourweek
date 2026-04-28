@@ -10,7 +10,7 @@ export function formatDuration(min) {
 
 
 // Left border — MIT gold only, no slot-type coloring (accent lives on section line)
-const MIT_BORDER = '#FFD156'
+const MIT_BORDER = '#3B82F6'
 
 // Timer chip + duration popover
 function TimerChip({ duration, onDurationChange, onStartTimer, done, actualMinutes }) {
@@ -245,7 +245,7 @@ export function DayTaskCard({
                 }}
               >
                 {[
-                  canMIT && { label: is_mit ? '★ Remove Milestone' : '★ Mark as Milestone', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#FFD156' : undefined },
+                  canMIT && { label: is_mit ? '★ Remove Milestone' : '★ Mark as Milestone', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#3B82F6' : undefined },
                   onMoveToTomorrow && { label: '→ Move to Tomorrow', fn: onMoveToTomorrow },
                   onMoveToSomeday && { label: '☁ Save for Later', fn: onMoveToSomeday },
                   { label: '🗑 Delete task', fn: onRemove, danger: true },
@@ -296,7 +296,7 @@ export function PanelTaskCard({
       style={{
         background: 'var(--surface)',
         border: 'none',
-        borderLeft: `3px solid ${is_mit ? '#FFD156' : 'transparent'}`,
+        borderLeft: `3px solid ${is_mit ? '#3B82F6' : 'transparent'}`,
         borderRadius: 7,
         padding: '7px 10px',
         minHeight: 34,
@@ -337,7 +337,7 @@ export function PanelTaskCard({
           onClick={e => { e.stopPropagation(); canToggleMIT && onMITToggle?.() }}
           style={{
             background: 'none', border: 'none', padding: '0 2px',
-            fontSize: 12, color: is_mit ? '#FFD156' : '#D0CEC9',
+            fontSize: 12, color: is_mit ? '#3B82F6' : '#D0CEC9',
             cursor: canToggleMIT ? 'pointer' : 'not-allowed', flexShrink: 0,
           }}
         >
