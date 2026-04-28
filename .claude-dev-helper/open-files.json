@@ -1,17 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/too-hard-to-start/app.js",
-    "timestamp": 1777350439210,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/too-hard-to-start/styles.css",
-    "timestamp": 1777350470894,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/too-hard-to-start/styles.css",
     "timestamp": 1777350648296,
     "focus": false,
@@ -56,6 +44,18 @@
   {
     "filePath": "/Users/anicca/too-hard-to-start/app.js",
     "timestamp": 1777350906068,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/too-hard-to-start/app.js",
+    "timestamp": 1777351251067,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/too-hard-to-start/app.js",
+    "timestamp": 1777351258859,
     "focus": false,
     "openLocation": 0
   }
