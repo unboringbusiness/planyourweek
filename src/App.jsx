@@ -469,33 +469,13 @@ export default function App() {
         onNextWeek={() => setWeekOffset(o => o + 1)}
         onGoToToday={() => {
           setWeekOffset(0)
-          setTimeout(() => {
-            const todayEl = document.querySelector('[data-today="true"]')
-            if (todayEl) {
-              const scrollEl = todayEl.closest('[data-scroll-container]')
-              if (scrollEl) {
-                const containerRect = scrollEl.getBoundingClientRect()
-                const elRect = todayEl.getBoundingClientRect()
-                scrollEl.scrollLeft += elRect.left - containerRect.left
-              }
-            }
-          }, 200)
+          setTimeout(() => window._scrollWeekToToday?.(), 200)
         }}
         weekStartDay={weekStartDay}
         onWeekStartDayChange={handleWeekStartDayChange}
         onScrollToToday={() => {
           setWeekOffset(0)
-          setTimeout(() => {
-            const todayEl = document.querySelector('[data-today="true"]')
-            if (todayEl) {
-              const scrollEl = todayEl.closest('[data-scroll-container]')
-              if (scrollEl) {
-                const containerRect = scrollEl.getBoundingClientRect()
-                const elRect = todayEl.getBoundingClientRect()
-                scrollEl.scrollLeft += elRect.left - containerRect.left
-              }
-            }
-          }, 100)
+          setTimeout(() => window._scrollWeekToToday?.(), 200)
         }}
       />
 

@@ -207,21 +207,29 @@ export default function WeekView({
   const scrollRef = useRef(null)
   const colRefs = useRef({})
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const scrollToToday = useCallback(() => {
+    setTimeout(() => {
       const todayEl = document.querySelector('[data-today="true"]')
       if (todayEl && scrollRef.current) {
-        // Scroll so today is flush with the left edge
         scrollRef.current.scrollLeft = 0
         requestAnimationFrame(() => {
+          if (!scrollRef.current) return
           const containerRect = scrollRef.current.getBoundingClientRect()
           const elRect = todayEl.getBoundingClientRect()
           scrollRef.current.scrollLeft = elRect.left - containerRect.left
         })
       }
     }, 150)
-    return () => clearTimeout(timer)
-  }, [weekStart])
+  }, [])
+
+  // Auto-scroll to today on week change
+  useEffect(() => { scrollToToday() }, [weekStart, scrollToToday])
+
+  // Expose for parent to call via ref
+  useEffect(() => {
+    window._scrollWeekToToday = scrollToToday
+    return () => { delete window._scrollWeekToToday }
+  }, [scrollToToday])
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
