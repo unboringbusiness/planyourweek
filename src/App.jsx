@@ -52,13 +52,15 @@ export default function App() {
   const { user, loading: authLoading, signInWithEmail, signInWithGoogle, signOut } = useAuth()
   const dump = useDump(user)
 
-  // Week navigation
-  const [weekOffset, setWeekOffset] = useState(0) // in weeks from current
-  // Anchor to today, not Sunday — offset 0 = today through today+6
+  // Week navigation — always Mon-Sun weeks
+  const [weekOffset, setWeekOffset] = useState(0)
   const activeWeekStart = useMemo(() => {
     const d = new Date()
     d.setHours(0, 0, 0, 0)
-    d.setDate(d.getDate() + weekOffset * 7)
+    // Find Monday of current week (1=Mon, 0=Sun→treat as 7)
+    const day = d.getDay() || 7
+    d.setDate(d.getDate() - day + 1) // back to Monday
+    d.setDate(d.getDate() + weekOffset * 7) // shift by offset
     const y = d.getFullYear()
     const m = String(d.getMonth() + 1).padStart(2, '0')
     const dt = String(d.getDate()).padStart(2, '0')

@@ -1,11 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/too-hard-to-start/styles.css",
-    "timestamp": 1777350648296,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/too-hard-to-start/app.js",
     "timestamp": 1777350657736,
     "focus": false,
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/too-hard-to-start/app.js",
     "timestamp": 1777351258859,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
+    "timestamp": 1777381816504,
     "focus": false,
     "openLocation": 0
   }
