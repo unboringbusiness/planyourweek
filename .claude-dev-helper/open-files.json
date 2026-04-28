@@ -1,11 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/too-hard-to-start/styles.css",
-    "timestamp": 1777350671135,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/too-hard-to-start/app.js",
     "timestamp": 1777350796511,
     "focus": false,
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/.claude/projects/-Users-anicca-planyourweek/memory/pending_fixes.md",
     "timestamp": 1777383198187,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/.claude/projects/-Users-anicca-planyourweek/memory/pending_fixes.md",
+    "timestamp": 1777392594542,
     "focus": false,
     "openLocation": 0
   }
