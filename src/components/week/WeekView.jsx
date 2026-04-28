@@ -288,8 +288,8 @@ export default function WeekView({
             display: 'flex',
             overflowX: 'auto',
             overflowY: 'hidden',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#D1D5DB transparent',
           }}
         >
           {visibleDays.map((dayKey, i) => {
