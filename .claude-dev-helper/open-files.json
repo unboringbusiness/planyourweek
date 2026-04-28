@@ -1,17 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1777340243717,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
-    "timestamp": 1777340257201,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
     "timestamp": 1777340263901,
     "focus": false,
@@ -56,6 +44,18 @@
   {
     "filePath": "/Users/anicca/planyourweek-landing/vercel.json",
     "timestamp": 1777340784796,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/src/App.jsx",
+    "timestamp": 1777342073361,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek-landing/src/App.jsx",
+    "timestamp": 1777342080957,
     "focus": false,
     "openLocation": 0
   }
