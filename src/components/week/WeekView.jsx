@@ -265,7 +265,8 @@ export default function WeekView({
           onStop={timerHook?.stop}
           onComplete={() => {
             if (timerHook?.timer?.taskId) {
-              setTaskMeta(timerHook.timer.taskId, { done: true })
+              const actualMinutes = Math.round((timerHook.timer.elapsed ?? 0) / 60000)
+              setTaskMeta(timerHook.timer.taskId, { done: true, actualMinutes })
             }
             timerHook?.stop()
           }}

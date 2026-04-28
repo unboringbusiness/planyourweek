@@ -13,7 +13,7 @@ export function formatDuration(min) {
 const MIT_BORDER = '#FFD156'
 
 // Timer chip + duration popover
-function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
+function TimerChip({ duration, onDurationChange, onStartTimer, done, actualMinutes }) {
   const [open, setOpen] = useState(false)
   const [hrs, setHrs] = useState(Math.floor(duration / 60))
   const [mins, setMins] = useState(duration % 60)
@@ -38,7 +38,9 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done }) {
           display: 'inline-flex', alignItems: 'center', gap: 3,
         }}
       >
-        {formatDuration(duration)}
+        {done && actualMinutes != null
+          ? <span title={`Estimated ${formatDuration(duration)}`}>{formatDuration(actualMinutes)}</span>
+          : formatDuration(duration)}
         {!done && <span style={{ fontSize: 8, opacity: 0.45, lineHeight: 1 }}>▾</span>}
       </button>
 
@@ -122,7 +124,7 @@ export function DayTaskCard({
   const [menuOpen, setMenuOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
   const menuRef = useRef(null)
-  const { duration = 30, is_mit = false, done = false } = meta
+  const { duration = 30, is_mit = false, done = false, actualMinutes } = meta
   const canMIT = slotType !== 'admin' // only deep_work + scheduled can be milestones
   const canToggleMIT = canMIT && (mitCount < 3 || is_mit)
   const leftBorder = is_mit ? MIT_BORDER : 'transparent'
@@ -194,6 +196,7 @@ export function DayTaskCard({
         {!isDragOverlay ? (
           <TimerChip
             duration={duration}
+            actualMinutes={actualMinutes}
             onDurationChange={onDurationChange}
             onStartTimer={() => onStartTimer?.(taskId, displayText)}
             done={done}

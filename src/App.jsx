@@ -223,7 +223,8 @@ export default function App() {
   // Timer completion
   const handleTimerComplete = () => {
     if (timerHook.timer?.taskId) {
-      taskMeta.setTaskMeta(timerHook.timer.taskId, { done: true })
+      const actualMinutes = Math.round((timerHook.timer.elapsed ?? 0) / 60000)
+      taskMeta.setTaskMeta(timerHook.timer.taskId, { done: true, actualMinutes })
     }
     timerHook.stop()
   }
