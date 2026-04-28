@@ -125,7 +125,7 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
               placeholder={`+ ${cfg.placeholder}`}
               value={addVal}
               onChange={e => setAddVal(e.target.value)}
-              onBlur={() => { if (!addVal.trim()) setAdding(false) }}
+              onBlur={() => { if (addVal.trim()) { handleAdd() } else { setAdding(false) } }}
               onKeyDown={e => {
                 if (e.key === 'Enter') handleAdd()
                 if (e.key === 'Escape') { setAdding(false); setAddVal('') }

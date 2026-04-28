@@ -1,10 +1,20 @@
 import { formatWeekRange } from '../../lib/dates'
 
+const DAY_OPTIONS = [
+  { value: 1, label: 'Mon' },
+  { value: 2, label: 'Tue' },
+  { value: 3, label: 'Wed' },
+  { value: 4, label: 'Thu' },
+  { value: 5, label: 'Fri' },
+  { value: 6, label: 'Sat' },
+  { value: 0, label: 'Sun' },
+]
+
 export default function TopBar({
   activeView, onViewChange, onDumpOpen, onSettingsOpen,
   theme, onThemeToggle, onHelpOpen, onScrollToToday,
   weekOffset, weekStart, onPrevWeek, onNextWeek, onGoToToday,
-  onLogoClick,
+  onLogoClick, weekStartDay, onWeekStartDayChange,
 }) {
   const isDark = theme === 'dark'
   const bg = isDark ? '#1E1E1E' : '#FFFFFF'
@@ -94,6 +104,22 @@ export default function TopBar({
             >
               Today
             </button>
+            <select
+              value={weekStartDay}
+              onChange={e => onWeekStartDayChange(Number(e.target.value))}
+              title="Week starts on"
+              style={{
+                padding: '3px 4px', borderRadius: 6,
+                border: `1px solid ${borderColor}`,
+                background: isDark ? '#2A2A2A' : '#fff',
+                fontSize: 11, color: iconColor, cursor: 'pointer',
+                fontFamily: 'inherit', outline: 'none',
+              }}
+            >
+              {DAY_OPTIONS.map(d => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
+            </select>
             <div style={{ width: 1, height: 20, background: borderColor, margin: '0 2px' }} />
           </>
         )}

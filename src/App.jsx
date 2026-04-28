@@ -52,20 +52,31 @@ export default function App() {
   const { user, loading: authLoading, signInWithEmail, signInWithGoogle, signOut } = useAuth()
   const dump = useDump(user)
 
-  // Week navigation — always Mon-Sun weeks
+  // Week start day preference (0=Sun, 1=Mon, ... 6=Sat)
+  const [weekStartDay, setWeekStartDay] = useState(() => {
+    return parseInt(localStorage.getItem('pyw_week_start_day') ?? '1', 10)
+  })
+  const handleWeekStartDayChange = (day) => {
+    setWeekStartDay(day)
+    localStorage.setItem('pyw_week_start_day', String(day))
+    setWeekOffset(0)
+  }
+
+  // Week navigation — respects preferred start day
   const [weekOffset, setWeekOffset] = useState(0)
   const activeWeekStart = useMemo(() => {
     const d = new Date()
     d.setHours(0, 0, 0, 0)
-    // Find Monday of current week (1=Mon, 0=Sun→treat as 7)
-    const day = d.getDay() || 7
-    d.setDate(d.getDate() - day + 1) // back to Monday
+    // Find the most recent occurrence of the preferred start day
+    const current = d.getDay()
+    const diff = (current - weekStartDay + 7) % 7
+    d.setDate(d.getDate() - diff) // back to preferred start day
     d.setDate(d.getDate() + weekOffset * 7) // shift by offset
     const y = d.getFullYear()
     const m = String(d.getMonth() + 1).padStart(2, '0')
     const dt = String(d.getDate()).padStart(2, '0')
     return `${y}-${m}-${dt}`
-  }, [weekOffset])
+  }, [weekOffset, weekStartDay])
 
   const weekData = useWeek(user, activeWeekStart)
   const backlog = useBacklog()
@@ -457,6 +468,8 @@ export default function App() {
         onPrevWeek={() => setWeekOffset(o => o - 1)}
         onNextWeek={() => setWeekOffset(o => o + 1)}
         onGoToToday={() => setWeekOffset(0)}
+        weekStartDay={weekStartDay}
+        onWeekStartDayChange={handleWeekStartDayChange}
         onScrollToToday={() => {
           setWeekOffset(0)
           setTimeout(() => {
