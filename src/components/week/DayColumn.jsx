@@ -9,7 +9,7 @@ import { formatDuration } from './TaskCard'
 // Line gradient: thin left accent cap for Deep Work / Focus, plain for Others
 const SLOT_CONFIG = {
   deep_work: { label: 'Most Important', max: LIMITS.DAILY_DEEP_WORK, lineAccent: '#3B82F6', placeholder: 'Most important task' },
-  scheduled: { label: 'Focus Tasks',   max: LIMITS.DAILY_SCHEDULED, lineAccent: '#F08F48', placeholder: 'Focus task' },
+  scheduled: { label: 'Focus Tasks',   max: LIMITS.DAILY_SCHEDULED, lineAccent: '#3B82F6', placeholder: 'Focus task' },
   admin:     { label: 'Other Tasks',   max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
 }
 
@@ -235,31 +235,33 @@ export default function DayColumn({
               data-tour="startup-btn"
               onClick={onStartupRitual}
               style={{
-                height: 22, fontSize: 10, fontWeight: 600, padding: '0 8px',
-                background: 'color-mix(in srgb, var(--success) 12%, var(--surface))',
-                color: 'var(--success)', border: '1px solid var(--success)',
-                borderRadius: 5, cursor: 'pointer',
+                height: 26, fontSize: 11, fontWeight: 500, padding: '0 10px',
+                background: 'var(--surface)', color: 'var(--text-1)',
+                border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer',
+                fontFamily: 'inherit', lineHeight: 1,
               }}
-            >☀️ Plan</button>
+            >Plan</button>
             <button
               data-tour="shutdown-btn"
               onClick={onShutdownRitual}
               style={{
-                height: 22, fontSize: 10, fontWeight: 600, padding: '0 8px',
-                background: 'var(--surface-2)', color: 'var(--text-2)',
-                border: '1px solid var(--border)', borderRadius: 5, cursor: 'pointer',
+                height: 26, fontSize: 11, fontWeight: 500, padding: '0 10px',
+                background: 'var(--surface)', color: 'var(--text-2)',
+                border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer',
+                fontFamily: 'inherit', lineHeight: 1,
               }}
-            >🌙 Close</button>
+            >Close</button>
             <button
               onClick={onFocusMode}
               style={{
-                height: 22, fontSize: 10, fontWeight: 600, padding: '0 8px',
-                background: focusModeActive ? 'color-mix(in srgb, var(--accent) 12%, var(--surface))' : 'var(--surface-2)',
-                color: focusModeActive ? 'var(--accent)' : 'var(--text-2)',
+                height: 26, fontSize: 11, fontWeight: 500, padding: '0 10px',
+                background: focusModeActive ? 'var(--accent)' : 'var(--surface)',
+                color: focusModeActive ? '#fff' : 'var(--text-2)',
                 border: `1px solid ${focusModeActive ? 'var(--accent)' : 'var(--border)'}`,
-                borderRadius: 5, cursor: 'pointer',
+                borderRadius: 6, cursor: 'pointer',
+                fontFamily: 'inherit', lineHeight: 1,
               }}
-            >🎯 Focus</button>
+            >Focus</button>
           </div>
         )}
       </div>

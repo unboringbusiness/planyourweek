@@ -1,22 +1,22 @@
 :root {
-  --bg: #F9F8F6;
+  --bg: #FFFFFF;
   --surface: #FFFFFF;
-  --surface-2: #EDEAE6;
-  --text-1: #1A1A2E;
-  --text-2: #6B7280;
+  --surface-2: #F5F5F5;
+  --text-1: #1A1A1A;
+  --text-2: #8A8A8A;
   --accent: #3B82F6;
-  --border: #E5E7EB;
-  --mit: #FFD156;
+  --border: #E8E8E8;
+  --mit: #3B82F6;
   --deep: #3B82F6;
-  --sched: #F08F48;
+  --sched: #3B82F6;
   --danger: #EF4444;
   --success: #10B981;
-  --overlay: rgba(0, 0, 0, 0.18);
-  --chip-bg: #F3F4F6;
-  --chip-text: #6B7280;
-  --col-today-bg: #EEF2FF;
-  --col-sep: #F0F0F0;
-  --sched-bg: #FFF7ED;
+  --overlay: rgba(0, 0, 0, 0.15);
+  --chip-bg: #F5F5F5;
+  --chip-text: #8A8A8A;
+  --col-today-bg: #F8FAFF;
+  --col-sep: #EEEEEE;
+  --sched-bg: #F5F5F5;
 }
 
 [data-theme="dark"] {

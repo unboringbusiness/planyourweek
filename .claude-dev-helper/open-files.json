@@ -1,24 +1,6 @@
 [
   {
     "filePath": "/Users/anicca/too-hard-to-start/app.js",
-    "timestamp": 1777350796511,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/too-hard-to-start/app.js",
-    "timestamp": 1777350817477,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/too-hard-to-start/app.js",
-    "timestamp": 1777350900366,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/too-hard-to-start/app.js",
     "timestamp": 1777350906068,
     "focus": false,
     "openLocation": 0
@@ -56,6 +38,24 @@
   {
     "filePath": "/Users/anicca/.claude/projects/-Users-anicca-planyourweek/memory/pending_fixes.md",
     "timestamp": 1777392594542,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/styles/theme.css",
+    "timestamp": 1777396038054,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777396049966,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/DayColumn.jsx",
+    "timestamp": 1777396064357,
     "focus": false,
     "openLocation": 0
   }
