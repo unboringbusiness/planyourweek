@@ -1,11 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
-    "timestamp": 1777396627113,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/styles/theme.css",
     "timestamp": 1777396633880,
     "focus": false,
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/App.jsx",
     "timestamp": 1777397361149,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/week/WeekView.jsx",
+    "timestamp": 1777402706156,
     "focus": false,
     "openLocation": 0
   }
