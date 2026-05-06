@@ -206,7 +206,6 @@ export default function WeekView({
   const [focusDay, setFocusDay] = useState(null)
   const scrollRef = useRef(null)
   const colRefs = useRef({})
-  const isFirstRender = useRef(true)
 
   const scrollToToday = useCallback(() => {
     setTimeout(() => {
@@ -223,15 +222,15 @@ export default function WeekView({
     }, 150)
   }, [])
 
-  // On first render: scroll to today. On subsequent week changes: reset to start of week.
+  // Always reset scroll to start of week when weekStart changes
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      scrollToToday()
-    } else if (scrollRef.current) {
-      scrollRef.current.scrollLeft = 0
+    if (scrollRef.current) {
+      // Use requestAnimationFrame to ensure DOM has updated with new columns
+      requestAnimationFrame(() => {
+        if (scrollRef.current) scrollRef.current.scrollLeft = 0
+      })
     }
-  }, [weekStart, scrollToToday])
+  }, [weekStart])
 
   // Expose for parent to call via ref
   useEffect(() => {
