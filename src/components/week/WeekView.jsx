@@ -196,47 +196,22 @@ export default function WeekView({
   onStartupRitual, onShutdownRitual,
   timerHook,
 }) {
-  const weekDays = weekStart
+  const allWeekDays = weekStart
     ? getWeekDays(new Date(weekStart + 'T00:00:00'))
     : Array(7).fill(null)
 
-  // Derive day keys from actual dates so week can start on any weekday
+  // Rotate so today is always the leftmost column
+  const todayIdx = allWeekDays.findIndex(d => d && isToday(d))
+  const weekDays = todayIdx > 0
+    ? [...allWeekDays.slice(todayIdx), ...allWeekDays.slice(0, todayIdx)]
+    : allWeekDays
+
+  // Derive day keys from actual dates
   const displayDays = weekDays.map(d => d ? DAY_NAMES[d.getDay()] : null).filter(Boolean)
 
   const [focusDay, setFocusDay] = useState(null)
   const scrollRef = useRef(null)
   const colRefs = useRef({})
-
-  const scrollToToday = useCallback(() => {
-    setTimeout(() => {
-      const todayEl = document.querySelector('[data-today="true"]')
-      if (todayEl && scrollRef.current) {
-        scrollRef.current.scrollLeft = 0
-        requestAnimationFrame(() => {
-          if (!scrollRef.current) return
-          const containerRect = scrollRef.current.getBoundingClientRect()
-          const elRect = todayEl.getBoundingClientRect()
-          scrollRef.current.scrollLeft = elRect.left - containerRect.left
-        })
-      }
-    }, 150)
-  }, [])
-
-  // Always reset scroll to start of week when weekStart changes
-  useEffect(() => {
-    if (scrollRef.current) {
-      // Use requestAnimationFrame to ensure DOM has updated with new columns
-      requestAnimationFrame(() => {
-        if (scrollRef.current) scrollRef.current.scrollLeft = 0
-      })
-    }
-  }, [weekStart])
-
-  // Expose for parent to call via ref
-  useEffect(() => {
-    window._scrollWeekToToday = scrollToToday
-    return () => { delete window._scrollWeekToToday }
-  }, [scrollToToday])
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
