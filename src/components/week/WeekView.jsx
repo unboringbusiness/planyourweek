@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { getWeekDays, isToday } from '../../lib/dates'
 import DayColumn from './DayColumn'
 
@@ -206,6 +206,7 @@ export default function WeekView({
   const [focusDay, setFocusDay] = useState(null)
   const scrollRef = useRef(null)
   const colRefs = useRef({})
+  const isFirstRender = useRef(true)
 
   const scrollToToday = useCallback(() => {
     setTimeout(() => {
@@ -222,8 +223,15 @@ export default function WeekView({
     }, 150)
   }, [])
 
-  // Auto-scroll to today on week change
-  useEffect(() => { scrollToToday() }, [weekStart, scrollToToday])
+  // On first render: scroll to today. On subsequent week changes: reset to start of week.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      scrollToToday()
+    } else if (scrollRef.current) {
+      scrollRef.current.scrollLeft = 0
+    }
+  }, [weekStart, scrollToToday])
 
   // Expose for parent to call via ref
   useEffect(() => {
@@ -234,6 +242,18 @@ export default function WeekView({
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
   }
+
+  // Build a map of day → next day based on actual display order
+  const nextDayMap = useMemo(() => {
+    const days = weekStart
+      ? getWeekDays(new Date(weekStart + 'T00:00:00')).map(d => DAY_NAMES[d.getDay()])
+      : DAY_NAMES.slice(1).concat(DAY_NAMES[0]) // fallback Mon-Sun
+    const map = {}
+    for (let i = 0; i < days.length - 1; i++) {
+      map[days[i]] = days[i + 1]
+    }
+    return map
+  }, [weekStart])
 
   const visibleDays = focusDay ? displayDays.filter(d => d === focusDay) : displayDays
 
@@ -266,6 +286,7 @@ export default function WeekView({
             onShutdownRitual={() => onShutdownRitual?.(focusDay)}
             focusModeActive={true}
             isLast={true}
+            nextDayMap={nextDayMap}
           />
         </div>
 
@@ -332,6 +353,7 @@ export default function WeekView({
                   onShutdownRitual={() => onShutdownRitual?.(dayKey)}
                   focusModeActive={focusDay === dayKey}
                   isLast={isLastVisible}
+                  nextDayMap={nextDayMap}
                 />
               </div>
             )

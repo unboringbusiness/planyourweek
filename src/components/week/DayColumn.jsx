@@ -13,16 +13,11 @@ const SLOT_CONFIG = {
   admin:     { label: 'Other Tasks',   max: LIMITS.DAILY_ADMIN,     lineAccent: null,      placeholder: 'Other task' },
 }
 
-const DAYS_ORDER = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
-
-function getTomorrow(dayKey) {
-  const idx = DAYS_ORDER.indexOf(dayKey)
-  return idx < 6 ? DAYS_ORDER[idx + 1] : null
-}
+// nextDayMap is now passed as a prop from WeekView to handle any week start day
 
 const DEFAULT_DURATION = { deep_work: 90, scheduled: 25, admin: 25 }
 
-function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer }) {
+function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer, nextDayMap }) {
   const cfg = SLOT_CONFIG[slotType]
   const isFull = tasks.length >= cfg.max
   const [adding, setAdding] = useState(false)
@@ -77,7 +72,7 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {tasks.map(task => {
             const meta = getMeta(task.id)
-            const tomorrow = getTomorrow(day)
+            const tomorrow = nextDayMap?.[day] ?? null
             return (
               <TaskCard
                 key={task.id}
@@ -158,7 +153,7 @@ export default function DayColumn({
   onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow,
   onOpenDetail, onStartTimer,
   onFocusMode, onStartupRitual, onShutdownRitual,
-  focusModeActive, isLast,
+  focusModeActive, isLast, nextDayMap,
 }) {
   const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   const MON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -268,9 +263,9 @@ export default function DayColumn({
 
       {/* Scrollable task area */}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '0 14px 16px' }}>
-        <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-        <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
-        <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} />
+        <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} />
+        <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} />
+        <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} />
       </div>
     </div>
   )
