@@ -196,15 +196,9 @@ export default function WeekView({
   onStartupRitual, onShutdownRitual,
   timerHook,
 }) {
-  const allWeekDays = weekStart
+  const weekDays = weekStart
     ? getWeekDays(new Date(weekStart + 'T00:00:00'))
     : Array(7).fill(null)
-
-  // Rotate so today is always the leftmost column
-  const todayIdx = allWeekDays.findIndex(d => d && isToday(d))
-  const weekDays = todayIdx > 0
-    ? [...allWeekDays.slice(todayIdx), ...allWeekDays.slice(0, todayIdx)]
-    : allWeekDays
 
   // Derive day keys from actual dates
   const displayDays = weekDays.map(d => d ? DAY_NAMES[d.getDay()] : null).filter(Boolean)
@@ -212,6 +206,31 @@ export default function WeekView({
   const [focusDay, setFocusDay] = useState(null)
   const scrollRef = useRef(null)
   const colRefs = useRef({})
+
+  // Scroll to make today visible (used by Today button only)
+  const scrollToToday = useCallback(() => {
+    const todayEl = document.querySelector('[data-today="true"]')
+    if (todayEl && scrollRef.current) {
+      const container = scrollRef.current
+      const containerRect = container.getBoundingClientRect()
+      const elRect = todayEl.getBoundingClientRect()
+      // Only scroll if today is not already fully visible
+      if (elRect.left < containerRect.left || elRect.right > containerRect.right) {
+        container.scrollLeft = elRect.left - containerRect.left + container.scrollLeft
+      }
+    }
+  }, [])
+
+  // Reset scroll to 0 whenever the week changes (start day change, prev/next)
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0
+  }, [weekStart])
+
+  // Expose scrollToToday for the Today button
+  useEffect(() => {
+    window._scrollWeekToToday = scrollToToday
+    return () => { delete window._scrollWeekToToday }
+  }, [scrollToToday])
 
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
