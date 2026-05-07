@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { getWeekDays, isToday } from '../../lib/dates'
 import DayColumn from './DayColumn'
 
@@ -207,31 +207,6 @@ export default function WeekView({
   const scrollRef = useRef(null)
   const colRefs = useRef({})
 
-  // Scroll to make today visible (used by Today button only)
-  const scrollToToday = useCallback(() => {
-    const todayEl = document.querySelector('[data-today="true"]')
-    if (todayEl && scrollRef.current) {
-      const container = scrollRef.current
-      const containerRect = container.getBoundingClientRect()
-      const elRect = todayEl.getBoundingClientRect()
-      // Only scroll if today is not already fully visible
-      if (elRect.left < containerRect.left || elRect.right > containerRect.right) {
-        container.scrollLeft = elRect.left - containerRect.left + container.scrollLeft
-      }
-    }
-  }, [])
-
-  // Reset scroll to 0 whenever the week changes (start day change, prev/next)
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollLeft = 0
-  }, [weekStart])
-
-  // Expose scrollToToday for the Today button
-  useEffect(() => {
-    window._scrollWeekToToday = scrollToToday
-    return () => { delete window._scrollWeekToToday }
-  }, [scrollToToday])
-
   const handleFocusMode = (dayKey) => {
     setFocusDay(prev => prev === dayKey ? null : dayKey)
   }
@@ -304,65 +279,56 @@ export default function WeekView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* Scroll container with right fade gradient */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <div
-          ref={scrollRef}
-          data-scroll-container
-          style={{
-            position: 'absolute', inset: 0,
-            display: 'flex',
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#D1D5DB transparent',
-          }}
-        >
-          {visibleDays.map((dayKey, i) => {
-            const isLastVisible = i === visibleDays.length - 1
-            return (
-              <div
-                key={dayKey}
-                ref={el => { colRefs.current[dayKey] = el }}
-                data-today={weekDays[i] && isToday(weekDays[i]) ? 'true' : undefined}
-                style={{ width: 260, flexShrink: 0, flexGrow: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-              >
-                <DayColumn
-                  dayKey={dayKey}
-                  dayDate={weekDays[i]}
-                  slots={week?.slots?.[dayKey]}
-                  getMeta={getMeta}
-                  setTaskMeta={setTaskMeta}
-                  mitCount={mitCount}
-                  onAddSlot={onAddSlot}
-                  onRemoveSlot={onRemoveSlot}
-                  onReorderSlots={onReorderSlots}
-                  onMoveToSomeday={onMoveToSomeday}
-                  onMoveToTomorrow={onMoveToTomorrow}
-                  onOpenDetail={onOpenDetail}
-                  onStartTimer={onStartTimer}
-                  onFocusMode={() => handleFocusMode(dayKey)}
-                  onStartupRitual={() => onStartupRitual?.(dayKey)}
-                  onShutdownRitual={() => onShutdownRitual?.(dayKey)}
-                  focusModeActive={focusDay === dayKey}
-                  isLast={isLastVisible}
-                  nextDayMap={nextDayMap}
-                />
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Right-edge fade */}
-        <div
-          style={{
-            position: 'absolute', top: 0, right: 0, bottom: 0,
-            width: 48,
-            background: 'linear-gradient(to right, transparent, var(--bg))',
-            pointerEvents: 'none',
-            zIndex: 2,
-          }}
-        />
+      {/* All 7 columns fill available width — no horizontal scroll */}
+      <div
+        ref={scrollRef}
+        data-scroll-container
+        style={{
+          flex: 1,
+          display: 'flex',
+          overflow: 'hidden',
+        }}
+      >
+        {visibleDays.map((dayKey, i) => {
+          const isLastVisible = i === visibleDays.length - 1
+          return (
+            <div
+              key={dayKey}
+              ref={el => { colRefs.current[dayKey] = el }}
+              data-today={weekDays[i] && isToday(weekDays[i]) ? 'true' : undefined}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                borderRight: isLastVisible ? 'none' : '1px solid var(--col-sep)',
+              }}
+            >
+              <DayColumn
+                dayKey={dayKey}
+                dayDate={weekDays[i]}
+                slots={week?.slots?.[dayKey]}
+                getMeta={getMeta}
+                setTaskMeta={setTaskMeta}
+                mitCount={mitCount}
+                onAddSlot={onAddSlot}
+                onRemoveSlot={onRemoveSlot}
+                onReorderSlots={onReorderSlots}
+                onMoveToSomeday={onMoveToSomeday}
+                onMoveToTomorrow={onMoveToTomorrow}
+                onOpenDetail={onOpenDetail}
+                onStartTimer={onStartTimer}
+                onFocusMode={() => handleFocusMode(dayKey)}
+                onStartupRitual={() => onStartupRitual?.(dayKey)}
+                onShutdownRitual={() => onShutdownRitual?.(dayKey)}
+                focusModeActive={focusDay === dayKey}
+                isLast={isLastVisible}
+                nextDayMap={nextDayMap}
+              />
+            </div>
+          )
+        })}
       </div>
     </div>
   )

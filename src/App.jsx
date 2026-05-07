@@ -467,16 +467,10 @@ export default function App() {
         weekStart={activeWeekStart}
         onPrevWeek={() => setWeekOffset(o => o - 1)}
         onNextWeek={() => setWeekOffset(o => o + 1)}
-        onGoToToday={() => {
-          setWeekOffset(0)
-          setTimeout(() => window._scrollWeekToToday?.(), 200)
-        }}
+        onGoToToday={() => setWeekOffset(0)}
         weekStartDay={weekStartDay}
         onWeekStartDayChange={handleWeekStartDayChange}
-        onScrollToToday={() => {
-          setWeekOffset(0)
-          setTimeout(() => window._scrollWeekToToday?.(), 200)
-        }}
+        onScrollToToday={() => setWeekOffset(0)}
       />
 
       {view === 'reset' ? (
