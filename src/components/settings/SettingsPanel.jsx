@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../../lib/supabase'
 
 export default function SettingsPanel({ open, onClose, user, signInWithEmail, signInWithGoogle, signOut }) {
   const [email, setEmail] = useState('')
@@ -6,10 +7,13 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef(null)
+  const [apiKey, setApiKey] = useState(null)
+  const [apiKeyLoading, setApiKeyLoading] = useState(false)
+  const [apiKeyCopied, setApiKeyCopied] = useState(false)
 
   useEffect(() => {
     if (open && !user) setTimeout(() => inputRef.current?.focus(), 280)
-    if (!open) { setSent(false); setError(''); setEmail('') }
+    if (!open) { setSent(false); setError(''); setEmail(''); setApiKey(null); setApiKeyCopied(false) }
   }, [open, user])
 
   const handleSignIn = async () => {
@@ -68,6 +72,67 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
             }}>
               {user.email}
             </div>
+            {/* Claude / API Integration */}
+            <div style={{ marginTop: 20, marginBottom: 16 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Claude Integration</div>
+              <p style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 10, lineHeight: 1.5 }}>
+                Connect Claude Code to manage your week via AI. Generate an API key, then add it to your Claude config.
+              </p>
+              {apiKey ? (
+                <div>
+                  <div style={{
+                    padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8,
+                    fontSize: 11, fontFamily: 'monospace', color: 'var(--text-1)',
+                    wordBreak: 'break-all', marginBottom: 8,
+                  }}>
+                    {apiKey}
+                  </div>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(apiKey); setApiKeyCopied(true) }}
+                    style={{
+                      width: '100%', padding: '8px', borderRadius: 8, border: '1px solid var(--border)',
+                      background: apiKeyCopied ? 'color-mix(in srgb, var(--success) 12%, var(--surface))' : 'var(--surface)',
+                      color: apiKeyCopied ? 'var(--success)' : 'var(--text-1)',
+                      fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    {apiKeyCopied ? 'Copied! Save this — it won\'t be shown again' : 'Copy API key'}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    setApiKeyLoading(true)
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession()
+                      const res = await fetch('/api/auth/generate-key', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${session.access_token}`,
+                          'Content-Type': 'application/json',
+                        },
+                      })
+                      const data = await res.json()
+                      if (data.api_key) setApiKey(data.api_key)
+                    } catch (e) {
+                      console.error('Failed to generate key:', e)
+                    }
+                    setApiKeyLoading(false)
+                  }}
+                  disabled={apiKeyLoading}
+                  style={{
+                    width: '100%', padding: '9px', borderRadius: 8,
+                    border: '1px solid var(--border)', background: 'var(--surface)',
+                    color: 'var(--text-1)', fontSize: 13, fontWeight: 500,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                    opacity: apiKeyLoading ? 0.6 : 1,
+                  }}
+                >
+                  {apiKeyLoading ? 'Generating...' : 'Generate API key'}
+                </button>
+              )}
+            </div>
+
             <button
               onClick={handleSignOut}
               style={{

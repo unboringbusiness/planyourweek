@@ -1,8 +1,16 @@
 {
   "name": "planyourweek-mcp",
   "version": "1.0.0",
+  "description": "MCP server for Plan Your Week — lets Claude manage your weekly tasks and milestones",
   "type": "module",
   "bin": { "planyourweek-mcp": "./index.js" },
+  "keywords": ["mcp", "claude", "planyourweek", "task-management", "weekly-planner"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unboringbusiness/planyourweek.git",
+    "directory": "mcp-server"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1"
   }

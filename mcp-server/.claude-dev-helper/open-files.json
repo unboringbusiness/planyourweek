@@ -4,5 +4,47 @@
     "timestamp": 1778538136707,
     "focus": false,
     "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/auth/generate-key.js",
+    "timestamp": 1778538447663,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/_lib/supabase.js",
+    "timestamp": 1778538455104,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/tasks.js",
+    "timestamp": 1778538471248,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/milestones.js",
+    "timestamp": 1778538483740,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/week.js",
+    "timestamp": 1778538492453,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
+    "timestamp": 1778538505032,
+    "focus": false,
+    "openLocation": 1
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
+    "timestamp": 1778538520892,
+    "focus": false,
+    "openLocation": 1
   }
 ]

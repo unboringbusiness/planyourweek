@@ -1,20 +1,18 @@
-import { getSupabase, authenticate, USER_ID } from './_lib/supabase.js'
+import { getSupabase, authenticateRequest } from './_lib/supabase.js'
 import { getWeekStart } from './_lib/dates.js'
 
 export default async function handler(req, res) {
-  if (!authenticate(req)) return res.status(401).json({ error: 'Unauthorized' })
+  const userId = await authenticateRequest(req)
+  if (!userId) return res.status(401).json({ error: 'Invalid or missing API key' })
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
   const db = getSupabase()
   const weekStart = req.query.week_start || getWeekStart()
 
-  // Get plan + milestones
   const { data: plan } = await db
-    .from('weekly_plans')
-    .select('*')
-    .eq('user_id', USER_ID).eq('week_start', weekStart).single()
+    .from('weekly_plans').select('*')
+    .eq('user_id', userId).eq('week_start', weekStart).single()
 
-  // Get tasks
   let tasks = []
   if (plan) {
     const { data } = await db
@@ -24,7 +22,6 @@ export default async function handler(req, res) {
     tasks = data || []
   }
 
-  // Group tasks by day
   const days = {}
   const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
   for (const day of dayNames) {

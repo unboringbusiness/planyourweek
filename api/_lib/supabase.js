@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import crypto from 'crypto'
 
 export function getSupabase() {
   return createClient(
@@ -8,14 +9,25 @@ export function getSupabase() {
   )
 }
 
-export function authenticate(req) {
+// Authenticate via API key, return user_id or null
+export async function authenticateRequest(req) {
   const auth = req.headers['authorization']
   const key = auth?.replace('Bearer ', '')
-  if (!key || key !== process.env.PYW_API_KEY) {
-    return false
-  }
-  return true
-}
+  if (!key || !key.startsWith('pyw_')) return null
 
-// Default user — single-user API for now
-export const USER_ID = 'ffafdf2d-44bf-4388-a7c3-ee284c4848a1'
+  const keyHash = crypto.createHash('sha256').update(key).digest('hex')
+  const db = getSupabase()
+
+  const { data, error } = await db
+    .from('api_keys')
+    .select('user_id')
+    .eq('key_hash', keyHash)
+    .single()
+
+  if (error || !data) return null
+
+  // Update last_used_at
+  db.from('api_keys').update({ last_used_at: new Date().toISOString() }).eq('key_hash', keyHash).then(() => {})
+
+  return data.user_id
+}
