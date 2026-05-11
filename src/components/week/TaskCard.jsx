@@ -185,7 +185,8 @@ export function DayTaskCard({
             color: done ? '#9CA3AF' : 'var(--text-1)',
             textDecoration: done ? 'line-through' : 'none',
             cursor: isDragOverlay ? 'grabbing' : 'pointer',
-            lineHeight: 1.45, fontWeight: 400, wordBreak: 'break-word',
+            lineHeight: 1.45, fontWeight: 400,
+            overflowWrap: 'break-word', wordBreak: 'normal',
           }}
           title={displayText}
         >
@@ -401,7 +402,7 @@ export function TaskCardBase({ text, meta = {}, isDragOverlay = true }) {
       userSelect: 'none', cursor: 'grabbing', minWidth: 140,
     }}>
       <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #D1D5DB', flexShrink: 0, marginTop: 1 }} />
-      <span style={{ fontSize: 14, color: 'var(--text-1)', flex: 1, lineHeight: 1.4, wordBreak: 'break-word' }}>
+      <span style={{ fontSize: 14, color: 'var(--text-1)', flex: 1, lineHeight: 1.4, overflowWrap: 'break-word', wordBreak: 'normal' }}>
         {text}
       </span>
       <span style={{ fontSize: 12, color: 'var(--chip-text)', background: 'var(--chip-bg)', borderRadius: 6, padding: '3px 8px' }}>

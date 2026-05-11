@@ -299,7 +299,7 @@ export default function WeekView({
               data-today={weekDays[i] && isToday(weekDays[i]) ? 'true' : undefined}
               style={{
                 flex: 1,
-                minWidth: 160,
+                minWidth: 180,
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
