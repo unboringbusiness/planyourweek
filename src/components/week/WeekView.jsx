@@ -279,14 +279,15 @@ export default function WeekView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* All 7 columns fill available width — no horizontal scroll */}
+      {/* Day columns — min-width ensures readable text, horizontal scroll if needed */}
       <div
         ref={scrollRef}
         data-scroll-container
         style={{
           flex: 1,
           display: 'flex',
-          overflow: 'hidden',
+          overflowX: 'auto',
+          overflowY: 'hidden',
         }}
       >
         {visibleDays.map((dayKey, i) => {
@@ -298,7 +299,7 @@ export default function WeekView({
               data-today={weekDays[i] && isToday(weekDays[i]) ? 'true' : undefined}
               style={{
                 flex: 1,
-                minWidth: 0,
+                minWidth: 160,
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
