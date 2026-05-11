@@ -69,7 +69,7 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
 
       {/* Tasks */}
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {tasks.map(task => {
             const meta = getMeta(task.id)
             const tomorrow = nextDayMap?.[day] ?? null

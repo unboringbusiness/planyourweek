@@ -30,10 +30,10 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done, actualMinut
       <button
         onClick={e => { e.stopPropagation(); syncOpen(duration); setOpen(v => !v) }}
         style={{
-          fontSize: 12, color: done ? '#D1D5DB' : 'var(--chip-text)',
-          background: done ? 'transparent' : 'var(--chip-bg)',
-          border: 'none', borderRadius: 6,
-          padding: '3px 8px', cursor: 'pointer',
+          fontSize: 12, color: done ? '#D1D5DB' : 'var(--text-2)',
+          background: 'transparent',
+          border: 'none', borderRadius: 0,
+          padding: '0 2px', cursor: 'pointer',
           fontFamily: 'inherit', whiteSpace: 'nowrap',
           display: 'inline-flex', alignItems: 'center', gap: 3,
         }}
@@ -114,7 +114,7 @@ function TimerChip({ duration, onDurationChange, onStartTimer, done, actualMinut
   )
 }
 
-// Day column card — two-row layout: text top, actions bottom on hover
+// Day column card — compact single-row: checkbox + text + duration (Ellie-style)
 export function DayTaskCard({
   taskId, text, meta = {},
   onDurationChange, onMITToggle, onDoneToggle, onRemove,
@@ -125,7 +125,7 @@ export function DayTaskCard({
   const [hovered, setHovered] = useState(false)
   const menuRef = useRef(null)
   const { duration = 30, is_mit = false, done = false, actualMinutes } = meta
-  const canMIT = slotType !== 'admin' // only deep_work + scheduled can be milestones
+  const canMIT = slotType !== 'admin'
   const canToggleMIT = canMIT && (mitCount < 3 || is_mit)
   const leftBorder = is_mit ? MIT_BORDER : 'transparent'
   const displayText = meta.textOverride || text
@@ -149,20 +149,21 @@ export function DayTaskCard({
         background: 'var(--surface)',
         borderLeft: `3px solid ${done ? leftBorder + '4D' : leftBorder}`,
         borderRadius: 8,
-        padding: '10px 12px 8px',
-        boxShadow: isDragOverlay ? '0 8px 32px rgba(0,0,0,0.18)' : done ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
+        padding: '8px 10px',
+        boxShadow: isDragOverlay ? '0 8px 32px rgba(0,0,0,0.18)' : 'none',
+        border: isDragOverlay ? 'none' : '1px solid var(--border)',
         position: 'relative',
         userSelect: 'none',
         cursor: 'default',
       }}
     >
-      {/* Row 1: checkbox + text + duration chip */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      {/* Single row: checkbox + text + duration */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {/* Checkbox */}
         <div
           onClick={e => { e.stopPropagation(); onDoneToggle?.() }}
           style={{
-            width: 18, height: 18, borderRadius: '50%', marginTop: 2,
+            width: 16, height: 16, borderRadius: '50%',
             border: done ? 'none' : '1.5px solid #D1D5DB',
             background: done ? 'var(--success)' : 'transparent',
             flexShrink: 0, cursor: 'pointer',
@@ -171,29 +172,29 @@ export function DayTaskCard({
           }}
         >
           {done && (
-            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
               <path d="M1 4l3 3 5-6" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           )}
         </div>
 
-        {/* Text — takes all remaining space */}
+        {/* Text — single line, truncate with ellipsis */}
         <div
           onClick={() => !isDragOverlay && onOpenDetail?.()}
           style={{
-            flex: 1, minWidth: 0, fontSize: 14,
+            flex: 1, minWidth: 0, fontSize: 13,
             color: done ? '#9CA3AF' : 'var(--text-1)',
             textDecoration: done ? 'line-through' : 'none',
             cursor: isDragOverlay ? 'grabbing' : 'pointer',
-            lineHeight: 1.45, fontWeight: 400,
-            overflowWrap: 'break-word', wordBreak: 'normal',
+            lineHeight: 1.4, fontWeight: 400,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}
           title={displayText}
         >
           {displayText}
         </div>
 
-        {/* Duration chip — always top-right */}
+        {/* Duration — plain text style, clickable for popover */}
         {!isDragOverlay ? (
           <TimerChip
             duration={duration}
@@ -204,42 +205,39 @@ export function DayTaskCard({
           />
         ) : (
           <span style={{
-            fontSize: 12, color: 'var(--chip-text)',
-            background: 'var(--chip-bg)', borderRadius: 6, padding: '3px 8px', flexShrink: 0,
+            fontSize: 12, color: 'var(--text-2)', flexShrink: 0, whiteSpace: 'nowrap',
           }}>
             {formatDuration(duration)}
           </span>
         )}
-      </div>
 
-      {/* Row 2: action bar — fades in on hover, no overflow:hidden so dropdown is never clipped */}
-      {!isDragOverlay && (
-        <div style={{
-          paddingLeft: 28,
-          marginTop: 5,
-          opacity: hovered ? 1 : 0,
-          pointerEvents: hovered ? 'auto' : 'none',
-          transition: 'opacity 0.15s ease',
-          position: 'relative',
-        }}>
-          <div ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
+        {/* Context menu — appears on hover, replaces the old "Actions" row */}
+        {!isDragOverlay && (
+          <div
+            ref={menuRef}
+            style={{
+              position: 'relative', flexShrink: 0,
+              opacity: hovered ? 1 : 0,
+              pointerEvents: hovered ? 'auto' : 'none',
+              transition: 'opacity 0.12s',
+            }}
+          >
             <button
               onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
               style={{
-                background: 'none', border: '1px solid var(--border)',
-                borderRadius: 6, padding: '2px 8px',
-                fontSize: 11, color: 'var(--text-2)', cursor: 'pointer',
-                fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3,
+                background: 'none', border: 'none', padding: '0 2px',
+                fontSize: 14, color: 'var(--text-2)', cursor: 'pointer',
+                lineHeight: 1, letterSpacing: '1px',
               }}
             >
-              Actions <span style={{ fontSize: 8, opacity: 0.6 }}>▾</span>
+              ···
             </button>
 
             {menuOpen && (
               <div
                 onClick={e => e.stopPropagation()}
                 style={{
-                  position: 'absolute', left: 0, top: 'calc(100% + 4px)',
+                  position: 'absolute', right: 0, top: 'calc(100% + 4px)',
                   background: 'var(--surface)', border: '1px solid var(--border)',
                   borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.13)',
                   zIndex: 200, minWidth: 190, overflow: 'hidden',
@@ -273,8 +271,8 @@ export function DayTaskCard({
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
