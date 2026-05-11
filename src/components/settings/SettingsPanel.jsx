@@ -42,6 +42,7 @@ function ConnectToClaude({ user }) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState(null) // { connected, last_used_at }
   const [urlCopied, setUrlCopied] = useState(false)
+  const [testResult, setTestResult] = useState(null) // null | 'loading' | 'ok' | 'error'
 
   // Check existing connection status on mount
   useEffect(() => {
@@ -77,6 +78,20 @@ function ConnectToClaude({ user }) {
     setLoading(false)
   }
 
+  const handleTest = async () => {
+    if (!connectionUrl) return
+    setTestResult('loading')
+    try {
+      const res = await fetch(connectionUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'test', version: '1.0' } } }),
+      })
+      const data = await res.json()
+      setTestResult(data?.result?.serverInfo ? 'ok' : 'error')
+    } catch { setTestResult('error') }
+  }
+
   const cliCmd = connectionUrl
     ? `claude mcp add planyourweek ${connectionUrl}`
     : null
@@ -96,24 +111,39 @@ function ConnectToClaude({ user }) {
       {connectionUrl ? (
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Your connection URL</div>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: 6 }}>
-            <div style={{
-              flex: 1, padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
-              fontSize: 10, fontFamily: 'monospace', color: 'var(--text-1)',
-              wordBreak: 'break-all', lineHeight: 1.5,
-              border: urlCopied ? '1px solid #10B981' : '1px solid transparent',
-            }}>
-              {connectionUrl}
-            </div>
+          <div style={{
+            padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
+            fontSize: 10, fontFamily: 'monospace', color: 'var(--text-1)',
+            wordBreak: 'break-all', lineHeight: 1.5, marginBottom: 6,
+            border: urlCopied ? '1px solid #10B981' : '1px solid transparent',
+          }}>
+            {connectionUrl}
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
             <button
               onClick={() => { navigator.clipboard.writeText(connectionUrl); setUrlCopied(true) }}
               style={{
-                padding: '10px 16px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600,
+                flex: 1, padding: '9px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600,
                 background: urlCopied ? '#10B981' : 'var(--accent)', color: '#fff',
-                cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
-              {urlCopied ? 'Copied' : 'Copy'}
+              {urlCopied ? 'Copied' : 'Copy URL'}
+            </button>
+            <button
+              onClick={handleTest}
+              disabled={testResult === 'loading'}
+              style={{
+                flex: 1, padding: '9px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                border: '1px solid var(--border)', background: 'var(--surface)',
+                color: testResult === 'ok' ? '#10B981' : testResult === 'error' ? '#EF4444' : 'var(--text-1)',
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              {testResult === 'loading' ? 'Testing...'
+                : testResult === 'ok' ? 'Server is reachable'
+                : testResult === 'error' ? 'Something went wrong'
+                : 'Test connection'}
             </button>
           </div>
           <button
@@ -145,15 +175,24 @@ function ConnectToClaude({ user }) {
 
       <Accordion title="claude.ai (web)" defaultOpen={true}>
         <div style={{ marginTop: 8 }}>
-          <p><strong style={{ color: 'var(--text-1)' }}>1.</strong> Go to <strong>claude.ai</strong> and sign in</p>
-          <p><strong style={{ color: 'var(--text-1)' }}>2.</strong> Click your <strong>name</strong> (bottom-left corner)</p>
+          <div style={{
+            padding: '8px 10px', borderRadius: 6, marginBottom: 12,
+            background: 'color-mix(in srgb, #F59E0B 10%, var(--surface))',
+            border: '1px solid color-mix(in srgb, #F59E0B 30%, var(--border))',
+            fontSize: 11, color: '#92400E', lineHeight: 1.5,
+          }}>
+            Custom connectors require a paid Claude plan (Pro, Max, Team, or Enterprise). Free plans cannot add custom connectors.
+          </div>
+          <p><strong style={{ color: 'var(--text-1)' }}>1.</strong> Go to <strong>claude.ai</strong> and sign in (requires Pro, Max, Team, or Enterprise plan)</p>
+          <p><strong style={{ color: 'var(--text-1)' }}>2.</strong> Click your <strong>profile icon</strong> (bottom-left)</p>
           <p><strong style={{ color: 'var(--text-1)' }}>3.</strong> Click <strong>Settings</strong></p>
-          <p><strong style={{ color: 'var(--text-1)' }}>4.</strong> Click <strong>Integrations</strong> in the sidebar</p>
-          <p><strong style={{ color: 'var(--text-1)' }}>5.</strong> Click <strong>Add custom integration</strong></p>
-          <p style={{ marginBottom: 4 }}><strong style={{ color: 'var(--text-1)' }}>6.</strong> Paste your connection URL from above</p>
-          <p><strong style={{ color: 'var(--text-1)' }}>7.</strong> Click <strong>Connect</strong></p>
+          <p><strong style={{ color: 'var(--text-1)' }}>4.</strong> Click <strong>Connectors</strong> in the sidebar</p>
+          <p><strong style={{ color: 'var(--text-1)' }}>5.</strong> Scroll to "Custom connectors" and click <strong>Add custom connector</strong></p>
+          <p><strong style={{ color: 'var(--text-1)' }}>6.</strong> Paste the connection URL from above into the <strong>URL field</strong></p>
+          <p><strong style={{ color: 'var(--text-1)' }}>7.</strong> Give it a name like <strong>"Plan Your Week"</strong></p>
+          <p><strong style={{ color: 'var(--text-1)' }}>8.</strong> Click <strong>Add</strong></p>
           <p style={{ marginTop: 8, color: 'var(--text-1)', fontSize: 12 }}>
-            That's it. Open a new chat and try: <em>"What's on my week?"</em>
+            Done. Open a <strong>new chat</strong> and try: <em>"What's on my week?"</em>
           </p>
         </div>
       </Accordion>
@@ -214,6 +253,24 @@ function ConnectToClaude({ user }) {
             : 'Not connected yet'
         }
       </div>
+
+      {/* Troubleshooting */}
+      <Accordion title="Troubleshooting" defaultOpen={false}>
+        <div style={{ marginTop: 8 }}>
+          <p style={{ marginBottom: 12 }}>
+            <strong style={{ color: 'var(--text-1)' }}>I don't see Connectors in claude.ai Settings</strong><br/>
+            You're on the Free plan. Custom connectors require Claude Pro, Max, Team, or Enterprise. Upgrade your plan at claude.ai.
+          </p>
+          <p style={{ marginBottom: 12 }}>
+            <strong style={{ color: 'var(--text-1)' }}>It says connector added but Claude doesn't use it</strong><br/>
+            Start a new chat. Existing chats don't auto-load new connectors. You need to open a fresh conversation.
+          </p>
+          <p>
+            <strong style={{ color: 'var(--text-1)' }}>Claude says it can't find my tasks</strong><br/>
+            Click "Regenerate key" above and reconnect with the new URL. The old key may be stale.
+          </p>
+        </div>
+      </Accordion>
     </div>
   )
 }
