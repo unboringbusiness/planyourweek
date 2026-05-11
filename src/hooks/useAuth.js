@@ -7,17 +7,19 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null
-      if (u) await migrateLocalToSupabase(u.id)
       setUser(u)
       setLoading(false)
+      // Run migration in background — don't block auth
+      if (u) migrateLocalToSupabase(u.id).catch(err => console.error('[auth] migration error:', err))
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null
-      if (u) await migrateLocalToSupabase(u.id)
       setUser(u)
+      // Run migration in background — don't block auth
+      if (u) migrateLocalToSupabase(u.id).catch(err => console.error('[auth] migration error:', err))
     })
 
     return () => subscription.unsubscribe()
