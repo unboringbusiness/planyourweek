@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { supabase } from '../lib/supabase'
 
 const KEY = 'pyw_task_meta'
 const DEFAULT = { duration: 30, is_mit: false, done: false }
@@ -13,8 +14,34 @@ function save(meta) {
   catch {}
 }
 
-export function useTaskMeta() {
+export function useTaskMeta(user) {
   const [meta, setMeta] = useState(load)
+  const userRef = useRef(user)
+  useEffect(() => { userRef.current = user }, [user])
+
+  // On login, load is_complete from Supabase and merge into local meta
+  useEffect(() => {
+    if (!user) return
+    ;(async () => {
+      const { data } = await supabase
+        .from('tasks')
+        .select('id, is_complete')
+        .eq('user_id', user.id)
+      if (!data) return
+      setMeta(prev => {
+        const next = { ...prev }
+        let changed = false
+        data.forEach(task => {
+          if (task.is_complete && (!next[task.id] || !next[task.id].done)) {
+            next[task.id] = { ...DEFAULT, ...next[task.id], done: true }
+            changed = true
+          }
+        })
+        if (changed) save(next)
+        return changed ? next : prev
+      })
+    })()
+  }, [user])
 
   const mutate = useCallback((fn) => {
     setMeta(prev => {
@@ -34,6 +61,17 @@ export function useTaskMeta() {
       ...prev,
       [id]: { ...DEFAULT, ...prev[id], ...changes },
     }))
+
+    // Sync done state to Supabase
+    if (userRef.current && 'done' in changes) {
+      supabase
+        .from('tasks')
+        .update({ is_complete: changes.done })
+        .eq('id', id)
+        .then(({ error }) => {
+          if (error) console.error('[task-meta] sync error:', error.message)
+        })
+    }
   }, [mutate])
 
   const copyMeta = useCallback((fromId, toId) => {

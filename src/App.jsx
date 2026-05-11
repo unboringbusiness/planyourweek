@@ -82,7 +82,7 @@ export default function App() {
   const backlog = useBacklog()
   const projectsHook = useProjects(user)
   const listsHook = useLists()
-  const taskMeta = useTaskMeta()
+  const taskMeta = useTaskMeta(user)
   const timerHook = useTimer()
 
   const [theme, setTheme] = useState(getStoredTheme)
@@ -513,6 +513,7 @@ export default function App() {
                   week={weekData.week}
                   weekStart={weekData.weekStart}
                   setMITs={weekData.setMITs}
+                  user={user}
                 />
                 <WeekView
                   week={weekData.week}

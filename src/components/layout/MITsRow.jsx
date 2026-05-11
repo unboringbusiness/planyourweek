@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../../lib/supabase'
 
 const MITS_DONE_KEY = 'pyw_mits_done'
 
@@ -8,7 +9,17 @@ function loadMitsDone() {
 }
 function saveMitsDone(done) { localStorage.setItem(MITS_DONE_KEY, JSON.stringify(done)) }
 
-export default function MITsRow({ week, weekStart, setMITs }) {
+async function syncMitsDone(user, weekStart, done) {
+  if (!user || !weekStart) return
+  const { error } = await supabase
+    .from('weekly_plans')
+    .update({ mit_1_done: done[0], mit_2_done: done[1], mit_3_done: done[2] })
+    .eq('user_id', user.id)
+    .eq('week_start', weekStart)
+  if (error) console.error('[mits] sync error:', error.message)
+}
+
+export default function MITsRow({ week, weekStart, setMITs, user }) {
   const [localMITs, setLocalMITs] = useState(['', '', ''])
   const [done, setDone] = useState(loadMitsDone)
   const inputRefs = useRef([])
@@ -17,10 +28,28 @@ export default function MITsRow({ week, weekStart, setMITs }) {
     if (week?.mits) setLocalMITs([...week.mits])
   }, [week?.mits])
 
-  // Reset done state when week changes
+  // Load done state from Supabase when user is logged in
   useEffect(() => {
-    setDone(loadMitsDone())
-  }, [weekStart])
+    if (!user || !weekStart) {
+      setDone(loadMitsDone())
+      return
+    }
+    ;(async () => {
+      const { data } = await supabase
+        .from('weekly_plans')
+        .select('mit_1_done, mit_2_done, mit_3_done')
+        .eq('user_id', user.id)
+        .eq('week_start', weekStart)
+        .single()
+      if (data) {
+        const remote = [data.mit_1_done ?? false, data.mit_2_done ?? false, data.mit_3_done ?? false]
+        setDone(remote)
+        saveMitsDone(remote)
+      } else {
+        setDone(loadMitsDone())
+      }
+    })()
+  }, [user, weekStart])
 
   const handleChange = (i, val) => {
     const next = [...localMITs]
@@ -50,6 +79,7 @@ export default function MITsRow({ week, weekStart, setMITs }) {
     nextDone[i] = false
     setDone(nextDone)
     saveMitsDone(nextDone)
+    syncMitsDone(user, weekStart, nextDone)
   }
 
   const toggleDone = (i) => {
@@ -58,6 +88,7 @@ export default function MITsRow({ week, weekStart, setMITs }) {
     next[i] = !next[i]
     setDone(next)
     saveMitsDone(next)
+    syncMitsDone(user, weekStart, next)
   }
 
   // Count for ResetScreen
