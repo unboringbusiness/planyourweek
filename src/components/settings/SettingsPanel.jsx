@@ -74,12 +74,15 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
             </div>
             {/* Claude / API Integration */}
             <div style={{ marginTop: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Claude Integration</div>
-              <p style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 10, lineHeight: 1.5 }}>
-                Connect Claude Code to manage your week via AI. Generate an API key, then add it to your Claude config.
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)', marginBottom: 8 }}>Connect to Claude</div>
+              <p style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 12, lineHeight: 1.5 }}>
+                Let Claude manage your week. Say things like "add a task for Tuesday" or "what's on my plate this week?"
               </p>
+
+              {/* Step 1: Generate key */}
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Step 1: Get your API key</div>
               {apiKey ? (
-                <div>
+                <div style={{ marginBottom: 14 }}>
                   <div style={{
                     padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8,
                     fontSize: 11, fontFamily: 'monospace', color: 'var(--text-1)',
@@ -124,13 +127,51 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
                     width: '100%', padding: '9px', borderRadius: 8,
                     border: '1px solid var(--border)', background: 'var(--surface)',
                     color: 'var(--text-1)', fontSize: 13, fontWeight: 500,
-                    cursor: 'pointer', fontFamily: 'inherit',
+                    cursor: 'pointer', fontFamily: 'inherit', marginBottom: 14,
                     opacity: apiKeyLoading ? 0.6 : 1,
                   }}
                 >
                   {apiKeyLoading ? 'Generating...' : 'Generate API key'}
                 </button>
               )}
+
+              {/* Step 2: Choose how to connect */}
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Step 2: Add to Claude</div>
+
+              {/* claude.ai / Claude for Work */}
+              <div style={{
+                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
+                marginBottom: 8, fontSize: 12, lineHeight: 1.6, color: 'var(--text-2)',
+              }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>claude.ai or Claude for Work</div>
+                Go to Settings → Integrations → Add MCP Server → paste this URL:<br/>
+                <code style={{ fontSize: 11, color: 'var(--accent)', wordBreak: 'break-all' }}>https://app.planyourweek.co/api/mcp</code><br/>
+                Add header: <code style={{ fontSize: 11 }}>Authorization: Bearer YOUR_KEY</code>
+              </div>
+
+              {/* Claude Desktop */}
+              <div style={{
+                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
+                marginBottom: 8, fontSize: 12, lineHeight: 1.6, color: 'var(--text-2)',
+              }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>Claude Desktop App</div>
+                Settings → Developer → Edit Config → add under "mcpServers":<br/>
+                <code style={{ fontSize: 10, color: 'var(--accent)', wordBreak: 'break-all' }}>
+                  {`"planyourweek": { "command": "npx", "args": ["planyourweek-mcp"], "env": { "PYW_API_KEY": "YOUR_KEY" } }`}
+                </code>
+              </div>
+
+              {/* Claude Code */}
+              <div style={{
+                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
+                marginBottom: 8, fontSize: 12, lineHeight: 1.6, color: 'var(--text-2)',
+              }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>Claude Code (CLI)</div>
+                Add to <code style={{ fontSize: 11 }}>~/.mcp.json</code> under "mcpServers":<br/>
+                <code style={{ fontSize: 10, color: 'var(--accent)', wordBreak: 'break-all' }}>
+                  {`"planyourweek": { "command": "npx", "args": ["planyourweek-mcp"], "env": { "PYW_API_KEY": "YOUR_KEY" } }`}
+                </code>
+              </div>
             </div>
 
             <button
