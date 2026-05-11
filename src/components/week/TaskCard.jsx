@@ -178,7 +178,7 @@ export function DayTaskCard({
           )}
         </div>
 
-        {/* Text — single line, truncate with ellipsis */}
+        {/* Text — wrap naturally */}
         <div
           onClick={() => !isDragOverlay && onOpenDetail?.()}
           style={{
@@ -187,7 +187,7 @@ export function DayTaskCard({
             textDecoration: done ? 'line-through' : 'none',
             cursor: isDragOverlay ? 'grabbing' : 'pointer',
             lineHeight: 1.4, fontWeight: 400,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            overflowWrap: 'break-word', wordBreak: 'break-word',
           }}
           title={displayText}
         >
