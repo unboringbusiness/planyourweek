@@ -9,10 +9,14 @@ export function getSupabase() {
   )
 }
 
-// Authenticate via API key, return user_id or null
+// Authenticate via API key (header or query param), return user_id or null
 export async function authenticateRequest(req) {
+  // Try Authorization header first, then ?key= query param
   const auth = req.headers['authorization']
-  const key = auth?.replace('Bearer ', '')
+  let key = auth?.replace('Bearer ', '')
+  if (!key || !key.startsWith('pyw_')) {
+    key = req.query?.key
+  }
   if (!key || !key.startsWith('pyw_')) return null
 
   const keyHash = crypto.createHash('sha256').update(key).digest('hex')

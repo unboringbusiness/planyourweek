@@ -1,23 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
-    "timestamp": 1778540353995,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
-    "timestamp": 1778540546975,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/public/robots.txt",
-    "timestamp": 1778540640060,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/index.html",
     "timestamp": 1778540649743,
     "focus": false,
@@ -56,6 +38,24 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
     "timestamp": 1778540781295,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/_lib/supabase.js",
+    "timestamp": 1778541221861,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/auth/status.js",
+    "timestamp": 1778541229872,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
+    "timestamp": 1778541323297,
     "focus": false,
     "openLocation": 0
   }
