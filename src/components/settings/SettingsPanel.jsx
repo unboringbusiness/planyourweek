@@ -1,6 +1,266 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 
+const PLATFORMS = [
+  { id: 'web', label: 'claude.ai', icon: '🌐' },
+  { id: 'desktop', label: 'Desktop App', icon: '🖥' },
+  { id: 'code', label: 'Claude Code', icon: '>' },
+]
+
+function StepBadge({ n, done }) {
+  return (
+    <div style={{
+      width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+      background: done ? '#10B981' : 'var(--accent)',
+      color: '#fff', fontSize: 11, fontWeight: 700,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      {done ? '✓' : n}
+    </div>
+  )
+}
+
+function CopyBlock({ text, onCopy, copied, label }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      {label && <div style={{ fontSize: 11, color: 'var(--text-2)', marginBottom: 4 }}>{label}</div>}
+      <div
+        onClick={onCopy}
+        style={{
+          padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
+          fontSize: 11, fontFamily: 'monospace', color: 'var(--text-1)',
+          wordBreak: 'break-all', cursor: 'pointer', lineHeight: 1.5,
+          border: copied ? '1px solid #10B981' : '1px solid transparent',
+          position: 'relative',
+        }}
+      >
+        {text}
+        <span style={{
+          position: 'absolute', top: 6, right: 8,
+          fontSize: 10, color: copied ? '#10B981' : 'var(--text-2)',
+          fontFamily: 'inherit',
+        }}>
+          {copied ? 'copied' : 'click to copy'}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function ClaudeSetup({ apiKey, apiKeyCopied, apiKeyLoading, onGenerate, onCopy }) {
+  const [platform, setPlatform] = useState('web')
+  const [urlCopied, setUrlCopied] = useState(false)
+  const [configCopied, setConfigCopied] = useState(false)
+
+  const keyDisplay = apiKey || 'YOUR_API_KEY'
+
+  const configJson = JSON.stringify({
+    mcpServers: {
+      planyourweek: {
+        command: 'npx',
+        args: ['planyourweek-mcp'],
+        env: { PYW_API_KEY: keyDisplay },
+      },
+    },
+  }, null, 2)
+
+  return (
+    <div style={{ marginTop: 20, marginBottom: 16 }}>
+      <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>Connect to Claude</div>
+      <p style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 16, lineHeight: 1.5 }}>
+        3 steps. Takes 2 minutes. Then just tell Claude what to plan.
+      </p>
+
+      {/* Step 1 */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+        <StepBadge n={1} done={!!apiKey} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Generate your secret key</div>
+          {apiKey ? (
+            <>
+              <div style={{
+                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
+                fontSize: 11, fontFamily: 'monospace', color: 'var(--text-1)',
+                wordBreak: 'break-all', marginBottom: 6, lineHeight: 1.5,
+              }}>
+                {apiKey}
+              </div>
+              <button
+                onClick={onCopy}
+                style={{
+                  width: '100%', padding: '8px', borderRadius: 8,
+                  border: apiKeyCopied ? '1px solid #10B981' : '1px solid var(--border)',
+                  background: apiKeyCopied ? 'color-mix(in srgb, #10B981 10%, var(--surface))' : 'var(--surface)',
+                  color: apiKeyCopied ? '#10B981' : 'var(--text-1)',
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                {apiKeyCopied ? '✓ Copied — save it somewhere safe' : 'Copy key'}
+              </button>
+              <p style={{ fontSize: 11, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.4 }}>
+                This key is shown once. If you lose it, generate a new one.
+              </p>
+            </>
+          ) : (
+            <>
+              <p style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 8, lineHeight: 1.4 }}>
+                This creates a private key that lets Claude access your planyourweek data. Only you can see it.
+              </p>
+              <button
+                onClick={onGenerate}
+                disabled={apiKeyLoading}
+                style={{
+                  width: '100%', padding: '10px', borderRadius: 8, border: 'none',
+                  background: 'var(--accent)', color: '#fff',
+                  fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  opacity: apiKeyLoading ? 0.6 : 1,
+                }}
+              >
+                {apiKeyLoading ? 'Generating...' : 'Generate key'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Step 2 — pick platform */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+        <StepBadge n={2} done={false} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)', marginBottom: 8 }}>Which Claude do you use?</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {PLATFORMS.map(p => (
+              <button
+                key={p.id}
+                onClick={() => { setPlatform(p.id); setUrlCopied(false); setConfigCopied(false) }}
+                style={{
+                  flex: 1, padding: '8px 4px', borderRadius: 8,
+                  border: platform === p.id ? '1.5px solid var(--accent)' : '1px solid var(--border)',
+                  background: platform === p.id ? 'color-mix(in srgb, var(--accent) 8%, var(--surface))' : 'var(--surface)',
+                  color: platform === p.id ? 'var(--accent)' : 'var(--text-2)',
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                }}
+              >
+                <span style={{ fontSize: 16 }}>{p.icon}</span>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Step 3 — platform-specific instructions */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 6 }}>
+        <StepBadge n={3} done={false} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)', marginBottom: 8 }}>Follow these steps</div>
+
+          {platform === 'web' && (
+            <div style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.7 }}>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>1.</strong> Open <strong>claude.ai</strong> and log in
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>2.</strong> Click your <strong>profile icon</strong> (bottom-left) → <strong>Settings</strong>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>3.</strong> Go to <strong>Integrations</strong> tab
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>4.</strong> Click <strong>"Add Integration"</strong> → choose <strong>"MCP Server"</strong>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>5.</strong> Paste this URL:
+              </div>
+              <CopyBlock
+                text="https://app.planyourweek.co/api/mcp"
+                onCopy={() => { navigator.clipboard.writeText('https://app.planyourweek.co/api/mcp'); setUrlCopied(true) }}
+                copied={urlCopied}
+              />
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>6.</strong> In <strong>"Headers"</strong>, add:
+              </div>
+              <CopyBlock
+                label="Name"
+                text="Authorization"
+                onCopy={() => navigator.clipboard.writeText('Authorization')}
+                copied={false}
+              />
+              <CopyBlock
+                label="Value"
+                text={`Bearer ${keyDisplay}`}
+                onCopy={() => { navigator.clipboard.writeText(`Bearer ${keyDisplay}`); setConfigCopied(true) }}
+                copied={configCopied}
+              />
+              <div style={{ marginBottom: 6 }}>
+                <strong style={{ color: 'var(--text-1)' }}>7.</strong> Click <strong>Save</strong>. Done!
+              </div>
+            </div>
+          )}
+
+          {platform === 'desktop' && (
+            <div style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.7 }}>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>1.</strong> Open the <strong>Claude Desktop</strong> app
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>2.</strong> Go to <strong>Settings</strong> → <strong>Developer</strong>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>3.</strong> Click <strong>"Edit Config"</strong>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>4.</strong> Replace the file contents with this:
+              </div>
+              <CopyBlock
+                text={configJson}
+                onCopy={() => { navigator.clipboard.writeText(configJson); setConfigCopied(true) }}
+                copied={configCopied}
+              />
+              <div style={{ marginBottom: 6 }}>
+                <strong style={{ color: 'var(--text-1)' }}>5.</strong> Save the file and <strong>restart Claude</strong>. Done!
+              </div>
+            </div>
+          )}
+
+          {platform === 'code' && (
+            <div style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.7 }}>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>1.</strong> Open your terminal
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>2.</strong> Create or edit the file <code style={{ fontSize: 11, background: 'var(--surface-2)', padding: '1px 4px', borderRadius: 4 }}>~/.mcp.json</code>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong style={{ color: 'var(--text-1)' }}>3.</strong> Paste this:
+              </div>
+              <CopyBlock
+                text={configJson}
+                onCopy={() => { navigator.clipboard.writeText(configJson); setConfigCopied(true) }}
+                copied={configCopied}
+              />
+              <div style={{ marginBottom: 6 }}>
+                <strong style={{ color: 'var(--text-1)' }}>4.</strong> Restart Claude Code. Done!
+              </div>
+            </div>
+          )}
+
+          {/* Try it prompt */}
+          <div style={{
+            marginTop: 12, padding: '10px 12px', borderRadius: 8,
+            background: 'color-mix(in srgb, var(--accent) 8%, var(--surface))',
+            border: '1px solid color-mix(in srgb, var(--accent) 20%, var(--border))',
+            fontSize: 12, color: 'var(--text-1)', lineHeight: 1.5,
+          }}>
+            <strong>Try it:</strong> Tell Claude <em>"What's on my week?"</em> or <em>"Add 'Buy groceries' to Wednesday"</em>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function SettingsPanel({ open, onClose, user, signInWithEmail, signInWithGoogle, signOut }) {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
@@ -72,107 +332,26 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
             }}>
               {user.email}
             </div>
-            {/* Claude / API Integration */}
-            <div style={{ marginTop: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-1)', marginBottom: 8 }}>Connect to Claude</div>
-              <p style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 12, lineHeight: 1.5 }}>
-                Let Claude manage your week. Say things like "add a task for Tuesday" or "what's on my plate this week?"
-              </p>
-
-              {/* Step 1: Generate key */}
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Step 1: Get your API key</div>
-              {apiKey ? (
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{
-                    padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8,
-                    fontSize: 11, fontFamily: 'monospace', color: 'var(--text-1)',
-                    wordBreak: 'break-all', marginBottom: 8,
-                  }}>
-                    {apiKey}
-                  </div>
-                  <button
-                    onClick={() => { navigator.clipboard.writeText(apiKey); setApiKeyCopied(true) }}
-                    style={{
-                      width: '100%', padding: '8px', borderRadius: 8, border: '1px solid var(--border)',
-                      background: apiKeyCopied ? 'color-mix(in srgb, var(--success) 12%, var(--surface))' : 'var(--surface)',
-                      color: apiKeyCopied ? 'var(--success)' : 'var(--text-1)',
-                      fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
-                    }}
-                  >
-                    {apiKeyCopied ? 'Copied! Save this — it won\'t be shown again' : 'Copy API key'}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={async () => {
-                    setApiKeyLoading(true)
-                    try {
-                      const { data: { session } } = await supabase.auth.getSession()
-                      const res = await fetch('/api/auth/generate-key', {
-                        method: 'POST',
-                        headers: {
-                          'Authorization': `Bearer ${session.access_token}`,
-                          'Content-Type': 'application/json',
-                        },
-                      })
-                      const data = await res.json()
-                      if (data.api_key) setApiKey(data.api_key)
-                    } catch (e) {
-                      console.error('Failed to generate key:', e)
-                    }
-                    setApiKeyLoading(false)
-                  }}
-                  disabled={apiKeyLoading}
-                  style={{
-                    width: '100%', padding: '9px', borderRadius: 8,
-                    border: '1px solid var(--border)', background: 'var(--surface)',
-                    color: 'var(--text-1)', fontSize: 13, fontWeight: 500,
-                    cursor: 'pointer', fontFamily: 'inherit', marginBottom: 14,
-                    opacity: apiKeyLoading ? 0.6 : 1,
-                  }}
-                >
-                  {apiKeyLoading ? 'Generating...' : 'Generate API key'}
-                </button>
-              )}
-
-              {/* Step 2: Choose how to connect */}
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }}>Step 2: Add to Claude</div>
-
-              {/* claude.ai / Claude for Work */}
-              <div style={{
-                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
-                marginBottom: 8, fontSize: 12, lineHeight: 1.6, color: 'var(--text-2)',
-              }}>
-                <div style={{ fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>claude.ai or Claude for Work</div>
-                Go to Settings → Integrations → Add MCP Server → paste this URL:<br/>
-                <code style={{ fontSize: 11, color: 'var(--accent)', wordBreak: 'break-all' }}>https://app.planyourweek.co/api/mcp</code><br/>
-                Add header: <code style={{ fontSize: 11 }}>Authorization: Bearer YOUR_KEY</code>
-              </div>
-
-              {/* Claude Desktop */}
-              <div style={{
-                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
-                marginBottom: 8, fontSize: 12, lineHeight: 1.6, color: 'var(--text-2)',
-              }}>
-                <div style={{ fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>Claude Desktop App</div>
-                Settings → Developer → Edit Config → add under "mcpServers":<br/>
-                <code style={{ fontSize: 10, color: 'var(--accent)', wordBreak: 'break-all' }}>
-                  {`"planyourweek": { "command": "npx", "args": ["planyourweek-mcp"], "env": { "PYW_API_KEY": "YOUR_KEY" } }`}
-                </code>
-              </div>
-
-              {/* Claude Code */}
-              <div style={{
-                padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8,
-                marginBottom: 8, fontSize: 12, lineHeight: 1.6, color: 'var(--text-2)',
-              }}>
-                <div style={{ fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>Claude Code (CLI)</div>
-                Add to <code style={{ fontSize: 11 }}>~/.mcp.json</code> under "mcpServers":<br/>
-                <code style={{ fontSize: 10, color: 'var(--accent)', wordBreak: 'break-all' }}>
-                  {`"planyourweek": { "command": "npx", "args": ["planyourweek-mcp"], "env": { "PYW_API_KEY": "YOUR_KEY" } }`}
-                </code>
-              </div>
-            </div>
+            {/* Claude Integration — step-by-step wizard */}
+            <ClaudeSetup
+              apiKey={apiKey}
+              apiKeyCopied={apiKeyCopied}
+              apiKeyLoading={apiKeyLoading}
+              onGenerate={async () => {
+                setApiKeyLoading(true)
+                try {
+                  const { data: { session } } = await supabase.auth.getSession()
+                  const res = await fetch('/api/auth/generate-key', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                  })
+                  const data = await res.json()
+                  if (data.api_key) setApiKey(data.api_key)
+                } catch (e) { console.error('Failed to generate key:', e) }
+                setApiKeyLoading(false)
+              }}
+              onCopy={() => { navigator.clipboard.writeText(apiKey); setApiKeyCopied(true) }}
+            />
 
             <button
               onClick={handleSignOut}
