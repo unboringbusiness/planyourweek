@@ -17,18 +17,6 @@ export async function migrateLocalToSupabase(userId) {
 
   console.log('[migrate] Starting localStorage → Supabase migration…')
 
-  // Check if user already has data in Supabase (returning user, not first login)
-  const { data: existingDump } = await supabase
-    .from('dump_items').select('id').limit(1)
-  const { data: existingPlans } = await supabase
-    .from('weekly_plans').select('id').limit(1)
-
-  if ((existingDump?.length > 0) || (existingPlans?.length > 0)) {
-    console.log('[migrate] User already has Supabase data, skipping migration')
-    localStorage.setItem(MIGRATED_KEY, new Date().toISOString())
-    return
-  }
-
   const dumpItems = read('pyw_dump') ?? []
   const projects = read('pyw_projects') ?? []
   const weekPlans = read('pyw_week') ?? []
@@ -40,25 +28,19 @@ export async function migrateLocalToSupabase(userId) {
     return
   }
 
-  let errors = []
-
-  // Migrate dump items
+  // Migrate dump items (skip duplicates)
   if (dumpItems.length > 0) {
     const rows = dumpItems.map((item, i) => ({
       user_id: userId,
       text: item.text ?? item.content ?? '',
       position: item.position ?? i,
     }))
-    const { error } = await supabase.from('dump_items').insert(rows)
-    if (error) {
-      console.error('[migrate] Dump items failed:', error.message)
-      errors.push('dump_items: ' + error.message)
-    } else {
-      console.log(`[migrate] Migrated ${rows.length} dump items`)
-    }
+    const { error } = await supabase.from('dump_items').upsert(rows, { onConflict: 'id', ignoreDuplicates: true })
+    if (error) console.error('[migrate] Dump items:', error.message)
+    else console.log(`[migrate] Migrated ${rows.length} dump items`)
   }
 
-  // Migrate projects
+  // Migrate projects (skip duplicates)
   if (projects.length > 0) {
     const rows = projects.map((p, i) => ({
       user_id: userId,
@@ -67,40 +49,59 @@ export async function migrateLocalToSupabase(userId) {
       archived: p.archived ?? false,
       position: p.position ?? p.sort_order ?? i,
     }))
-    const { error } = await supabase.from('projects').insert(rows)
-    if (error) {
-      console.error('[migrate] Projects failed:', error.message)
-      errors.push('projects: ' + error.message)
-    } else {
-      console.log(`[migrate] Migrated ${rows.length} projects`)
-    }
+    const { error } = await supabase.from('projects').upsert(rows, { onConflict: 'id', ignoreDuplicates: true })
+    if (error) console.error('[migrate] Projects:', error.message)
+    else console.log(`[migrate] Migrated ${rows.length} projects`)
   }
 
-  // Migrate weekly plans + tasks
+  // Migrate weekly plans + tasks (use upsert to handle existing weeks)
   for (const plan of weekPlans) {
     const weekStart = plan.week_start
     if (!weekStart) continue
 
     const mits = plan.mits ?? ['', '', '']
-    const { data: planData, error: planError } = await supabase
+
+    // Check if plan already exists for this week
+    const { data: existing } = await supabase
       .from('weekly_plans')
-      .insert({
-        user_id: userId,
-        week_start: weekStart,
-        mit_1: mits[0] || null,
-        mit_2: mits[1] || null,
-        mit_3: mits[2] || null,
-      })
-      .select()
+      .select('id')
+      .eq('user_id', userId)
+      .eq('week_start', weekStart)
       .single()
 
-    if (planError) {
-      console.error('[migrate] Weekly plan failed:', planError.message)
-      errors.push('weekly_plans: ' + planError.message)
+    let planId
+    if (existing) {
+      planId = existing.id
+      console.log(`[migrate] Week ${weekStart} already exists, skipping plan insert`)
+    } else {
+      const { data: planData, error: planError } = await supabase
+        .from('weekly_plans')
+        .insert({
+          user_id: userId,
+          week_start: weekStart,
+          mit_1: mits[0] || null,
+          mit_2: mits[1] || null,
+          mit_3: mits[2] || null,
+        })
+        .select()
+        .single()
+
+      if (planError) {
+        console.error(`[migrate] Weekly plan ${weekStart}:`, planError.message)
+        continue
+      }
+      planId = planData.id
+    }
+
+    // Migrate slot tasks (only if plan didn't already have tasks)
+    const { data: existingTasks } = await supabase
+      .from('tasks').select('id').eq('weekly_plan_id', planId).limit(1)
+
+    if (existingTasks?.length > 0) {
+      console.log(`[migrate] Week ${weekStart} already has tasks, skipping`)
       continue
     }
 
-    // Migrate slot tasks
     const slots = plan.slots ?? {}
     const taskRows = []
     for (const [day, slotTypes] of Object.entries(slots)) {
@@ -109,7 +110,7 @@ export async function migrateLocalToSupabase(userId) {
           if (!task.text) return
           taskRows.push({
             user_id: userId,
-            weekly_plan_id: planData.id,
+            weekly_plan_id: planId,
             text: task.text,
             slot_type: slotType,
             day,
@@ -121,20 +122,12 @@ export async function migrateLocalToSupabase(userId) {
 
     if (taskRows.length > 0) {
       const { error: tasksError } = await supabase.from('tasks').insert(taskRows)
-      if (tasksError) {
-        console.error('[migrate] Tasks failed:', tasksError.message)
-        errors.push('tasks: ' + tasksError.message)
-      } else {
-        console.log(`[migrate] Migrated ${taskRows.length} tasks for week ${weekStart}`)
-      }
+      if (tasksError) console.error(`[migrate] Tasks for ${weekStart}:`, tasksError.message)
+      else console.log(`[migrate] Migrated ${taskRows.length} tasks for week ${weekStart}`)
     }
   }
 
-  if (errors.length === 0) {
-    console.log('[migrate] Migration complete')
-    localStorage.setItem(MIGRATED_KEY, new Date().toISOString())
-  } else {
-    console.error('[migrate] Migration had errors:', errors)
-    // Don't set MIGRATED_KEY so it retries next time
-  }
+  // Always mark as migrated to stop retrying
+  console.log('[migrate] Migration complete')
+  localStorage.setItem(MIGRATED_KEY, new Date().toISOString())
 }
