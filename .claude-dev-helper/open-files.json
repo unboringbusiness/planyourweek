@@ -1,53 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
-    "timestamp": 1778527710667,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useAuth.js",
-    "timestamp": 1778528300377,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useTaskMeta.js",
-    "timestamp": 1778532979189,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1778533002018,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
-    "timestamp": 1778533008143,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/layout/MITsRow.jsx",
-    "timestamp": 1778533043334,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
-    "timestamp": 1778533119404,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "/Users/anicca/planyourweek/src/hooks/useTaskMeta.js",
-    "timestamp": 1778533285995,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/components/week/WeekView.jsx",
     "timestamp": 1778533831319,
     "focus": false,
@@ -56,6 +8,54 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/week/TaskCard.jsx",
     "timestamp": 1778533848340,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/vercel.json",
+    "timestamp": 1778534138364,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/_lib/supabase.js",
+    "timestamp": 1778534151149,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/_lib/dates.js",
+    "timestamp": 1778534157648,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/tasks.js",
+    "timestamp": 1778534174948,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/milestones.js",
+    "timestamp": 1778534189111,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/api/week.js",
+    "timestamp": 1778534202913,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/mcp-server/index.js",
+    "timestamp": 1778534271889,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/mcp-server/package.json",
+    "timestamp": 1778534275952,
     "focus": false,
     "openLocation": 0
   }
