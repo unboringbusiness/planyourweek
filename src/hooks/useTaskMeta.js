@@ -19,21 +19,23 @@ export function useTaskMeta(user) {
   const userRef = useRef(user)
   useEffect(() => { userRef.current = user }, [user])
 
-  // On login, load is_complete from Supabase and merge into local meta
+  // On login, load done state from Supabase and merge into local meta
   useEffect(() => {
     if (!user) return
     ;(async () => {
       const { data } = await supabase
         .from('tasks')
-        .select('id, is_complete')
+        .select('id, done')
         .eq('user_id', user.id)
       if (!data) return
       setMeta(prev => {
         const next = { ...prev }
         let changed = false
         data.forEach(task => {
-          if (task.is_complete && (!next[task.id] || !next[task.id].done)) {
-            next[task.id] = { ...DEFAULT, ...next[task.id], done: true }
+          const remoteDone = task.done === true
+          const localDone = next[task.id]?.done === true
+          if (remoteDone !== localDone) {
+            next[task.id] = { ...DEFAULT, ...next[task.id], done: remoteDone }
             changed = true
           }
         })
@@ -66,7 +68,7 @@ export function useTaskMeta(user) {
     if (userRef.current && 'done' in changes) {
       supabase
         .from('tasks')
-        .update({ is_complete: changes.done })
+        .update({ done: changes.done })
         .eq('id', id)
         .then(({ error }) => {
           if (error) console.error('[task-meta] sync error:', error.message)
