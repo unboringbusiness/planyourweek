@@ -178,7 +178,7 @@ export function DayTaskCard({
           )}
         </div>
 
-        {/* Text — wrap naturally */}
+        {/* Text — two lines max, then ellipsis */}
         <div
           onClick={() => !isDragOverlay && onOpenDetail?.()}
           style={{
@@ -187,7 +187,10 @@ export function DayTaskCard({
             textDecoration: done ? 'line-through' : 'none',
             cursor: isDragOverlay ? 'grabbing' : 'pointer',
             lineHeight: 1.4, fontWeight: 400,
-            overflowWrap: 'break-word', wordBreak: 'break-word',
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
           }}
           title={displayText}
         >
