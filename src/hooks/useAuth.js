@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { migrateLocalToSupabase } from '../lib/migrate'
 
 export function useAuth() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const u = session?.user ?? null
+      if (u) await migrateLocalToSupabase(u.id)
+      setUser(u)
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const u = session?.user ?? null
+      if (u) await migrateLocalToSupabase(u.id)
+      setUser(u)
     })
 
     return () => subscription.unsubscribe()
