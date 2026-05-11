@@ -29,6 +29,8 @@ import FloatingTimer from './components/week/FloatingTimer'
 import TaskDetailModal from './components/week/TaskDetailModal'
 import DumpPanel from './components/dump/DumpPanel'
 import ResetScreen from './components/reset/ResetScreen'
+import PrivacyPolicy from './screens/PrivacyPolicy'
+import TermsOfService from './screens/TermsOfService'
 import SettingsPanel from './components/settings/SettingsPanel'
 import StartupRitual from './components/rituals/StartupRitual'
 import ShutdownRitual from './components/rituals/ShutdownRitual'
@@ -91,6 +93,8 @@ export default function App() {
   function viewFromPath() {
     const path = window.location.pathname
     if (path === '/review') return 'reset'
+    if (path === '/privacy') return 'privacy'
+    if (path === '/terms') return 'terms'
     return 'week'
   }
   const [view, setViewState] = useState(viewFromPath)
@@ -473,7 +477,11 @@ export default function App() {
         onScrollToToday={() => setWeekOffset(0)}
       />
 
-      {view === 'reset' ? (
+      {view === 'privacy' ? (
+        <PrivacyPolicy />
+      ) : view === 'terms' ? (
+        <TermsOfService />
+      ) : view === 'reset' ? (
         <ResetScreen
           week={weekData.week}
           getMeta={getMeta}

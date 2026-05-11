@@ -497,6 +497,12 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
           Send feedback
         </a>
 
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8 }}>
+          <a href="/privacy" style={{ fontSize: 11, color: 'var(--text-2)', textDecoration: 'none' }}>Privacy Policy</a>
+          <span style={{ fontSize: 11, color: 'var(--border)' }}>|</span>
+          <a href="/terms" style={{ fontSize: 11, color: 'var(--text-2)', textDecoration: 'none' }}>Terms of Service</a>
+        </div>
+
         <button
           onClick={onClose}
           style={{
