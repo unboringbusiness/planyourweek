@@ -1,11 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/api/week.js",
-    "timestamp": 1778534202913,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/mcp-server/index.js",
     "timestamp": 1778534271889,
     "focus": false,
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
     "timestamp": 1778540353995,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
+    "timestamp": 1778540546975,
     "focus": false,
     "openLocation": 0
   }

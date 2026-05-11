@@ -300,6 +300,8 @@ export default function SettingsPanel({ open, onClose, user, signInWithEmail, si
         bottom: 0,
         right: 0,
         width: 360,
+        maxHeight: '85vh',
+        overflowY: 'auto',
         borderRadius: '16px 16px 0 0',
         background: 'var(--surface)',
         border: '1px solid var(--border)',
