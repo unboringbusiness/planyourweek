@@ -19,6 +19,7 @@ import { useTaskMeta } from './hooks/useTaskMeta'
 import { useTimer } from './hooks/useTimer'
 import { LIMITS } from './lib/limits'
 import { getCurrentWeekStart } from './lib/dates'
+import { supabase } from './lib/supabase'
 
 import TopBar from './components/layout/TopBar'
 import LeftPanel from './components/layout/LeftPanel'
@@ -216,9 +217,44 @@ export default function App() {
     }
   }
 
-  // Move a slot task to tomorrow (same slot type)
+  // Move a slot task to tomorrow/today — handles cross-week moves
   const handleMoveToTomorrow = async (task, fromDay, fromSlotType, toDay, toSlotType) => {
-    await moveSlotToSection(task, fromDay, fromSlotType, toDay, toSlotType)
+    const DAY_NAMES_FULL = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+    const todayName = DAY_NAMES_FULL[new Date().getDay()]
+    const isInCurrentWeek = weekData.week?.slots?.[toDay] !== undefined
+
+    if (isInCurrentWeek) {
+      await moveSlotToSection(task, fromDay, fromSlotType, toDay, toSlotType)
+    } else if (user) {
+      // Cross-week move: add to the target week in Supabase, remove from current
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const current = today.getDay()
+      const diff = (current - weekStartDay + 7) % 7
+      today.setDate(today.getDate() - diff)
+      const targetWeekStart = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
+
+      // Ensure target week plan exists
+      let { data: plan } = await supabase
+        .from('weekly_plans').select('id')
+        .eq('user_id', user.id).eq('week_start', targetWeekStart).single()
+      if (!plan) {
+        const { data: newPlan } = await supabase
+          .from('weekly_plans').insert({ user_id: user.id, week_start: targetWeekStart }).select().single()
+        plan = newPlan
+      }
+      if (plan) {
+        await supabase.from('tasks').insert({
+          user_id: user.id, weekly_plan_id: plan.id,
+          text: task.text, day: toDay, slot_type: fromSlotType,
+          duration_minutes: taskMeta.getMeta(task.id)?.duration ?? 30,
+          position: 0, done: false,
+        })
+      }
+      // Remove from current week
+      weekData.removeSlot(fromDay, task.id)
+      taskMeta.removeMeta(task.id)
+    }
   }
 
   // Open task detail modal
