@@ -1,11 +1,5 @@
 [
   {
-    "filePath": "/Users/anicca/planyourweek/src/components/settings/SettingsPanel.jsx",
-    "timestamp": 1778541840183,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "/Users/anicca/planyourweek/src/lib/limits.js",
     "timestamp": 1779106481559,
     "focus": false,
@@ -56,6 +50,12 @@
   {
     "filePath": "/Users/anicca/planyourweek/src/App.jsx",
     "timestamp": 1779106913465,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "/Users/anicca/planyourweek/src/App.jsx",
+    "timestamp": 1779107439868,
     "focus": false,
     "openLocation": 0
   }
