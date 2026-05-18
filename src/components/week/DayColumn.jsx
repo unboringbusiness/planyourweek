@@ -17,11 +17,16 @@ const SLOT_CONFIG = {
 
 const DEFAULT_DURATION = { deep_work: 90, scheduled: 25, admin: 25 }
 
-function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer, nextDayMap }) {
+function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer, nextDayMap, dayDate, todayDayName }) {
   const cfg = SLOT_CONFIG[slotType]
-  const isFull = tasks.length >= cfg.max
   const [adding, setAdding] = useState(false)
   const [addVal, setAddVal] = useState('')
+  const [showCompleted, setShowCompleted] = useState(false)
+
+  // Split into active and completed
+  const activeTasks = tasks.filter(t => !getMeta(t.id).done)
+  const completedTasks = tasks.filter(t => getMeta(t.id).done)
+  const isFull = activeTasks.length >= cfg.max
 
   const { setNodeRef, isOver } = useDroppable({
     id: `drop-${day}-${slotType}`,
@@ -37,13 +42,48 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
     if (!error) {
       if (data?.id) setTaskMeta(data.id, { duration: DEFAULT_DURATION[slotType] })
       setAddVal('')
-      // Stay open for next task — close only on Escape or clicking away
     }
+  }
+
+  // Determine move target: if this day is in the past, move to today; otherwise next day
+  const isPast = dayDate && !isToday(dayDate) && dayDate < new Date(new Date().setHours(0,0,0,0))
+  const moveTarget = isPast ? todayDayName : (nextDayMap?.[day] ?? null)
+  const moveLabel = isPast ? '→ Move to Today' : '→ Move to Tomorrow'
+
+  const renderTask = (task) => {
+    const meta = getMeta(task.id)
+    return (
+      <TaskCard
+        key={task.id}
+        taskId={task.id}
+        text={task.text}
+        meta={meta}
+        compact={true}
+        mitCount={mitCount}
+        containerData={{ type: 'slot', task, day, slotType }}
+        onDurationChange={dur => setTaskMeta(task.id, { duration: dur })}
+        onMITToggle={() => setTaskMeta(task.id, { is_mit: !meta.is_mit })}
+        onDoneToggle={() => {
+          const nowDone = !meta.done
+          setTaskMeta(task.id, { done: nowDone })
+          if (nowDone && !meta.is_mit && onReorderSlots) {
+            const others = tasks.filter(t => t.id !== task.id)
+            onReorderSlots(day, slotType, [...others, task])
+          }
+        }}
+        onRemove={() => onRemoveSlot(day, task.id)}
+        onMoveToSomeday={() => onMoveToSomeday?.(task, day)}
+        onMoveToTomorrow={moveTarget ? () => onMoveToTomorrow?.(task, day, slotType, moveTarget, slotType) : null}
+        moveLabel={moveLabel}
+        onOpenDetail={() => onOpenDetail?.(task, day, slotType)}
+        onStartTimer={onStartTimer}
+      />
+    )
   }
 
   return (
     <div ref={setNodeRef} style={{ marginBottom: 4 }}>
-      {/* Section label — subtle, lowercase */}
+      {/* Section label */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginTop: 12, marginBottom: 6,
@@ -54,8 +94,8 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
         }}>
           {cfg.label}
         </span>
-        <span style={{ fontSize: 10, color: tasks.length > cfg.max ? 'var(--danger)' : '#C0BDB8', fontWeight: 400 }}>
-          {tasks.length}/{cfg.max}
+        <span style={{ fontSize: 10, color: activeTasks.length > cfg.max ? 'var(--danger)' : '#C0BDB8', fontWeight: 400 }}>
+          {activeTasks.length}/{cfg.max}
         </span>
       </div>
 
@@ -67,40 +107,10 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
         }} />
       )}
 
-      {/* Tasks */}
-      <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+      {/* Active tasks */}
+      <SortableContext items={activeTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {tasks.map(task => {
-            const meta = getMeta(task.id)
-            const tomorrow = nextDayMap?.[day] ?? null
-            return (
-              <TaskCard
-                key={task.id}
-                taskId={task.id}
-                text={task.text}
-                meta={meta}
-                compact={true}
-                mitCount={mitCount}
-                containerData={{ type: 'slot', task, day, slotType }}
-                onDurationChange={dur => setTaskMeta(task.id, { duration: dur })}
-                onMITToggle={() => setTaskMeta(task.id, { is_mit: !meta.is_mit })}
-                onDoneToggle={() => {
-                  const nowDone = !meta.done
-                  setTaskMeta(task.id, { done: nowDone })
-                  // Non-MIT tasks move to bottom of section when marked done; MIT stays in place
-                  if (nowDone && !meta.is_mit && onReorderSlots) {
-                    const others = tasks.filter(t => t.id !== task.id)
-                    onReorderSlots(day, slotType, [...others, task])
-                  }
-                }}
-                onRemove={() => onRemoveSlot(day, task.id)}
-                onMoveToSomeday={() => onMoveToSomeday?.(task, day)}
-                onMoveToTomorrow={tomorrow ? () => onMoveToTomorrow?.(task, day, slotType, tomorrow, slotType) : null}
-                onOpenDetail={() => onOpenDetail?.(task, day, slotType)}
-                onStartTimer={onStartTimer}
-              />
-            )
-          })}
+          {activeTasks.map(renderTask)}
         </div>
       </SortableContext>
 
@@ -125,22 +135,43 @@ function Section({ day, slotType, tasks, getMeta, setTaskMeta, mitCount, onAddSl
                 if (e.key === 'Enter') handleAdd()
                 if (e.key === 'Escape') { setAdding(false); setAddVal('') }
               }}
-              maxLength={200}
             />
           ) : (
             <button
               onClick={() => setAdding(true)}
               style={{
-                width: '100%', padding: '8px 14px',
-                border: 'none', background: 'transparent',
-                fontSize: 14, color: '#9CA3AF', textAlign: 'left',
-                cursor: 'pointer', fontFamily: 'inherit',
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '8px 12px', background: 'none', border: 'none',
+                fontSize: 12, color: '#9CA3AF', cursor: 'pointer',
+                fontFamily: 'inherit', borderRadius: 6,
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-1)' }}
               onMouseLeave={e => { e.currentTarget.style.color = '#9CA3AF' }}
             >
               + {cfg.placeholder}
             </button>
+          )}
+        </div>
+      )}
+
+      {/* Completed tasks section */}
+      {completedTasks.length > 0 && (
+        <div style={{ marginTop: 6 }}>
+          <button
+            onClick={() => setShowCompleted(v => !v)}
+            style={{
+              background: 'none', border: 'none', padding: '4px 0',
+              fontSize: 10, color: '#9CA3AF', cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <span style={{ transform: showCompleted ? 'rotate(90deg)' : 'none', transition: 'transform 0.12s', fontSize: 8 }}>&#9654;</span>
+            {completedTasks.length} completed
+          </button>
+          {showCompleted && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 4, opacity: 0.7 }}>
+              {completedTasks.map(renderTask)}
+            </div>
           )}
         </div>
       )}
@@ -153,7 +184,7 @@ export default function DayColumn({
   onAddSlot, onRemoveSlot, onReorderSlots, onMoveToSomeday, onMoveToTomorrow,
   onOpenDetail, onStartTimer,
   onFocusMode, onStartupRitual, onShutdownRitual,
-  focusModeActive, isLast, nextDayMap,
+  focusModeActive, isLast, nextDayMap, todayDayName,
 }) {
   const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   const MON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -168,104 +199,91 @@ export default function DayColumn({
     ...(slots?.scheduled ?? []),
     ...(slots?.admin ?? []),
   ]
-  const totalMinutes = allTasks.reduce((sum, t) => sum + (getMeta(t.id).duration ?? 30), 0)
-  const isOverLimit = totalMinutes > 480
-  const isNearLimit = totalMinutes >= 360
-  const totalColor = isOverLimit ? 'var(--danger)' : isNearLimit ? 'var(--sched)' : 'var(--text-2)'
-  const overBy = totalMinutes - 480
+  const totalMinutes = allTasks.reduce((sum, t) => sum + (getMeta(t.id)?.duration ?? 0), 0)
+
+  // Check if day is in the past
+  const isPast = dayDate && !today && dayDate < new Date(new Date().setHours(0,0,0,0))
 
   return (
-    <div
-      data-tour={today ? 'day-today' : undefined}
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        background: today ? 'var(--col-today-bg)' : 'transparent',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Column header — never scrolls away */}
-      <div style={{ flexShrink: 0, padding: '12px 14px 10px', borderBottom: '1px solid var(--col-sep)', background: today ? 'var(--col-today-bg)' : 'var(--bg)' }}>
-        {/* Row 1: day + date + time pill */}
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{
-              fontSize: 18, fontWeight: 800, textTransform: 'uppercase',
-              letterSpacing: '0.01em', color: today ? 'var(--accent)' : 'var(--text-2)',
-              lineHeight: 1,
-            }}>
-              {dayName}
-            </span>
-            <span style={{ fontSize: 11, fontWeight: 400, color: today ? 'var(--accent)' : 'var(--text-2)', marginLeft: 2 }}>
-              {monthName}
-            </span>
-            <span style={{ fontSize: 28, fontWeight: 800, lineHeight: 1, color: today ? 'var(--accent)' : 'var(--text-1)', marginLeft: 1 }}>
-              {dayNum}
-            </span>
-          </div>
-
-          {/* Time chip — always visible in header */}
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      overflowY: 'auto', overflowX: 'hidden',
+      background: today ? 'var(--col-today-bg)' : 'var(--bg)',
+      opacity: isPast ? 0.6 : 1,
+    }}>
+      {/* Day header */}
+      <div
+        style={{
+          padding: '10px 14px 6px',
+          position: 'sticky', top: 0, background: today ? 'var(--col-today-bg)' : 'var(--bg)',
+          zIndex: 5,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
           <span style={{
-            fontSize: 11, fontWeight: 600,
-            color: isOverLimit ? '#fff' : totalColor,
-            background: isOverLimit ? 'var(--danger)' : isNearLimit ? 'color-mix(in srgb, var(--sched) 12%, var(--surface))' : 'var(--surface-2)',
-            border: `1px solid ${isOverLimit ? 'var(--danger)' : isNearLimit ? 'var(--sched)' : 'var(--border)'}`,
-            borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap',
+            fontSize: 13, fontWeight: 700,
+            color: today ? 'var(--accent)' : 'var(--text-1)',
+            textTransform: 'uppercase', letterSpacing: '0.04em',
           }}>
-            {formatDuration(totalMinutes)} / 8:00
+            {dayName}
+          </span>
+          <span style={{ fontSize: 11, color: 'var(--text-2)' }}>{monthName}</span>
+          <span style={{
+            fontSize: 26, fontWeight: 700,
+            color: today ? 'var(--accent)' : 'var(--text-1)',
+            lineHeight: 1,
+          }}>
+            {dayNum}
+          </span>
+          <span style={{ fontSize: 11, color: '#C0BDB8', marginLeft: 'auto' }}>
+            {formatDuration(totalMinutes)} / {formatDuration(LIMITS.DAILY_FOCUS_MINUTES)}
           </span>
         </div>
 
-        {/* Row 2: Today badge + action buttons */}
+        {/* Day action buttons */}
         {today && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
-            <span style={{
-              fontSize: 10, fontWeight: 600, color: 'var(--accent)',
-              background: 'color-mix(in srgb, var(--accent) 12%, var(--surface))',
-              padding: '1px 6px', borderRadius: 4, flexShrink: 0,
-            }}>Today</span>
-            <div style={{ flex: 1 }} />
+          <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
             <button
-              data-tour="startup-btn"
-              onClick={onStartupRitual}
               style={{
-                height: 26, fontSize: 11, fontWeight: 500, padding: '0 10px',
-                background: 'var(--surface)', color: 'var(--text-1)',
-                border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer',
-                fontFamily: 'inherit', lineHeight: 1,
+                padding: '3px 10px', borderRadius: 6,
+                border: '1px solid var(--accent)', background: 'var(--accent)',
+                fontSize: 11, fontWeight: 600, color: '#fff', cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
-            >Plan</button>
+            >
+              Today
+            </button>
             <button
-              data-tour="shutdown-btn"
-              onClick={onShutdownRitual}
+              onClick={() => onFocusMode?.()}
               style={{
-                height: 26, fontSize: 11, fontWeight: 500, padding: '0 10px',
-                background: 'var(--surface)', color: 'var(--text-2)',
-                border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer',
-                fontFamily: 'inherit', lineHeight: 1,
+                padding: '3px 10px', borderRadius: 6,
+                border: '1px solid var(--border)', background: 'var(--surface)',
+                fontSize: 11, fontWeight: 500, color: 'var(--text-2)', cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
-            >Close</button>
+            >
+              {focusModeActive ? 'Exit Focus' : 'Plan'}
+            </button>
             <button
-              onClick={onFocusMode}
+              onClick={() => onStartupRitual?.()}
               style={{
-                height: 26, fontSize: 11, fontWeight: 500, padding: '0 10px',
-                background: focusModeActive ? 'var(--accent)' : 'var(--surface)',
-                color: focusModeActive ? '#fff' : 'var(--text-2)',
-                border: `1px solid ${focusModeActive ? 'var(--accent)' : 'var(--border)'}`,
-                borderRadius: 6, cursor: 'pointer',
-                fontFamily: 'inherit', lineHeight: 1,
+                padding: '3px 10px', borderRadius: 6,
+                border: '1px solid var(--border)', background: 'var(--surface)',
+                fontSize: 11, fontWeight: 500, color: 'var(--text-2)', cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
-            >Focus</button>
+            >
+              Close
+            </button>
           </div>
         )}
       </div>
 
-      {/* Scrollable task area */}
-      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '0 14px 16px' }}>
-        <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} />
-        <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} />
-        <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} />
+      {/* Task sections */}
+      <div style={{ padding: '0 14px 16px' }}>
+        <Section day={dayKey} slotType="deep_work"  tasks={slots?.deep_work  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} dayDate={dayDate} todayDayName={todayDayName} />
+        <Section day={dayKey} slotType="scheduled"  tasks={slots?.scheduled  ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} dayDate={dayDate} todayDayName={todayDayName} />
+        <Section day={dayKey} slotType="admin"      tasks={slots?.admin      ?? []} getMeta={getMeta} setTaskMeta={setTaskMeta} mitCount={mitCount} onAddSlot={onAddSlot} onRemoveSlot={onRemoveSlot} onReorderSlots={onReorderSlots} onMoveToSomeday={onMoveToSomeday} onMoveToTomorrow={onMoveToTomorrow} onOpenDetail={onOpenDetail} onStartTimer={onStartTimer} nextDayMap={nextDayMap} dayDate={dayDate} todayDayName={todayDayName} />
       </div>
     </div>
   )

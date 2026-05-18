@@ -120,6 +120,7 @@ export function DayTaskCard({
   onDurationChange, onMITToggle, onDoneToggle, onRemove,
   onMoveToSomeday, onMoveToTomorrow, onOpenDetail, onStartTimer,
   mitCount = 0, dragHandleProps = {}, isDragOverlay = false, slotType,
+  moveLabel = '→ Move to Tomorrow',
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -248,7 +249,7 @@ export function DayTaskCard({
               >
                 {[
                   canMIT && { label: is_mit ? '★ Remove Milestone' : '★ Mark as Milestone', fn: () => canToggleMIT && onMITToggle?.(), disabled: !canToggleMIT && !is_mit, accent: is_mit ? '#3B82F6' : undefined },
-                  onMoveToTomorrow && { label: '→ Move to Tomorrow', fn: onMoveToTomorrow },
+                  onMoveToTomorrow && { label: moveLabel, fn: onMoveToTomorrow },
                   onMoveToSomeday && { label: '☁ Save for Later', fn: onMoveToSomeday },
                   { label: '🗑 Delete task', fn: onRemove, danger: true },
                 ].filter(Boolean).map(item => (

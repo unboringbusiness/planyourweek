@@ -223,6 +223,16 @@ export default function WeekView({
     return map
   }, [weekStart])
 
+  // Today's day name for "Move to Today" in past day columns
+  const todayDayName = DAY_NAMES[new Date().getDay()]
+
+  // Scroll to today's column on mount
+  useEffect(() => {
+    if (!scrollRef.current) return
+    const todayCol = scrollRef.current.querySelector('[data-today="true"]')
+    if (todayCol) todayCol.scrollIntoView({ behavior: 'auto', inline: 'start', block: 'nearest' })
+  }, [weekStart])
+
   const visibleDays = focusDay ? displayDays.filter(d => d === focusDay) : displayDays
 
   if (focusDay) {
@@ -255,6 +265,7 @@ export default function WeekView({
             focusModeActive={true}
             isLast={true}
             nextDayMap={nextDayMap}
+            todayDayName={todayDayName}
           />
         </div>
 
@@ -326,6 +337,7 @@ export default function WeekView({
                 focusModeActive={focusDay === dayKey}
                 isLast={isLastVisible}
                 nextDayMap={nextDayMap}
+                todayDayName={todayDayName}
               />
             </div>
           )
