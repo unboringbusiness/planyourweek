@@ -1,6 +1,6 @@
 {
   "soundNotifications": {
-    "enabled": true,
+    "enabled": false,
     "soundsFolder": "/Users/anicca/.claude/sounds/hook-sound-notifications",
     "volume": 0.5,
     "hooks": {

@@ -254,6 +254,8 @@ export default function App() {
       // Remove from current viewed week
       weekData.removeSlot(fromDay, task.id)
       taskMeta.removeMeta(task.id)
+      // Navigate to current week so user sees the task on today's column
+      setWeekOffset(0)
     }
   }
 
