@@ -574,8 +574,8 @@ export default function App() {
                   onMoveToTomorrow={handleMoveToTomorrow}
                   onOpenDetail={handleOpenDetail}
                   onStartTimer={handleStartTimer}
-                  onStartupRitual={(dayKey) => setStartupRitualDay(dayKey)}
-                  onShutdownRitual={(dayKey) => setShutdownRitualDay(dayKey)}
+                  onStartupRitual={(dayKey) => { setShutdownRitualDay(null); setStartupRitualDay(dayKey) }}
+                  onShutdownRitual={(dayKey) => { setStartupRitualDay(null); setShutdownRitualDay(dayKey) }}
                   timerHook={timerHook}
                 />
               </div>
