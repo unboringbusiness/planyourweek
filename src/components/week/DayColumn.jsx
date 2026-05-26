@@ -265,7 +265,7 @@ export default function DayColumn({
               {focusModeActive ? 'Exit Focus' : 'Plan'}
             </button>
             <button
-              onClick={() => onStartupRitual?.()}
+              onClick={() => onShutdownRitual?.()}
               style={{
                 padding: '3px 10px', borderRadius: 6,
                 border: '1px solid var(--border)', background: 'var(--surface)',
